@@ -68,6 +68,11 @@
                   "type": "any",
                   "maximumWarning": "2MB",
                   "maximumError": "5MB"
+                },
+                {
+                  "type": "css-inline-fonts",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
                 }
               ]
             },
