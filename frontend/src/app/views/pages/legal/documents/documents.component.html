@@ -1,0 +1,178 @@
+<div class="container-fluid">
+  <!-- List View -->
+  <div *ngIf="mode === 'list'">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Legal Documents</h2>
+      <button class="btn btn-primary" (click)="createDocument()">
+        <i class="fas fa-plus me-2"></i>Create Document
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Last Modified</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let document of documents">
+                <td>
+                  <div>
+                    <strong>{{ document.title }}</strong>
+                    <br>
+                    <small class="text-muted">{{ document.description }}</small>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge bg-info">{{ document.type }}</span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'bg-success': document.status === 'Active',
+                    'bg-warning': document.status === 'Draft',
+                    'bg-secondary': document.status === 'Archived'
+                  }">{{ document.status }}</span>
+                </td>
+                <td>{{ document.lastModified | date:'short' }}</td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" (click)="viewDocument(document.id)">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" (click)="editDocument(document.id)">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" (click)="deleteDocument(document.id)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create/Edit View -->
+  <div *ngIf="mode === 'create' || mode === 'edit'">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">{{ mode === 'create' ? 'Create' : 'Edit' }} Document</h2>
+      <button class="btn btn-outline-secondary" (click)="cancelEdit()">
+        <i class="fas fa-times me-2"></i>Cancel
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <form>
+          <div class="row">
+            <div class="col-md-8">
+              <div class="mb-3">
+                <label for="title" class="form-label">Document Title</label>
+                <input type="text" class="form-control" id="title" 
+                       [value]="selectedDocument?.title || ''" required>
+              </div>
+              
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" rows="3"
+                          [value]="selectedDocument?.description || ''"></textarea>
+              </div>
+              
+              <div class="mb-3">
+                <label for="content" class="form-label">Content</label>
+                <textarea class="form-control" id="content" rows="15"
+                          placeholder="Enter document content here..."></textarea>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="type" class="form-label">Document Type</label>
+                <select class="form-select" id="type">
+                  <option value="Policy">Policy</option>
+                  <option value="Agreement">Agreement</option>
+                  <option value="Compliance">Compliance</option>
+                  <option value="Template">Template</option>
+                  <option value="Guide">Guide</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status">
+                  <option value="Draft">Draft</option>
+                  <option value="Active">Active</option>
+                  <option value="Archived">Archived</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Tags</label>
+                <input type="text" class="form-control" placeholder="Enter tags separated by commas">
+              </div>
+              
+              <div class="d-grid gap-2">
+                <button type="button" class="btn btn-primary" (click)="saveDocument()">
+                  <i class="fas fa-save me-2"></i>Save Document
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="cancelEdit()">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Document -->
+  <div *ngIf="mode === 'view' && selectedDocument">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">{{ selectedDocument.title }}</h2>
+      <div>
+        <button class="btn btn-outline-primary me-2" (click)="editDocument(selectedDocument.id)">
+          <i class="fas fa-edit me-2"></i>Edit
+        </button>
+        <button class="btn btn-outline-secondary" (click)="router.navigate(['/legal/documents'])">
+          <i class="fas fa-arrow-left me-2"></i>Back to List
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col">
+            <h5 class="card-title mb-0">{{ selectedDocument.title }}</h5>
+            <small class="text-muted">{{ selectedDocument.description }}</small>
+          </div>
+          <div class="col-auto">
+            <span class="badge bg-info me-2">{{ selectedDocument.type }}</span>
+            <span class="badge" [ngClass]="{
+              'bg-success': selectedDocument.status === 'Active',
+              'bg-warning': selectedDocument.status === 'Draft',
+              'bg-secondary': selectedDocument.status === 'Archived'
+            }">{{ selectedDocument.status }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="document-content">
+          <p>Document content would be displayed here...</p>
+          <p class="text-muted">Last modified: {{ selectedDocument.lastModified | date:'full' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

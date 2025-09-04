@@ -1,0 +1,52 @@
+State,Registration_Required,Bond_Required,Bond_Amount,Licensing_Authority,Registration_Fee,Cancellation_Period_Days,Special_Requirements,Contact_Information,Website,Notes
+Alabama,No,No,N/A,N/A,N/A,3,Federal CROA only,N/A,N/A,Follow federal CROA requirements
+Alaska,No,No,N/A,N/A,N/A,3,Federal CROA only,N/A,N/A,No specific state law
+Arizona,Yes,Yes,$5000-$25000,Corporation Commission,$50,3,5% of fees (min $5K max $25K),Arizona Corporation Commission,azcc.gov,Annual bond adjustment required
+Arkansas,Yes,Yes,$10000,Secretary of State,$100,3,Allows pre-payment with bond,Arkansas Secretary of State,sos.arkansas.gov,Bond enables advance payment
+California,Yes,Yes,$100000,Secretary of State,$300,5,State registration mandatory,California Secretary of State,sos.ca.gov,Exceeds federal cancellation period
+Colorado,Yes,No,N/A,Secretary of State,$50,3,Registration only,Colorado Secretary of State,sos.state.co.us,No bonding requirement
+Connecticut,Yes,No,N/A,Department of Banking,$200,3,Registration required,Connecticut Department of Banking,portal.ct.gov,Banking department oversight
+Delaware,Yes,Yes,$15000,Secretary of State,$75,3,Bond with registration,Delaware Secretary of State,corp.delaware.gov,Combined registration and bond
+Florida,Yes,Optional,$10000,Dept of Banking & Finance,$100,5,Bond optional but recommended,Florida Dept of Banking & Finance,flofr.gov,5-day cancellation period
+Georgia,Yes,No,N/A,Secretary of State,$50,3,Registration only,Georgia Secretary of State,sos.ga.gov,No bonding requirement
+Hawaii,Yes,No,N/A,Department of Commerce,$100,3,Registration required,Hawaii DCCA,cca.hawaii.gov,Commerce department oversight
+Idaho,No,No,N/A,N/A,N/A,3,Federal CROA only,N/A,N/A,Follow federal requirements
+Illinois,Yes,Yes,$100000,Secretary of State,$150,3,2-year post-cessation bond,Illinois Secretary of State,cyberdriveillinois.com,Bond continues 2 years after closure
+Indiana,Yes,Yes,$25000,Attorney General,$100,3,Indefinite bond period,Indiana Attorney General,in.gov/attorneygeneral,Bond remains indefinitely
+Iowa,Yes,Yes,$10000,Secretary of State,$50,3,2-year post-cessation bond,Iowa Secretary of State,sos.iowa.gov,Bond continues 2 years after closure
+Kansas,Yes,Yes,$25000-$1000000,State Bank Commissioner,$100,3,Variable bond amount,Kansas Office of State Bank Commissioner,osbckansas.org,Commissioner sets bond amount
+Kentucky,Yes,No,N/A,Attorney General,$75,3,Registration only,Kentucky Attorney General,ag.ky.gov,No bonding requirement
+Louisiana,Yes,Yes,$100000,Attorney General,$200,3,High bond requirement,Louisiana Attorney General,ag.state.la.us,Significant bond amount
+Maine,Yes,Yes,$25000,Bureau of Consumer Credit,$100,3,Loan broker classification,Maine Bureau of Consumer Credit,maine.gov,CROs classified as loan brokers
+Maryland,Yes,Yes,$50000,Attorney General,$150,3,Moderate bond requirement,Maryland Attorney General,marylandattorneygeneral.gov,Mid-range bond amount
+Massachusetts,Yes,No,N/A,Secretary of State,$100,3,Registration only,Massachusetts Secretary of State,sec.state.ma.us,No bonding requirement
+Michigan,Yes,No,N/A,Department of Licensing,$75,3,Registration required,Michigan LARA,michigan.gov/lara,Licensing department oversight
+Minnesota,Yes,No,N/A,Attorney General,$50,3,Registration only,Minnesota Attorney General,ag.state.mn.us,No bonding requirement
+Mississippi,Yes,No,N/A,Secretary of State,$50,3,Registration required,Mississippi Secretary of State,sos.ms.gov,No bonding requirement
+Missouri,Yes,No,N/A,Attorney General,$75,3,Registration only,Missouri Attorney General,ago.mo.gov,No bonding requirement
+Montana,No,No,N/A,N/A,N/A,3,Federal CROA only,N/A,N/A,No specific state law
+Nebraska,Yes,No,N/A,Secretary of State,$50,3,Registration required,Nebraska Secretary of State,sos.nebraska.gov,No bonding requirement
+Nevada,Yes,Yes,$50000,Secretary of State,$100,3,Moderate bond requirement,Nevada Secretary of State,nvsos.gov,Mid-range bond amount
+New Hampshire,Yes,No,N/A,Secretary of State,$50,3,Registration only,New Hampshire Secretary of State,sos.nh.gov,No bonding requirement
+New Jersey,Yes,No,N/A,Attorney General,$100,3,Registration required,New Jersey Attorney General,nj.gov/oag,No bonding requirement
+New Mexico,No,No,N/A,N/A,N/A,3,Federal CROA only,N/A,N/A,No specific state law
+New York,Yes,Yes,$10000,Department of State,$100,3,Registration and bond required,New York Department of State,dos.ny.gov,Combined requirements
+North Carolina,Yes,Yes,$25000,Secretary of State,$100,3,Moderate bond requirement,North Carolina Secretary of State,sosnc.gov,Mid-range bond amount
+North Dakota,No,No,N/A,N/A,N/A,3,Federal CROA only,N/A,N/A,No specific state law
+Ohio,Yes,No,N/A,Attorney General,$75,3,Registration only,Ohio Attorney General,ohioattorneygeneral.gov,No bonding requirement
+Oklahoma,Yes,No,N/A,Secretary of State,$50,3,Registration required,Oklahoma Secretary of State,sos.ok.gov,No bonding requirement
+Oregon,Yes,No,N/A,Department of Consumer Services,$100,3,Registration required,Oregon DCBS,oregon.gov/dcbs,Consumer services oversight
+Pennsylvania,Yes,No,N/A,Attorney General,$75,3,Registration only,Pennsylvania Attorney General,attorneygeneral.gov,No bonding requirement
+Rhode Island,Yes,No,N/A,Secretary of State,$50,3,Registration required,Rhode Island Secretary of State,sos.ri.gov,No bonding requirement
+South Carolina,Yes,Yes,$25000,Attorney General,$100,3,Moderate bond requirement,South Carolina Attorney General,scag.gov,Mid-range bond amount
+South Dakota,Yes,No,N/A,Secretary of State,$50,3,Registration only,South Dakota Secretary of State,sdsos.gov,No bonding requirement
+Tennessee,Yes,Yes,$100000,Division of Consumer Affairs,$150,3,NMLS registration required,Tennessee Division of Consumer Affairs,tn.gov/commerce,High bond amount via NMLS
+Texas,Yes,Yes,Variable,Secretary of State,$100,3,CSO license required,Texas Secretary of State,sos.state.tx.us,Variable bond based on volume
+Utah,Yes,Yes,$50000,Department of Commerce,$100,3,Moderate bond requirement,Utah Department of Commerce,commerce.utah.gov,Mid-range bond amount
+Vermont,Yes,No,N/A,Secretary of State,$50,3,Registration only,Vermont Secretary of State,sos.vermont.gov,No bonding requirement
+Virginia,Yes,No,N/A,State Corporation Commission,$75,3,Registration required,Virginia SCC,scc.virginia.gov,Corporation commission oversight
+Washington,Yes,Yes,$25000,Department of Licensing,$100,3,Moderate bond requirement,Washington Department of Licensing,dol.wa.gov,Mid-range bond amount
+West Virginia,Yes,No,N/A,Attorney General,$50,3,Registration only,West Virginia Attorney General,ago.wv.gov,No bonding requirement
+Wisconsin,Yes,No,N/A,Department of Financial Institutions,$75,3,Registration required,Wisconsin DFI,wdfi.org,Financial institutions oversight
+Wyoming,Yes,No,N/A,Secretary of State,$50,3,Registration only,Wyoming Secretary of State,sos.wyo.gov,No bonding requirement
+Washington DC,Yes,Yes,$50000,Department of Insurance,$150,3,Moderate bond requirement,DC Department of Insurance,disb.dc.gov,District requirements apply

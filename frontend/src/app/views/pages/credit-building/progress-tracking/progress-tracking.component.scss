@@ -1,0 +1,681 @@
+// Rick Jefferson Solutions Brand Colors
+$primary-teal: #14B8A6;
+$navy-blue: #1E3A8A;
+$success-green: #059669;
+$warning-orange: #D97706;
+$error-red: #DC2626;
+$accent-teal: #0F766E;
+
+.progress-tracking-container {
+  padding: 2rem;
+  background-color: #f8fafc;
+  min-height: 100vh;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid $primary-teal;
+
+    .header-content {
+      .title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: $navy-blue;
+        margin: 0;
+        font-family: 'Montserrat', Arial Black, sans-serif;
+      }
+
+      .subtitle {
+        color: #64748b;
+        margin: 0.5rem 0 0 0;
+        font-size: 1.1rem;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+  }
+
+  // Stats Grid
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid $primary-teal;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-icon {
+        font-size: 2rem;
+        padding: 1rem;
+        background: rgba(20, 184, 166, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .stat-content {
+        .stat-value {
+          font-size: 2rem;
+          font-weight: bold;
+          color: $navy-blue;
+          margin: 0;
+        }
+
+        .stat-label {
+          color: #64748b;
+          font-size: 0.9rem;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  // Chart Section
+  .chart-section {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+    .section-header {
+      margin-bottom: 1.5rem;
+
+      h2 {
+        color: $navy-blue;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0;
+      }
+    }
+
+    .chart-container {
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .chart-placeholder {
+        text-align: center;
+        color: #64748b;
+
+        i {
+          font-size: 4rem;
+          margin-bottom: 1rem;
+          color: $primary-teal;
+        }
+
+        p {
+          font-size: 1.1rem;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  // Section Headers
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      color: $navy-blue;
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin: 0;
+    }
+  }
+
+  // Filters Panel
+  .filters-panel {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    flex-wrap: wrap;
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      min-width: 200px;
+
+      label {
+        font-weight: 600;
+        color: $navy-blue;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+  }
+
+  // Table Container
+  .table-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+
+      thead {
+        background: linear-gradient(135deg, $navy-blue, $primary-teal);
+        color: white;
+
+        th {
+          padding: 1rem;
+          text-align: left;
+          font-weight: 600;
+          font-size: 0.9rem;
+          border: none;
+
+          &.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+              background-color: rgba(255, 255, 255, 0.1);
+            }
+
+            i {
+              margin-left: 0.5rem;
+              opacity: 0.7;
+            }
+          }
+        }
+      }
+
+      tbody {
+        tr {
+          border-bottom: 1px solid #e2e8f0;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background-color: #f8fafc;
+          }
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          td {
+            padding: 1rem;
+            vertical-align: middle;
+            font-size: 0.9rem;
+
+            &.font-semibold {
+              font-weight: 600;
+              color: $navy-blue;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Goals Grid
+  .goals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    .goal-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid $primary-teal;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .goal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+
+        h3 {
+          color: $navy-blue;
+          font-size: 1.2rem;
+          font-weight: bold;
+          margin: 0;
+          flex: 1;
+        }
+
+        .goal-actions {
+          display: flex;
+          gap: 0.5rem;
+        }
+      }
+
+      .goal-description {
+        color: #64748b;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+      }
+
+      .goal-progress {
+        margin-bottom: 1.5rem;
+
+        .progress-bar {
+          width: 100%;
+          height: 8px;
+          background-color: #e2e8f0;
+          border-radius: 4px;
+          overflow: hidden;
+          margin-bottom: 0.5rem;
+
+          .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, $primary-teal, $success-green);
+            transition: width 0.3s ease;
+          }
+        }
+
+        .progress-text {
+          font-size: 0.9rem;
+          color: $navy-blue;
+          font-weight: 600;
+        }
+      }
+
+      .goal-meta {
+        .goal-dates {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 1rem;
+          font-size: 0.85rem;
+          color: #64748b;
+
+          span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+
+            i {
+              color: $primary-teal;
+            }
+          }
+        }
+
+        .goal-badges {
+          display: flex;
+          gap: 0.5rem;
+        }
+      }
+    }
+  }
+
+  // Status and Priority Badges
+  .status-badge, .priority-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  // Action Buttons
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-icon {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background-color: #f1f5f9;
+      color: $primary-teal;
+    }
+
+    &.text-red-600 {
+      &:hover {
+        background-color: #fef2f2;
+        color: $error-red;
+      }
+    }
+  }
+
+  // Empty and Loading States
+  .empty-state, .loading-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+    i {
+      font-size: 4rem;
+      color: $primary-teal;
+      margin-bottom: 1rem;
+
+      &.fa-spin {
+        color: #64748b;
+      }
+    }
+
+    h3 {
+      color: $navy-blue;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: #64748b;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+  }
+
+  // Pagination
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+    .page-info {
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Common Form Controls
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-teal;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+  }
+
+  &:invalid {
+    border-color: $error-red;
+  }
+}
+
+// Common Buttons
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 0.9rem;
+  }
+
+  &.btn-primary {
+    background: linear-gradient(135deg, $primary-teal, $accent-teal);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, $accent-teal, $primary-teal);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+    }
+  }
+
+  &.btn-secondary {
+    background: #f1f5f9;
+    color: $navy-blue;
+    border: 2px solid #e2e8f0;
+
+    &:hover:not(:disabled) {
+      background: #e2e8f0;
+      border-color: $primary-teal;
+    }
+  }
+
+  &.btn-danger {
+    background: linear-gradient(135deg, $error-red, #b91c1c);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #b91c1c, $error-red);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+  }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+
+  .modal {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    &.modal-sm {
+      max-width: 400px;
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h2 {
+        color: $navy-blue;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      .btn-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #64748b;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: #f1f5f9;
+          color: $error-red;
+        }
+      }
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+
+      .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+
+        label {
+          display: block;
+          font-weight: 600;
+          color: $navy-blue;
+          margin-bottom: 0.5rem;
+          font-size: 0.9rem;
+        }
+
+        textarea {
+          resize: vertical;
+          min-height: 80px;
+        }
+      }
+    }
+
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .progress-tracking-container {
+    padding: 1rem;
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filters-panel {
+      flex-direction: column;
+      align-items: stretch;
+
+      .filter-group {
+        min-width: auto;
+      }
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .goals-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .modal {
+      margin: 1rem;
+      max-width: none;
+      width: calc(100% - 2rem);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .progress-tracking-container {
+    .header {
+      .title {
+        font-size: 2rem;
+      }
+    }
+
+    .stats-grid {
+      .stat-card {
+        .stat-icon {
+          font-size: 1.5rem;
+          padding: 0.75rem;
+        }
+
+        .stat-content {
+          .stat-value {
+            font-size: 1.5rem;
+          }
+        }
+      }
+    }
+  }
+}

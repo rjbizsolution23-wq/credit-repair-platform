@@ -1,0 +1,641 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="header-content">
+    <div class="header-left">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/dashboard">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a routerLink="/disputes">Disputes</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Responses</li>
+        </ol>
+      </nav>
+      <h1 class="page-title">
+        <i class="fas fa-reply"></i>
+        Dispute Responses
+        <span class="badge bg-primary ms-2" *ngIf="totalItems > 0">{{ totalItems }}</span>
+      </h1>
+      <p class="page-description">Manage and track responses from credit bureaus</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        type="button" 
+        class="btn btn-outline-secondary" 
+        (click)="toggleFilters()"
+        [class.active]="showFilters">
+        <i class="fas fa-filter"></i>
+        Filters
+      </button>
+      <button type="button" class="btn btn-primary" (click)="refresh()">
+        <i class="fas fa-sync-alt"></i>
+        Refresh
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="loading-text">Loading dispute responses...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+  <i class="fas fa-exclamation-triangle"></i>
+  {{ error }}
+  <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="refresh()">
+    Try Again
+  </button>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading && !error" class="main-content">
+  <!-- Filters Panel -->
+  <div class="filters-panel" [class.show]="showFilters">
+    <div class="panel-header">
+      <h5>Filter Responses</h5>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearFilters()">
+        Clear All
+      </button>
+    </div>
+    
+    <form [formGroup]="filtersForm" class="filters-form">
+      <div class="row g-3">
+        <!-- Search -->
+        <div class="col-md-6">
+          <label class="form-label">Search</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            formControlName="search"
+            placeholder="Search by reference, client, creditor, or account...">
+        </div>
+        
+        <!-- Date Range -->
+        <div class="col-md-6" formGroupName="dateRange">
+          <label class="form-label">Date Range</label>
+          <select class="form-select mb-2" formControlName="preset">
+            <option *ngFor="let preset of datePresets" [value]="preset.value">
+              {{ preset.label }}
+            </option>
+          </select>
+          <div class="row g-2" *ngIf="filtersForm.get('dateRange.preset')?.value === 'custom'">
+            <div class="col-6">
+              <input type="date" class="form-control" formControlName="start" placeholder="Start Date">
+            </div>
+            <div class="col-6">
+              <input type="date" class="form-control" formControlName="end" placeholder="End Date">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Status Filter -->
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          <div class="checkbox-group">
+            <div class="form-check" *ngFor="let option of statusOptions">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                [id]="'status-' + option.value"
+                [checked]="filtersForm.get('status')?.value?.includes(option.value)"
+                (change)="onStatusChange(option.value, $any($event.target).checked)">
+              <label class="form-check-label" [for]="'status-' + option.value">
+                {{ option.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Priority Filter -->
+        <div class="col-md-3">
+          <label class="form-label">Priority</label>
+          <div class="checkbox-group">
+            <div class="form-check" *ngFor="let option of priorityOptions">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                [id]="'priority-' + option.value"
+                [checked]="filtersForm.get('priority')?.value?.includes(option.value)"
+                (change)="onPriorityChange(option.value, $any($event.target).checked)">
+              <label class="form-check-label" [for]="'priority-' + option.value">
+                {{ option.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Response Type Filter -->
+        <div class="col-md-3">
+          <label class="form-label">Response Type</label>
+          <div class="checkbox-group">
+            <div class="form-check" *ngFor="let option of responseTypeOptions">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                [id]="'type-' + option.value"
+                [checked]="filtersForm.get('responseType')?.value?.includes(option.value)"
+                (change)="onResponseTypeChange(option.value, $any($event.target).checked)">
+              <label class="form-check-label" [for]="'type-' + option.value">
+                {{ option.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Credit Bureau Filter -->
+        <div class="col-md-3">
+          <label class="form-label">Credit Bureau</label>
+          <div class="checkbox-group">
+            <div class="form-check" *ngFor="let option of creditBureauOptions">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                [id]="'bureau-' + option.value"
+                [checked]="filtersForm.get('creditBureau')?.value?.includes(option.value)"
+                (change)="onCreditBureauChange(option.value, $any($event.target).checked)">
+              <label class="form-check-label" [for]="'bureau-' + option.value">
+                {{ option.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="activeView === 'list'" class="list-view">
+    <!-- Bulk Actions -->
+    <div class="bulk-actions" *ngIf="showBulkActions">
+      <div class="bulk-info">
+        <span class="selected-count">{{ selectedResponses.length }} selected</span>
+      </div>
+      <div class="bulk-buttons">
+        <div class="dropdown">
+          <button 
+            class="btn btn-sm btn-outline-primary dropdown-toggle" 
+            type="button" 
+            data-bs-toggle="dropdown">
+            Update Status
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" (click)="bulkUpdateStatus(DisputeStatus.PENDING_RESPONSE); $event.preventDefault()">
+                Mark as Pending Response
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" (click)="bulkUpdateStatus(DisputeStatus.RESOLVED); $event.preventDefault()">
+                Mark as Resolved
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" (click)="bulkUpdateStatus(DisputeStatus.ESCALATED); $event.preventDefault()">
+                Mark as Escalated
+              </a>
+            </li>
+          </ul>
+        </div>
+        <button 
+          type="button" 
+          class="btn btn-sm btn-outline-secondary"
+          (click)="selectedResponses = []; showBulkActions = false">
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="results-summary">
+      <div class="summary-info">
+        <span class="results-count">
+          Showing {{ filteredResponses.length }} of {{ totalItems }} responses
+        </span>
+      </div>
+      <div class="view-options">
+        <div class="form-check">
+          <input 
+            class="form-check-input" 
+            type="checkbox" 
+            id="selectAll"
+            [checked]="selectedResponses.length === filteredResponses.length && filteredResponses.length > 0"
+            [indeterminate]="selectedResponses.length > 0 && selectedResponses.length < filteredResponses.length"
+            (change)="selectAllResponses()">
+          <label class="form-check-label" for="selectAll">
+            Select All
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Responses List -->
+    <div class="responses-list" *ngIf="filteredResponses.length > 0">
+      <div 
+        class="response-item"
+        *ngFor="let response of filteredResponses"
+        [class.selected]="isResponseSelected(response.id)">
+        
+        <div class="response-selection">
+          <input 
+            type="checkbox" 
+            class="form-check-input"
+            [checked]="isResponseSelected(response.id)"
+            (change)="toggleResponseSelection(response.id)">
+        </div>
+        
+        <div class="response-content" (click)="viewResponse(response)">
+          <div class="response-header">
+            <div class="response-title">
+              <h6 class="response-reference">{{ response.dispute_id || 'N/A' }}</h6>
+              <div class="response-badges">
+                <span class="badge" [ngClass]="getStatusBadgeClass('pending')">
+                  {{ 'Pending' | titlecase }}
+                </span>
+                <span class="badge" [ngClass]="getPriorityBadgeClass('medium')">
+                  {{ response.notes || 'Medium' | titlecase }}
+                </span>
+                <span class="badge bg-info">
+                  {{ response.response_type | titlecase }}
+                </span>
+              </div>
+            </div>
+            <div class="response-meta">
+              <span class="response-date">
+                <i class="fas fa-calendar"></i>
+                Received: {{ formatDate(response.received_date) }}
+              </span>
+              <span class="response-bureau">
+                <i class="fas fa-building"></i>
+                {{ response.bureau | titlecase }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="response-body">
+            <div class="client-info">
+              <div class="client-details">
+                <span class="client-name">
+                  <i class="fas fa-user"></i>
+                  {{ response.notes || 'N/A' }}
+                </span>
+                <span class="client-id">ID: {{ response.dispute_id }}</span>
+              </div>
+            </div>
+            
+            <div class="dispute-info">
+              <div class="dispute-details">
+                <span class="creditor-name">
+                  <strong>{{ response.bureau || 'N/A' }}</strong>
+                </span>
+                <span class="account-number">{{ response.dispute_id || 'N/A' }}</span>
+              </div>
+              <div class="dispute-type">
+                {{ response.response_type || 'N/A' }} - {{ response.notes || 'N/A' }}
+              </div>
+            </div>
+            
+            <div class="response-content" *ngIf="response.response_content">
+              <i class="fas fa-file-text"></i>
+              Response available
+            </div>
+          </div>
+          
+          <div class="response-footer">
+            <div class="response-attachments" *ngIf="response.attachments.length > 0">
+              <i class="fas fa-paperclip"></i>
+              {{ response.attachments.length }} attachment(s)
+            </div>
+            <div class="response-assigned" *ngIf="response.notes">
+              <i class="fas fa-user-tag"></i>
+              Notes: {{ response.notes }}
+            </div>
+            <div class="response-due">
+              <i class="fas fa-clock"></i>
+              Received: {{ formatDate(response.received_date) }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="response-actions">
+          <div class="dropdown">
+            <button 
+              class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+              type="button" 
+              data-bs-toggle="dropdown">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" href="#" (click)="viewResponse(response); $event.preventDefault()">
+                  <i class="fas fa-eye"></i>
+                  View Details
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" (click)="editResponse(response); $event.preventDefault()">
+                  <i class="fas fa-edit"></i>
+                  Edit Response
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" href="#" (click)="processResponse(response); $event.preventDefault()">
+                  <i class="fas fa-check"></i>
+                  Mark as Resolved
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" (click)="escalateResponse(response); $event.preventDefault()">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  Escalate
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" href="#" (click)="goToDispute(response.dispute_id); $event.preventDefault()">
+                  <i class="fas fa-external-link-alt"></i>
+                  View Original Dispute
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" (click)="goToClient(response.dispute_id); $event.preventDefault()">
+                  <i class="fas fa-user"></i>
+                  View Client
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredResponses.length === 0 && !loading" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-reply"></i>
+      </div>
+      <h3>No Responses Found</h3>
+      <p>No dispute responses match your current filters.</p>
+      <button type="button" class="btn btn-primary" (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Responses pagination" *ngIf="totalPages > 1">
+      <div class="pagination-container">
+        <div class="pagination-info">
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        </div>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" href="#" (click)="onPageChange(currentPage - 1); $event.preventDefault()">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+          <li 
+            class="page-item" 
+            *ngFor="let page of [].constructor(totalPages); let i = index"
+            [class.active]="currentPage === i + 1">
+            <a class="page-link" href="#" (click)="onPageChange(i + 1); $event.preventDefault()">
+              {{ i + 1 }}
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" href="#" (click)="onPageChange(currentPage + 1); $event.preventDefault()">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Detail View -->
+  <div *ngIf="activeView === 'detail' && selectedResponse" class="detail-view">
+    <div class="detail-header">
+      <button type="button" class="btn btn-outline-secondary" (click)="backToList()">
+        <i class="fas fa-arrow-left"></i>
+        Back to List
+      </button>
+      <h2>Response Details</h2>
+      <div class="detail-actions">
+        <button type="button" class="btn btn-outline-primary" (click)="editResponse(selectedResponse)">
+          <i class="fas fa-edit"></i>
+          Edit
+        </button>
+        <button type="button" class="btn btn-primary" (click)="processResponse(selectedResponse)">
+          <i class="fas fa-check"></i>
+          Process
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-content">
+      <div class="row g-4">
+        <!-- Response Information -->
+        <div class="col-lg-8">
+          <div class="card">
+            <div class="card-header">
+              <h5>Response Information</h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Reference</label>
+                  <p class="form-control-plaintext">{{ selectedResponse?.dispute_id || 'N/A' }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Credit Bureau</label>
+                  <p class="form-control-plaintext">{{ selectedResponse?.bureau || 'N/A' | titlecase }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Response Type</label>
+                  <p class="form-control-plaintext">
+                    <span class="badge bg-info">{{ selectedResponse?.response_type | titlecase }}</span>
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Received Date</label>
+                  <p class="form-control-plaintext">{{ selectedResponse?.received_date ? formatDateTime(selectedResponse.received_date) : 'N/A' }}</p>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Response Content</label>
+                  <div class="response-content-display">
+                    {{ selectedResponse?.response_content }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attachments -->
+          <div class="card mt-4" *ngIf="selectedResponse.attachments.length > 0">
+            <div class="card-header">
+              <h5>Attachments</h5>
+            </div>
+            <div class="card-body">
+              <div class="attachments-list">
+                <div 
+                  class="attachment-item"
+                  *ngFor="let attachment of selectedResponse.attachments">
+                  <div class="attachment-icon">
+                    <i class="fas fa-file"></i>
+                  </div>
+                  <div class="attachment-info">
+                    <div class="attachment-name">{{ attachment.filename }}</div>
+                    <div class="attachment-meta">
+                      {{ formatFileSize(attachment.file_size) }} • 
+                      {{ formatDateTime(attachment.uploaded_date) }}
+                    </div>
+                  </div>
+                  <div class="attachment-actions">
+                    <button 
+                      type="button" 
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="downloadAttachment(attachment)">
+                      <i class="fas fa-download"></i>
+                      Download
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Original Dispute -->
+          <div class="card mt-4">
+            <div class="card-header">
+              <h5>Original Dispute</h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Creditor</label>
+                  <p class="form-control-plaintext">{{ selectedResponse?.notes || 'N/A' }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Account Number</label>
+                  <p class="form-control-plaintext">{{ selectedResponse?.response_content || 'N/A' }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Type</label>
+                  <p class="form-control-plaintext">{{ selectedResponse?.response_type || 'N/A' }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Reason</label>
+                  <p class="form-control-plaintext">{{ selectedResponse?.notes || 'N/A' }}</p>
+                </div>
+              </div>
+              <div class="mt-3">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-primary"
+                  (click)="selectedResponse?.dispute_id && goToDispute(selectedResponse.dispute_id)">
+                  <i class="fas fa-external-link-alt"></i>
+                  View Full Dispute
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Response Management -->
+        <div class="col-lg-4">
+          <form [formGroup]="responseForm" (ngSubmit)="saveResponse()">
+            <div class="card">
+              <div class="card-header">
+                <h5>Update Response</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" formControlName="status">
+                    <option *ngFor="let option of statusOptions" [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Priority</label>
+                  <select class="form-select" formControlName="priority">
+                    <option *ngFor="let option of priorityOptions" [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                </div>
+                
+                <div formGroupName="outcome">
+                  <div class="mb-3">
+                    <label class="form-label">Outcome</label>
+                    <select class="form-select" formControlName="result">
+                      <option *ngFor="let option of outcomeOptions" [value]="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Assigned To</label>
+                  <input type="text" class="form-control" formControlName="notes">
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Notes</label>
+                  <textarea 
+                    class="form-control" 
+                    rows="4" 
+                    formControlName="notes"
+                    placeholder="Add notes about this response..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100" [disabled]="responseForm.invalid">
+                  <i class="fas fa-save"></i>
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Client Information -->
+          <div class="card mt-4">
+            <div class="card-header">
+              <h5>Client Information</h5>
+            </div>
+            <div class="card-body">
+              <div class="client-summary">
+                <div class="client-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="client-details">
+                  <div class="client-name">{{ selectedResponse?.notes || 'N/A' }}</div>
+                  <div class="client-id">ID: {{ selectedResponse?.dispute_id || 'N/A' }}</div>
+                </div>
+              </div>
+              <div class="mt-3">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-primary w-100"
+                  (click)="goToClient(selectedResponse?.dispute_id || '')">
+                  <i class="fas fa-user"></i>
+                  View Client Profile
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

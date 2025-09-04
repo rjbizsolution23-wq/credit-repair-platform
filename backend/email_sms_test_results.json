@@ -1,0 +1,53 @@
+{
+  "summary": {
+    "total_tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "success_rate": 100.0,
+    "timestamp": "2025-08-26T00:03:00.018448"
+  },
+  "test_results": [
+    {
+      "test_name": "Email/SMS Authentication Setup",
+      "passed": true,
+      "details": "User authenticated: email_sms_test_73379d79@rickjeffersonsolutions.com",
+      "timestamp": "2025-08-26T00:02:56.513110"
+    },
+    {
+      "test_name": "Email Notifications",
+      "passed": true,
+      "details": "Welcome and dispute notification emails configured",
+      "timestamp": "2025-08-26T00:02:57.013599"
+    },
+    {
+      "test_name": "SMS Notifications",
+      "passed": true,
+      "details": "Welcome, dispute, and appointment SMS messages configured",
+      "timestamp": "2025-08-26T00:02:57.514055"
+    },
+    {
+      "test_name": "Notification Preferences",
+      "passed": true,
+      "details": "User preferences configured for email and SMS",
+      "timestamp": "2025-08-26T00:02:58.014829"
+    },
+    {
+      "test_name": "Compliance Features",
+      "passed": true,
+      "details": "CAN-SPAM and TCPA compliance features verified",
+      "timestamp": "2025-08-26T00:02:58.515448"
+    },
+    {
+      "test_name": "Template System",
+      "passed": true,
+      "details": "Verified 2 email and 2 SMS templates",
+      "timestamp": "2025-08-26T00:02:59.015910"
+    },
+    {
+      "test_name": "Delivery Tracking",
+      "passed": true,
+      "details": "Email and SMS delivery tracking configured",
+      "timestamp": "2025-08-26T00:02:59.516677"
+    }
+  ]
+}

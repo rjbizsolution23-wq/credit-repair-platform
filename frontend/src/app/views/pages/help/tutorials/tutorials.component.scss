@@ -1,0 +1,587 @@
+// Tutorials Component Styles
+// Rick Jefferson Solutions Brand Colors
+$primary-teal: #14B8A6;
+$navy-blue: #1E3A8A;
+$success-green: #059669;
+$warning-orange: #D97706;
+$error-red: #DC2626;
+$accent-teal: #0F766E;
+
+.container-fluid {
+  padding: 1.5rem;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border-radius: 0.5rem;
+  min-height: 80vh;
+
+  .card-header {
+    background-color: $navy-blue;
+    color: white;
+    border-radius: 0.5rem 0.5rem 0 0;
+    padding: 1.25rem;
+
+    .card-title {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-weight: bold;
+      color: white;
+    }
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+  }
+}
+
+// Sidebar Styles
+.tutorials-sidebar {
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  height: 100%;
+  min-height: 70vh;
+
+  .sidebar-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .sidebar-title {
+    font-family: 'Montserrat', Arial Black, sans-serif;
+    font-weight: 600;
+    color: $navy-blue;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba($primary-teal, 0.3);
+  }
+
+  .tutorial-list {
+    .tutorial-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba($primary-teal, 0.15);
+        border-color: rgba($primary-teal, 0.3);
+      }
+
+      &.active {
+        background-color: rgba($primary-teal, 0.1);
+        border-color: $primary-teal;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba($primary-teal, 0.2);
+      }
+
+      .tutorial-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+      }
+
+      .tutorial-info {
+        flex: 1;
+
+        .tutorial-title {
+          font-family: 'Montserrat', Arial Black, sans-serif;
+          font-weight: 600;
+          color: $navy-blue;
+          margin-bottom: 0.5rem;
+          font-size: 0.95rem;
+          line-height: 1.3;
+        }
+
+        .tutorial-description {
+          color: #6c757d;
+          font-size: 0.85rem;
+          margin-bottom: 0.75rem;
+          line-height: 1.4;
+        }
+
+        .tutorial-meta {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+
+          .badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+          }
+
+          .duration {
+            font-size: 0.75rem;
+            color: #6c757d;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Content Area Styles
+.tutorial-content {
+  height: 100%;
+  min-height: 70vh;
+
+  .content-area {
+    padding: 2rem;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .content-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba($primary-teal, 0.2);
+
+    .content-title {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-weight: 700;
+      color: $navy-blue;
+      margin-bottom: 0.5rem;
+    }
+
+    .content-description {
+      color: #6c757d;
+      font-size: 1.1rem;
+      margin-bottom: 0;
+    }
+
+    .tutorial-badges {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+  }
+
+  .no-selection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 50vh;
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+// Progress Section
+.progress-section {
+  margin-bottom: 2rem;
+
+  .progress-label {
+    font-weight: 600;
+    color: $navy-blue;
+  }
+
+  .progress-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+
+  .progress {
+    height: 0.5rem;
+    background-color: rgba($primary-teal, 0.1);
+    border-radius: 0.25rem;
+
+    .progress-bar {
+      background-color: $primary-teal;
+      border-radius: 0.25rem;
+      transition: width 0.3s ease;
+    }
+  }
+}
+
+// Tutorial Steps
+.tutorial-steps {
+  .step-navigation {
+    margin-bottom: 2rem;
+
+    .step-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+
+      .step-indicator {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid #dee2e6;
+        background-color: white;
+        color: #6c757d;
+
+        &:hover {
+          border-color: $primary-teal;
+          color: $primary-teal;
+        }
+
+        &.active {
+          background-color: $primary-teal;
+          border-color: $primary-teal;
+          color: white;
+          transform: scale(1.1);
+        }
+
+        &.completed {
+          background-color: $success-green;
+          border-color: $success-green;
+          color: white;
+
+          .step-number::before {
+            content: '✓';
+          }
+        }
+
+        .step-number {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  .current-step {
+    .step-content {
+      margin-bottom: 2rem;
+
+      .step-title {
+        font-family: 'Montserrat', Arial Black, sans-serif;
+        font-weight: 600;
+        color: $navy-blue;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba($primary-teal, 0.3);
+      }
+
+      .step-details {
+        p {
+          line-height: 1.6;
+          color: #495057;
+          margin-bottom: 1rem;
+        }
+
+        h6 {
+          font-family: 'Montserrat', Arial Black, sans-serif;
+          font-weight: 600;
+          color: $accent-teal;
+          margin-bottom: 0.75rem;
+        }
+      }
+    }
+
+    .step-navigation-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 2rem;
+      border-top: 1px solid #dee2e6;
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+
+        &.btn-primary {
+          background-color: $primary-teal;
+          border-color: $primary-teal;
+
+          &:hover {
+            background-color: $accent-teal;
+            border-color: $accent-teal;
+          }
+        }
+
+        &.btn-outline-secondary {
+          color: #6c757d;
+          border-color: #6c757d;
+
+          &:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Methodology Overview
+.methodology-overview {
+  background-color: rgba($navy-blue, 0.05);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid $navy-blue;
+  margin: 1rem 0;
+
+  h6 {
+    color: $navy-blue;
+    margin-bottom: 1rem;
+  }
+}
+
+// Badge Styles
+.badge {
+  &.badge-success {
+    background-color: $success-green;
+  }
+
+  &.badge-warning {
+    background-color: $warning-orange;
+  }
+
+  &.badge-danger {
+    background-color: $error-red;
+  }
+
+  &.badge-info {
+    background-color: $primary-teal;
+  }
+
+  &.badge-secondary {
+    background-color: #6c757d;
+  }
+}
+
+// Alert Styles
+.alert {
+  border-radius: 0.5rem;
+  border: none;
+  
+  &.alert-info {
+    background-color: rgba($primary-teal, 0.1);
+    border-left: 4px solid $primary-teal;
+    color: $navy-blue;
+  }
+  
+  &.alert-warning {
+    background-color: rgba($warning-orange, 0.1);
+    border-left: 4px solid $warning-orange;
+    color: darken($warning-orange, 20%);
+  }
+}
+
+// Process Steps
+.feature-steps {
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: rgba($primary-teal, 0.05);
+    border-radius: 0.5rem;
+    border-left: 3px solid $primary-teal;
+
+    .step-number {
+      background-color: $primary-teal;
+      color: white;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 1rem;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex: 1;
+
+      h6 {
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        margin-bottom: 0;
+        color: #6c757d;
+      }
+    }
+  }
+}
+
+// Process List
+.process-list {
+  li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+    
+    &:before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: $success-green;
+      font-weight: bold;
+    }
+  }
+}
+
+// Legal Points
+.legal-points {
+  ul {
+    li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+      
+      &:before {
+        content: '⚖️';
+        position: absolute;
+        left: 0;
+      }
+    }
+  }
+}
+
+// Contact Information
+.help-contact {
+  background-color: rgba($navy-blue, 0.05);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba($navy-blue, 0.1);
+  margin-top: 2rem;
+
+  h6 {
+    color: $navy-blue;
+    margin-bottom: 1rem;
+  }
+
+  .contact-options {
+    .contact-item {
+      margin-bottom: 0.5rem;
+      padding: 0.5rem 0;
+      
+      strong {
+        color: $navy-blue;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 1rem;
+  }
+
+  .tutorials-sidebar {
+    border-right: none;
+    border-bottom: 1px solid #dee2e6;
+    min-height: auto;
+
+    .sidebar-content {
+      padding: 1rem;
+    }
+
+    .tutorial-list {
+      .tutorial-item {
+        .tutorial-icon {
+          font-size: 1.5rem;
+        }
+
+        .tutorial-info {
+          .tutorial-title {
+            font-size: 0.9rem;
+          }
+
+          .tutorial-description {
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+  }
+
+  .tutorial-content {
+    .content-area {
+      padding: 1rem;
+    }
+
+    .content-header {
+      .content-title {
+        font-size: 1.5rem;
+      }
+
+      .tutorial-badges {
+        margin-top: 1rem;
+      }
+    }
+  }
+
+  .tutorial-steps {
+    .step-navigation {
+      .step-indicators {
+        gap: 0.5rem;
+
+        .step-indicator {
+          width: 2.5rem;
+          height: 2.5rem;
+        }
+      }
+    }
+
+    .current-step {
+      .step-navigation-buttons {
+        flex-direction: column;
+        gap: 1rem;
+
+        .btn {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .feature-steps {
+    .step-item {
+      flex-direction: column;
+      text-align: center;
+
+      .step-number {
+        margin-right: 0;
+        margin-bottom: 1rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .tutorial-content {
+    .content-header {
+      .content-title {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  .tutorial-steps {
+    .step-navigation {
+      .step-indicators {
+        .step-indicator {
+          width: 2rem;
+          height: 2rem;
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+}

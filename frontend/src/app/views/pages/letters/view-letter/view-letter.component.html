@@ -1,0 +1,696 @@
+<div class="view-letter" *ngIf="!loading">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col">
+          <!-- Breadcrumb -->
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item">
+                <a routerLink="/dashboard">
+                  <i class="fas fa-home"></i> Dashboard
+                </a>
+              </li>
+              <li class="breadcrumb-item">
+                <a routerLink="/letters">Letters</a>
+              </li>
+              <li class="breadcrumb-item active" aria-current="page">
+                {{ letter?.subject || 'Letter Details' }}
+              </li>
+            </ol>
+          </nav>
+          
+          <!-- Page Title -->
+          <div class="d-flex align-items-center">
+            <button class="btn btn-link p-0 me-3" (click)="goBack()" title="Go Back">
+              <i class="fas fa-arrow-left"></i>
+            </button>
+            <div>
+              <h1 class="mb-1">{{ letter?.subject }}</h1>
+              <div class="page-meta">
+                <span class="badge" [class]="'bg-' + getStatusColor(letter?.status!)">
+                  {{ letter?.status | titlecase }}
+                </span>
+                <span class="text-muted ms-2">
+                  Created {{ formatDate(letter?.createdAt) }}
+                </span>
+                <span class="text-muted ms-2" *ngIf="letter?.sentDate">
+                  • Sent {{ formatDate(letter?.sentDate) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="col-auto">
+          <div class="header-actions">
+            <button class="btn btn-outline-secondary" (click)="printLetter()" title="Print Letter">
+              <i class="fas fa-print"></i>
+            </button>
+            <button class="btn btn-outline-secondary" (click)="downloadLetter()" title="Download PDF">
+              <i class="fas fa-download"></i>
+            </button>
+            <button class="btn btn-outline-secondary" (click)="duplicateLetter()" title="Duplicate Letter">
+              <i class="fas fa-copy"></i>
+            </button>
+            
+            <div class="btn-group ms-2">
+              <button class="btn btn-primary" (click)="editLetter()" [disabled]="letter?.status === 'sent'">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="btn btn-success" (click)="sendLetter()" 
+                      [disabled]="letter?.status === 'sent' || letter?.status === 'delivered'">
+                <i class="fas fa-paper-plane"></i> Send
+              </button>
+              <button class="btn btn-info" (click)="recordResponse()" 
+                      [disabled]="letter?.status !== 'sent' && letter?.status !== 'delivered'">
+                <i class="fas fa-reply"></i> Record Response
+              </button>
+              
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" 
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" (click)="goToTemplate()" *ngIf="letter?.templateId">
+                      <i class="fas fa-file-alt"></i> View Template
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" (click)="goToClient()" *ngIf="letter?.clientId">
+                      <i class="fas fa-user"></i> View Client
+                    </a>
+                  </li>
+                  <li>
+                    <!-- Report link not available - reportId doesn't exist on GeneratedLetter -->
+                <a class="dropdown-item" (click)="goToReport()" *ngIf="false">
+                      <i class="fas fa-chart-line"></i> View Report
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item text-danger" (click)="deleteLetter()">
+                      <i class="fas fa-trash"></i> Delete Letter
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Letter Content -->
+  <div class="container-fluid" *ngIf="letter">
+    <div class="row">
+      <!-- Main Content -->
+      <div class="col-lg-8">
+        <!-- Navigation Tabs -->
+        <div class="letter-tabs">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" [class.active]="activeTab === 'content'" 
+                      (click)="setActiveTab('content')" type="button">
+                <i class="fas fa-file-text"></i> Content
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" [class.active]="activeTab === 'delivery'" 
+                      (click)="setActiveTab('delivery')" type="button">
+                <i class="fas fa-truck"></i> Delivery Tracking
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" [class.active]="activeTab === 'responses'" 
+                      (click)="setActiveTab('responses')" type="button">
+                <i class="fas fa-reply-all"></i> Responses
+                <span class="badge bg-primary ms-1" *ngIf="letter.responseReceived">1</span>
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" [class.active]="activeTab === 'history'" 
+                      (click)="setActiveTab('history')" type="button">
+                <i class="fas fa-history"></i> History
+              </button>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="tab-content">
+          <!-- Content Tab -->
+          <div class="tab-pane" [class.active]="activeTab === 'content'">
+            <div class="letter-content">
+              <div class="letter-header">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h5>From:</h5>
+                    <div class="sender-info">
+                      <!-- Sender name and address not available in GeneratedLetter interface -->
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <h5>To:</h5>
+                    <div class="recipient-info">
+                      <!-- Recipient name and address not available in GeneratedLetter interface -->
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="letter-meta mt-3">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <strong>Date:</strong> {{ formatDate(letter.createdAt) }}
+                    </div>
+                    <!-- Reference and Priority not available in GeneratedLetter interface -->
+                  </div>
+                </div>
+              </div>
+              
+              <hr>
+              
+              <div class="letter-body">
+                <div [innerHTML]="letter.content"></div>
+              </div>
+              
+              <div class="letter-attachments" *ngIf="letter.attachments && letter.attachments.length > 0">
+                <hr>
+                <h5>Attachments</h5>
+                <div class="attachment-list">
+                  <div class="attachment-item" *ngFor="let attachment of letter.attachments">
+                    <i class="fas fa-paperclip"></i>
+                    <span class="attachment-name">{{ attachment.fileName }}</span>
+                    <span class="attachment-size">({{ attachment.fileSize | number }} bytes)</span>
+                    <button class="btn btn-sm btn-outline-primary ms-2">
+                      <i class="fas fa-download"></i> Download
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Delivery Tracking Tab -->
+          <div class="tab-pane" [class.active]="activeTab === 'delivery'">
+            <div class="delivery-tracking">
+              <div class="delivery-status" *ngIf="letter.trackingNumber">
+                <div class="status-header">
+                  <h5>Delivery Status</h5>
+                  <span class="badge bg-info">
+                    {{ letter.status | titlecase }}
+                  </span>
+                </div>
+                
+                <div class="delivery-info mt-3">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <strong>Delivery Method:</strong> {{ letter.deliveryMethod | titlecase }}
+                    </div>
+                    <div class="col-md-6">
+                      <strong>Tracking Number:</strong> {{ letter.trackingNumber }}
+                    </div>
+                  </div>
+                  <div class="row mt-2" *ngIf="letter.deliveredDate">
+                    <div class="col-md-6">
+                      <strong>Delivered:</strong> {{ formatDate(letter.deliveredDate) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="no-tracking" *ngIf="!letter.trackingNumber">
+                <div class="text-center py-4">
+                  <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+                  <h5>No Delivery Tracking Available</h5>
+                  <p class="text-muted">This letter has not been sent yet or tracking information is not available.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Responses Tab -->
+          <div class="tab-pane" [class.active]="activeTab === 'responses'">
+            <div class="responses-section">
+              <div class="responses-header">
+                <h5>Responses</h5>
+                <button class="btn btn-primary btn-sm" (click)="recordResponse()" 
+                        [disabled]="letter.status !== 'sent' && letter.status !== 'delivered'">
+                  <i class="fas fa-plus"></i> Record Response
+                </button>
+              </div>
+              
+              <div class="response-item" *ngIf="letter.responseReceived">
+                <div class="response-header">
+                  <div class="response-type">
+                    <span class="badge bg-info">{{ letter.responseType | titlecase }}</span>
+                  </div>
+                  <div class="response-date">
+                    {{ formatDate(letter.responseDate) }}
+                  </div>
+                </div>
+                <div class="response-content" *ngIf="letter.responseContent">
+                  {{ letter.responseContent }}
+                </div>
+              </div>
+              
+              <div class="no-responses" *ngIf="!letter.responseReceived">
+                <div class="text-center py-4">
+                  <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                  <h5>No Responses Yet</h5>
+                  <p class="text-muted">No responses have been recorded for this letter.</p>
+                  <button class="btn btn-primary" (click)="recordResponse()" 
+                          [disabled]="letter.status !== 'sent' && letter.status !== 'delivered'">
+                    <i class="fas fa-plus"></i> Record First Response
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- History Tab -->
+          <div class="tab-pane" [class.active]="activeTab === 'history'">
+            <div class="history-section">
+              <h5>Letter History</h5>
+              
+              <div class="history-timeline">
+                <div class="timeline-item">
+                  <div class="timeline-marker bg-primary"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <strong>Letter Created</strong>
+                      <span class="text-muted ms-2">{{ formatDate(letter.createdAt) }}</span>
+                    </div>
+                    <div class="timeline-body">
+                      Letter was created from template: {{ letter.templateId }}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="timeline-item" *ngIf="letter.sentDate">
+                  <div class="timeline-marker bg-success"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <strong>Letter Sent</strong>
+                      <span class="text-muted ms-2">{{ formatDate(letter.sentDate) }}</span>
+                    </div>
+                    <div class="timeline-body">
+                      Letter was sent via {{ letter.deliveryMethod | titlecase }}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="timeline-item" *ngIf="letter.deliveredDate">
+                  <div class="timeline-marker bg-info"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <strong>Letter Delivered</strong>
+                      <span class="text-muted ms-2">{{ formatDate(letter.deliveredDate) }}</span>
+                    </div>
+                    <div class="timeline-body">
+                      Letter was successfully delivered
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="timeline-item" *ngIf="letter.responseReceived">
+                  <div class="timeline-marker bg-warning"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <strong>Response Received</strong>
+                      <span class="text-muted ms-2">{{ formatDate(letter.responseDate) }}</span>
+                    </div>
+                    <div class="timeline-body">
+                      {{ letter.responseType | titlecase }} response was recorded
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <div class="letter-sidebar">
+          <!-- Letter Details Card -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="mb-0">Letter Details</h6>
+            </div>
+            <div class="card-body">
+              <div class="detail-item">
+                <label>Template:</label>
+                <span>{{ letter.templateId }}</span>
+              </div>
+              <!-- Category, Type, Priority and Tags not available in GeneratedLetter interface -->
+            </div>
+          </div>
+          
+          <!-- Client Information Card -->
+          <div class="card mb-3" *ngIf="letter.clientId">
+              <div class="card-header">
+                <h6 class="mb-0">Client Information</h6>
+              </div>
+              <div class="card-body">
+                <div class="detail-item">
+                  <label>Client ID:</label>
+                  <span>{{ letter.clientId }}</span>
+                </div>
+                <!-- Client contact information not available in GeneratedLetter interface -->
+              <div class="mt-2">
+                <button class="btn btn-sm btn-outline-primary" (click)="goToClient()">
+                  <i class="fas fa-user"></i> View Client Profile
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Actions Card -->
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="mb-0">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <button class="btn btn-outline-primary btn-sm" (click)="downloadLetter()">
+                  <i class="fas fa-download"></i> Download PDF
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" (click)="printLetter()">
+                  <i class="fas fa-print"></i> Print Letter
+                </button>
+                <button class="btn btn-outline-info btn-sm" (click)="duplicateLetter()">
+                  <i class="fas fa-copy"></i> Duplicate Letter
+                </button>
+                <button class="btn btn-outline-success btn-sm" (click)="recordResponse()" 
+                        [disabled]="letter.status !== 'sent' && letter.status !== 'delivered'">
+                  <i class="fas fa-reply"></i> Record Response
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Letter Preview Card -->
+          <div class="card" *ngIf="letter.content">
+            <div class="card-header">
+              <h6 class="mb-0">Letter Preview</h6>
+            </div>
+            <div class="card-body">
+              <p class="mb-0">{{ letter.content | slice:0:200 }}{{ letter.content.length > 200 ? '...' : '' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading-state" *ngIf="loading">
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading letter details...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div class="error-state" *ngIf="error && !loading">
+  <div class="text-center py-5">
+    <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+    <h5>Error Loading Letter</h5>
+    <p class="text-muted">{{ error }}</p>
+    <button class="btn btn-primary" (click)="loadLetter()">
+      <i class="fas fa-refresh"></i> Try Again
+    </button>
+  </div>
+</div>
+
+<!-- Edit Letter Modal -->
+<div class="modal fade" [class.show]="showEditModal" [style.display]="showEditModal ? 'block' : 'none'" 
+     tabindex="-1" aria-labelledby="editLetterModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editLetterModalLabel">Edit Letter</h5>
+        <button type="button" class="btn-close" (click)="closeEditModal()" aria-label="Close"></button>
+      </div>
+      <form [formGroup]="editForm" (ngSubmit)="onEditSubmit()">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group">
+                <label for="subject" class="form-label">Subject *</label>
+                <input type="text" class="form-control" id="subject" formControlName="subject"
+                       [class.is-invalid]="isFieldInvalid(editForm, 'subject')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid(editForm, 'subject')">
+                  {{ getFieldError(editForm, 'subject') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="priority" class="form-label">Priority *</label>
+                <select class="form-select" id="priority" formControlName="priority">
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea class="form-control" id="notes" formControlName="notes" rows="3"
+                      placeholder="Add any notes about this letter..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || updating">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="updating"></span>
+            {{ updating ? 'Updating...' : 'Update Letter' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Send Letter Modal -->
+<div class="modal fade" [class.show]="showSendModal" [style.display]="showSendModal ? 'block' : 'none'" 
+     tabindex="-1" aria-labelledby="sendLetterModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="sendLetterModalLabel">Send Letter</h5>
+        <button type="button" class="btn-close" (click)="closeSendModal()" aria-label="Close"></button>
+      </div>
+      <form [formGroup]="sendForm" (ngSubmit)="onSendSubmit()">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="deliveryMethod" class="form-label">Delivery Method *</label>
+                <select class="form-select" id="deliveryMethod" formControlName="deliveryMethod">
+                  <option value="email">Email</option>
+                  <option value="mail">Regular Mail</option>
+                  <option value="certified_mail">Certified Mail</option>
+                  <option value="priority_mail">Priority Mail</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="scheduledDate" class="form-label">Scheduled Date</label>
+                <input type="datetime-local" class="form-control" id="scheduledDate" formControlName="scheduledDate">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group" *ngIf="sendForm.get('deliveryMethod')?.value === 'email'">
+            <label for="recipientEmail" class="form-label">Recipient Email *</label>
+            <input type="email" class="form-control" id="recipientEmail" formControlName="recipientEmail"
+                   [class.is-invalid]="isFieldInvalid(sendForm, 'recipientEmail')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid(sendForm, 'recipientEmail')">
+              {{ getFieldError(sendForm, 'recipientEmail') }}
+            </div>
+          </div>
+          
+          <div formGroupName="recipientAddress" *ngIf="sendForm.get('deliveryMethod')?.value !== 'email'">
+            <h6>Recipient Address</h6>
+            <div class="form-group">
+              <label for="street" class="form-label">Street Address *</label>
+              <input type="text" class="form-control" id="street" formControlName="street">
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="city" class="form-label">City *</label>
+                  <input type="text" class="form-control" id="city" formControlName="city">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="state" class="form-label">State *</label>
+                  <input type="text" class="form-control" id="state" formControlName="state">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="zipCode" class="form-label">ZIP Code *</label>
+                  <input type="text" class="form-control" id="zipCode" formControlName="zipCode">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="includeAttachments" formControlName="includeAttachments">
+            <label class="form-check-label" for="includeAttachments">
+              Include attachments
+            </label>
+          </div>
+          
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="requestDeliveryConfirmation" formControlName="requestDeliveryConfirmation">
+            <label class="form-check-label" for="requestDeliveryConfirmation">
+              Request delivery confirmation
+            </label>
+          </div>
+          
+          <div class="form-group">
+            <label for="sendNotes" class="form-label">Notes</label>
+            <textarea class="form-control" id="sendNotes" formControlName="notes" rows="2"
+                      placeholder="Add any notes about sending this letter..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeSendModal()">Cancel</button>
+          <button type="submit" class="btn btn-success" [disabled]="sendForm.invalid || sending">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="sending"></span>
+            {{ sending ? 'Sending...' : 'Send Letter' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Record Response Modal -->
+<div class="modal fade" [class.show]="showResponseModal" [style.display]="showResponseModal ? 'block' : 'none'" 
+     tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="responseModalLabel">Record Response</h5>
+        <button type="button" class="btn-close" (click)="closeResponseModal()" aria-label="Close"></button>
+      </div>
+      <form [formGroup]="responseForm" (ngSubmit)="onResponseSubmit()">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="responseType" class="form-label">Response Type *</label>
+                <select class="form-select" id="responseType" formControlName="responseType">
+                  <option value="">Select response type...</option>
+                  <option value="positive">Positive</option>
+                  <option value="negative">Negative</option>
+                  <option value="partial">Partial</option>
+                  <option value="request_more_info">Request for More Information</option>
+                  <option value="no_response">No Response</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="responseDate" class="form-label">Response Date *</label>
+                <input type="date" class="form-control" id="responseDate" formControlName="responseDate">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="responseContent" class="form-label">Response Content *</label>
+            <textarea class="form-control" id="responseContent" formControlName="responseContent" rows="4"
+                      placeholder="Enter the response content or summary..."></textarea>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="followUpRequired" formControlName="followUpRequired">
+                <label class="form-check-label" for="followUpRequired">
+                  Follow-up required
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group" *ngIf="responseForm.get('followUpRequired')?.value">
+                <label for="followUpDate" class="form-label">Follow-up Date</label>
+                <input type="date" class="form-control" id="followUpDate" formControlName="followUpDate">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="responseNotes" class="form-label">Notes</label>
+            <textarea class="form-control" id="responseNotes" formControlName="notes" rows="2"
+                      placeholder="Add any additional notes about this response..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeResponseModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="responseForm.invalid || recordingResponse">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="recordingResponse"></span>
+            {{ recordingResponse ? 'Recording...' : 'Record Response' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" [class.show]="showDeleteModal" [style.display]="showDeleteModal ? 'block' : 'none'" 
+     tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Delete Letter</h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+          <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+          <h5>Are you sure?</h5>
+          <p class="text-muted">This action cannot be undone. The letter and all associated data will be permanently deleted.</p>
+          
+          <div class="letter-info" *ngIf="letter">
+            <div class="letter-name">{{ letter?.subject }}</div>
+            <div class="letter-details">Created {{ formatDate(letter?.createdAt) }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleting">
+          <span class="spinner-border spinner-border-sm me-2" *ngIf="deleting"></span>
+          {{ deleting ? 'Deleting...' : 'Delete Letter' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade" [class.show]="showEditModal || showSendModal || showResponseModal || showDeleteModal" 
+     *ngIf="showEditModal || showSendModal || showResponseModal || showDeleteModal"></div>

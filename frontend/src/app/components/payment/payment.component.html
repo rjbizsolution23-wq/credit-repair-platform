@@ -1,0 +1,531 @@
+<!--
+  Rick Jefferson Solutions - Payment Component Template
+  Multi-step subscription and payment processing interface
+  Features secure Stripe integration with professional Rick Jefferson branding
+-->
+
+<div class="payment-container">
+  <!-- Header Section -->
+  <div class="payment-header">
+    <div class="header-content">
+      <div class="brand-section">
+        <h1 class="brand-title">Rick Jefferson Solutions</h1>
+        <p class="brand-tagline">Your Credit Freedom Starts Here</p>
+      </div>
+      
+      <!-- Step Indicator -->
+      <div class="step-indicator">
+        <div class="step" [class.active]="currentStep === 'plans'" [class.completed]="currentStep !== 'plans'">
+          <div class="step-number">1</div>
+          <div class="step-label">Choose Plan</div>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step" [class.active]="currentStep === 'payment'" [class.completed]="currentStep === 'confirmation'">
+          <div class="step-number">2</div>
+          <div class="step-label">Payment</div>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step" [class.active]="currentStep === 'confirmation'">
+          <div class="step-number">3</div>
+          <div class="step-label">Confirmation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="payment-content">
+    
+    <!-- Step 1: Plan Selection -->
+    <div class="step-content" *ngIf="currentStep === 'plans'">
+      <div class="plans-section">
+        <div class="section-header">
+          <h2>Choose Your Credit Repair Plan</h2>
+          <p>Select the plan that best fits your credit repair goals. All plans include our proven 10 Step Total Enforcement Chain™ methodology.</p>
+        </div>
+
+        <div class="plans-grid" *ngIf="subscriptionPlans.length > 0">
+          <div class="plan-card" 
+               *ngFor="let plan of subscriptionPlans" 
+               [class.popular]="isPlanPopular(plan)"
+               [class.selected]="selectedPlan?.id === plan.id"
+               (click)="selectPlan(plan)">
+            
+            <!-- Popular Badge -->
+            <div class="popular-badge" *ngIf="isPlanPopular(plan)">
+              <span>Most Popular</span>
+            </div>
+            
+            <!-- Savings Badge -->
+            <div class="savings-badge" *ngIf="getPlanSavings(plan)">
+              <span>{{ getPlanSavings(plan) }}</span>
+            </div>
+
+            <div class="plan-header">
+              <h3 class="plan-name">{{ plan.name }}</h3>
+              <div class="plan-price">
+                <span class="currency">$</span>
+                <span class="amount">{{ plan.amount / 100 }}</span>
+                <span class="interval">/ {{ plan.interval }}</span>
+              </div>
+              <p class="plan-description">{{ plan.description || 'Comprehensive credit repair solution' }}</p>
+            </div>
+
+            <div class="plan-features">
+              <h4>What's Included:</h4>
+              <ul>
+                <li *ngFor="let feature of getPlanFeatures(plan.id)">
+                  <mat-icon>check</mat-icon>
+                  <span>{{ feature }}</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="plan-footer">
+              <button class="select-plan-btn" 
+                      [class.selected]="selectedPlan?.id === plan.id"
+                      (click)="selectPlan(plan)">
+                <span *ngIf="selectedPlan?.id !== plan.id">Select Plan</span>
+                <span *ngIf="selectedPlan?.id === plan.id">
+                  <mat-icon>check</mat-icon>
+                  Selected
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-state" *ngIf="loading && subscriptionPlans.length === 0">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading subscription plans...</p>
+        </div>
+
+        <!-- Current Subscription Info -->
+        <div class="current-subscription" *ngIf="currentSubscription">
+          <div class="subscription-card">
+            <div class="subscription-header">
+              <h3>Current Subscription</h3>
+              <div class="subscription-status" [ngClass]="getStatusDisplayInfo(currentSubscription.status).color">
+                <mat-icon>{{ getStatusDisplayInfo(currentSubscription.status).icon }}</mat-icon>
+                <span>{{ getStatusDisplayInfo(currentSubscription.status).label }}</span>
+              </div>
+            </div>
+            
+            <div class="subscription-details">
+              <p><strong>Plan:</strong> {{ currentSubscription.planName }}</p>
+              <p><strong>Amount:</strong> {{ formatCurrency(currentSubscription.amount, currentSubscription.currency) }}</p>
+              <p><strong>Next Billing:</strong> {{ currentSubscription.currentPeriodEnd | date:'mediumDate' }}</p>
+            </div>
+
+            <div class="subscription-actions">
+              <button mat-stroked-button (click)="loadBillingHistory()">View Billing History</button>
+              <button mat-stroked-button color="warn" (click)="cancelSubscription()">Cancel Subscription</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Payment Information -->
+    <div class="step-content" *ngIf="currentStep === 'payment'">
+      <div class="payment-section">
+        <div class="section-header">
+          <button class="back-btn" (click)="goBackToPlans()">
+            <mat-icon>arrow_back</mat-icon>
+            Back to Plans
+          </button>
+          <h2>Complete Your Subscription</h2>
+          <p>Secure payment processing powered by Stripe</p>
+        </div>
+
+        <!-- Selected Plan Summary -->
+        <div class="plan-summary" *ngIf="selectedPlan">
+          <div class="summary-card">
+            <div class="summary-header">
+              <h3>{{ selectedPlan.name }}</h3>
+              <div class="summary-price">
+                <span class="amount">{{ formatCurrency(selectedPlan.amount) }}</span>
+                <span class="interval">/ {{ selectedPlan.interval }}</span>
+              </div>
+            </div>
+            <div class="summary-features">
+              <p>Includes: {{ getPlanFeatures(selectedPlan.id).slice(0, 3).join(', ') }}{{ getPlanFeatures(selectedPlan.id).length > 3 ? ' and more...' : '' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Form -->
+        <form [formGroup]="billingForm" class="payment-form">
+          <!-- Billing Information -->
+          <div class="form-section">
+            <h3>Billing Information</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Full Name</mat-label>
+                <input matInput formControlName="name" placeholder="Enter your full name">
+                <mat-error *ngIf="getFieldError('name')">{{ getFieldError('name') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Email Address</mat-label>
+                <input matInput type="email" formControlName="email" placeholder="your@email.com">
+                <mat-error *ngIf="getFieldError('email')">{{ getFieldError('email') }}</mat-error>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Phone Number</mat-label>
+                <input matInput type="tel" formControlName="phone" placeholder="(555) 123-4567">
+                <mat-error *ngIf="getFieldError('phone')">{{ getFieldError('phone') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Address Information -->
+            <div formGroupName="address">
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Street Address</mat-label>
+                  <input matInput formControlName="line1" placeholder="123 Main Street">
+                  <mat-error *ngIf="getFieldError('address.line1')">Street address is required</mat-error>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Apartment, Suite, etc. (Optional)</mat-label>
+                  <input matInput formControlName="line2" placeholder="Apt 4B">
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="third-width">
+                  <mat-label>City</mat-label>
+                  <input matInput formControlName="city" placeholder="Dallas">
+                  <mat-error *ngIf="getFieldError('address.city')">City is required</mat-error>
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="third-width">
+                  <mat-label>State</mat-label>
+                  <mat-select formControlName="state">
+                    <mat-option value="AL">Alabama</mat-option>
+                    <mat-option value="AK">Alaska</mat-option>
+                    <mat-option value="AZ">Arizona</mat-option>
+                    <mat-option value="AR">Arkansas</mat-option>
+                    <mat-option value="CA">California</mat-option>
+                    <mat-option value="CO">Colorado</mat-option>
+                    <mat-option value="CT">Connecticut</mat-option>
+                    <mat-option value="DE">Delaware</mat-option>
+                    <mat-option value="FL">Florida</mat-option>
+                    <mat-option value="GA">Georgia</mat-option>
+                    <mat-option value="HI">Hawaii</mat-option>
+                    <mat-option value="ID">Idaho</mat-option>
+                    <mat-option value="IL">Illinois</mat-option>
+                    <mat-option value="IN">Indiana</mat-option>
+                    <mat-option value="IA">Iowa</mat-option>
+                    <mat-option value="KS">Kansas</mat-option>
+                    <mat-option value="KY">Kentucky</mat-option>
+                    <mat-option value="LA">Louisiana</mat-option>
+                    <mat-option value="ME">Maine</mat-option>
+                    <mat-option value="MD">Maryland</mat-option>
+                    <mat-option value="MA">Massachusetts</mat-option>
+                    <mat-option value="MI">Michigan</mat-option>
+                    <mat-option value="MN">Minnesota</mat-option>
+                    <mat-option value="MS">Mississippi</mat-option>
+                    <mat-option value="MO">Missouri</mat-option>
+                    <mat-option value="MT">Montana</mat-option>
+                    <mat-option value="NE">Nebraska</mat-option>
+                    <mat-option value="NV">Nevada</mat-option>
+                    <mat-option value="NH">New Hampshire</mat-option>
+                    <mat-option value="NJ">New Jersey</mat-option>
+                    <mat-option value="NM">New Mexico</mat-option>
+                    <mat-option value="NY">New York</mat-option>
+                    <mat-option value="NC">North Carolina</mat-option>
+                    <mat-option value="ND">North Dakota</mat-option>
+                    <mat-option value="OH">Ohio</mat-option>
+                    <mat-option value="OK">Oklahoma</mat-option>
+                    <mat-option value="OR">Oregon</mat-option>
+                    <mat-option value="PA">Pennsylvania</mat-option>
+                    <mat-option value="RI">Rhode Island</mat-option>
+                    <mat-option value="SC">South Carolina</mat-option>
+                    <mat-option value="SD">South Dakota</mat-option>
+                    <mat-option value="TN">Tennessee</mat-option>
+                    <mat-option value="TX">Texas</mat-option>
+                    <mat-option value="UT">Utah</mat-option>
+                    <mat-option value="VT">Vermont</mat-option>
+                    <mat-option value="VA">Virginia</mat-option>
+                    <mat-option value="WA">Washington</mat-option>
+                    <mat-option value="WV">West Virginia</mat-option>
+                    <mat-option value="WI">Wisconsin</mat-option>
+                    <mat-option value="WY">Wyoming</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="getFieldError('address.state')">State is required</mat-error>
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="third-width">
+                  <mat-label>ZIP Code</mat-label>
+                  <input matInput formControlName="postal_code" placeholder="75034">
+                  <mat-error *ngIf="getFieldError('address.postal_code')">Valid ZIP code is required</mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="form-section">
+            <h3>Payment Method</h3>
+            
+            <div class="card-element-container">
+              <label class="card-label">Card Information</label>
+              <div #cardElement class="card-element"></div>
+              <div class="card-error" *ngIf="cardErrors">
+                <mat-icon>error</mat-icon>
+                <span>{{ cardErrors }}</span>
+              </div>
+            </div>
+
+            <div class="security-info">
+              <div class="security-badge">
+                <mat-icon>security</mat-icon>
+                <span>Secured by Stripe</span>
+              </div>
+              <p>Your payment information is encrypted and secure. We never store your card details.</p>
+            </div>
+          </div>
+
+          <!-- Additional Options -->
+          <div class="form-section" [formGroup]="paymentForm">
+            <h3>Additional Options</h3>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Coupon Code (Optional)</mat-label>
+              <input matInput formControlName="couponCode" placeholder="Enter coupon code">
+            </mat-form-field>
+
+            <!-- Terms and Conditions -->
+            <div class="terms-section">
+              <mat-checkbox formControlName="acceptTerms" color="primary">
+                I agree to the 
+                <a href="/terms" target="_blank">Terms of Service</a> and 
+                <a href="/privacy" target="_blank">Privacy Policy</a>
+              </mat-checkbox>
+              <mat-error *ngIf="paymentForm.get('acceptTerms')?.errors?.['required'] && paymentForm.get('acceptTerms')?.touched">
+                You must accept the terms and conditions
+              </mat-error>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button type="button" 
+                    class="process-payment-btn"
+                    [disabled]="!canProcessPayment()"
+                    (click)="processSubscription()">
+              <mat-spinner diameter="20" *ngIf="processing"></mat-spinner>
+              <mat-icon *ngIf="!processing">credit_card</mat-icon>
+              <span *ngIf="!processing">Start Subscription - {{ formatCurrency(selectedPlan?.amount || 0) }}</span>
+              <span *ngIf="processing">Processing Payment...</span>
+            </button>
+            
+            <p class="payment-disclaimer">
+              You will be charged {{ formatCurrency(selectedPlan?.amount || 0) }} {{ selectedPlan?.interval }}ly. 
+              You can cancel anytime from your account settings.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirmation -->
+    <div class="step-content" *ngIf="currentStep === 'confirmation'">
+      <div class="confirmation-section">
+        <div class="success-animation">
+          <div class="success-checkmark">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+        </div>
+
+        <div class="confirmation-content">
+          <h2>Welcome to Rick Jefferson Solutions!</h2>
+          <p class="success-message">
+            Your subscription has been successfully activated. You now have access to our proven 
+            10 Step Total Enforcement Chain™ methodology and all the tools you need to achieve your credit freedom.
+          </p>
+
+          <div class="subscription-summary" *ngIf="currentSubscription">
+            <h3>Subscription Details</h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="label">Plan:</span>
+                <span class="value">{{ currentSubscription.planName }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="label">Amount:</span>
+                <span class="value">{{ formatCurrency(currentSubscription.amount, currentSubscription.currency) }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="label">Next Billing:</span>
+                <span class="value">{{ currentSubscription.currentPeriodEnd | date:'mediumDate' }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="label">Status:</span>
+                <span class="value status" [ngClass]="getStatusDisplayInfo(currentSubscription.status).color">
+                  {{ getStatusDisplayInfo(currentSubscription.status).label }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="next-steps">
+            <h3>What's Next?</h3>
+            <div class="steps-list">
+              <div class="next-step">
+                <div class="step-icon">
+                  <mat-icon>dashboard</mat-icon>
+                </div>
+                <div class="step-content">
+                  <h4>Access Your Dashboard</h4>
+                  <p>View your credit reports, track disputes, and monitor progress</p>
+                </div>
+              </div>
+              
+              <div class="next-step">
+                <div class="step-icon">
+                  <mat-icon>upload_file</mat-icon>
+                </div>
+                <div class="step-content">
+                  <h4>Upload Credit Reports</h4>
+                  <p>Import your credit reports to begin the dispute process</p>
+                </div>
+              </div>
+              
+              <div class="next-step">
+                <div class="step-icon">
+                  <mat-icon>support_agent</mat-icon>
+                </div>
+                <div class="step-content">
+                  <h4>Connect with Your Specialist</h4>
+                  <p>Schedule a consultation with your dedicated credit specialist</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="confirmation-actions">
+            <button class="primary-btn" (click)="router.navigate(['/dashboard'])">
+              <mat-icon>dashboard</mat-icon>
+              Go to Dashboard
+            </button>
+            
+            <button class="secondary-btn" (click)="loadBillingHistory()">
+              <mat-icon>receipt</mat-icon>
+              View Receipt
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Billing History Modal -->
+  <div class="billing-modal" *ngIf="showBillingHistory" (click)="showBillingHistory = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Billing History</h3>
+        <button class="close-btn" (click)="showBillingHistory = false">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <div class="modal-body" *ngIf="billingHistory">
+        <!-- Invoices -->
+        <div class="billing-section" *ngIf="billingHistory.invoices.length > 0">
+          <h4>Recent Invoices</h4>
+          <div class="invoices-list">
+            <div class="invoice-item" *ngFor="let invoice of billingHistory.invoices">
+              <div class="invoice-info">
+                <span class="invoice-number">{{ invoice.number }}</span>
+                <span class="invoice-date">{{ invoice.created | date:'mediumDate' }}</span>
+                <span class="invoice-amount">{{ formatCurrency(invoice.amount, invoice.currency) }}</span>
+                <span class="invoice-status" [ngClass]="invoice.status">{{ invoice.status | titlecase }}</span>
+              </div>
+              <div class="invoice-actions">
+                <button mat-icon-button *ngIf="invoice.hostedInvoiceUrl" (click)="downloadInvoice(invoice.hostedInvoiceUrl)">
+                  <mat-icon>download</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Subscriptions -->
+        <div class="billing-section" *ngIf="billingHistory.subscriptions.length > 0">
+          <h4>Subscription History</h4>
+          <div class="subscriptions-list">
+            <div class="subscription-item" *ngFor="let sub of billingHistory.subscriptions">
+              <div class="subscription-info">
+                <span class="subscription-plan">{{ sub.planName }}</span>
+                <span class="subscription-period">
+                  {{ sub.currentPeriodStart | date:'shortDate' }} - {{ sub.currentPeriodEnd | date:'shortDate' }}
+                </span>
+                <span class="subscription-amount">{{ formatCurrency(sub.amount, sub.currency) }}</span>
+                <span class="subscription-status" [ngClass]="getStatusDisplayInfo(sub.status).color">
+                  {{ getStatusDisplayInfo(sub.status).label }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="loading-content">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Processing your request...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="payment-footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <h3>Rick Jefferson Solutions</h3>
+      <p>THE Credit Repair & Wealth Management Authority</p>
+    </div>
+    
+    <div class="footer-contact">
+      <p><strong>Contact Us:</strong></p>
+      <p>📧 info@rickjeffersonsolutions.com</p>
+      <p>📞 877-763-8587</p>
+      <p>💬 Text "credit repair" to 945-308-8003</p>
+    </div>
+    
+    <div class="footer-security">
+      <div class="security-badges">
+        <div class="badge">
+          <mat-icon>security</mat-icon>
+          <span>SSL Secured</span>
+        </div>
+        <div class="badge">
+          <mat-icon>verified</mat-icon>
+          <span>PCI Compliant</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer-bottom">
+    <p>&copy; 2024 Rick Jefferson Solutions. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="/terms">Terms of Service</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/contact">Contact</a>
+    </div>
+  </div>
+</footer>

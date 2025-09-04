@@ -1,0 +1,182 @@
+<div class="unauthorized-container">
+  <div class="unauthorized-content">
+    <!-- Error Icon and Code -->
+    <div class="error-header">
+      <div class="error-icon">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <h1 class="error-code">403</h1>
+      <h2 class="error-title">Access Denied</h2>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message">
+      <p class="primary-message">
+        {{ accessDeniedReason }}
+      </p>
+      <p class="secondary-message" *ngIf="attemptedUrl">
+        You attempted to access: <code>{{ attemptedUrl }}</code>
+      </p>
+    </div>
+
+    <!-- User Info (if logged in) -->
+    <div class="user-info" *ngIf="isLoggedIn">
+      <div class="info-card">
+        <div class="info-header">
+          <i class="fas fa-user"></i>
+          <span>Current User</span>
+        </div>
+        <div class="info-content">
+          <div class="user-details" *ngIf="currentUser">
+            <div class="detail-item">
+              <span class="label">Name:</span>
+              <span class="value">{{ currentUser.firstName }} {{ currentUser.lastName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Email:</span>
+              <span class="value">{{ currentUser.email }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Role:</span>
+              <span class="value role-badge" [class]="'role-' + currentUser.role">{{ currentUser.role | titlecase }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Required Permissions -->
+    <div class="permissions-info" *ngIf="requiredPermissions.length > 0">
+      <div class="info-card">
+        <div class="info-header">
+          <i class="fas fa-key"></i>
+          <span>Required Permissions</span>
+        </div>
+        <div class="info-content">
+          <div class="permissions-list">
+            <span 
+              *ngFor="let permission of requiredPermissions" 
+              class="permission-badge"
+              [class.has-permission]="authService.hasPermission(permission)"
+              [class.missing-permission]="!authService.hasPermission(permission)">
+              <i class="fas" [class.fa-check]="authService.hasPermission(permission)" [class.fa-times]="!authService.hasPermission(permission)"></i>
+              {{ permission | titlecase }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button 
+        *ngFor="let action of suggestedActions" 
+        type="button" 
+        class="btn"
+        [class.btn-primary]="action.primary"
+        [class.btn-outline-secondary]="!action.primary"
+        (click)="executeAction(action.action)"
+        [attr.aria-label]="action.label">
+        <i [class]="action.icon"></i>
+        {{ action.label }}
+      </button>
+    </div>
+
+    <!-- Help Section -->
+    <div class="help-section">
+      <h4>What can you do?</h4>
+      <div class="help-grid">
+        <div class="help-item" *ngIf="!isLoggedIn">
+          <div class="help-icon">
+            <i class="fas fa-sign-in-alt"></i>
+          </div>
+          <div class="help-content">
+            <h5>Log in to your account</h5>
+            <p>You may need to authenticate to access this resource.</p>
+          </div>
+        </div>
+        
+        <div class="help-item" *ngIf="isLoggedIn">
+          <div class="help-icon">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <div class="help-content">
+            <h5>Request additional permissions</h5>
+            <p>Contact your administrator to request access to this resource.</p>
+          </div>
+        </div>
+        
+        <div class="help-item">
+          <div class="help-icon">
+            <i class="fas fa-route"></i>
+          </div>
+          <div class="help-content">
+            <h5>Navigate to accessible areas</h5>
+            <p>Return to the dashboard or other areas you have permission to access.</p>
+          </div>
+        </div>
+        
+        <div class="help-item">
+          <div class="help-icon">
+            <i class="fas fa-life-ring"></i>
+          </div>
+          <div class="help-content">
+            <h5>Contact support</h5>
+            <p>If you believe this is an error, please contact our support team.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Access Links -->
+    <div class="quick-access" *ngIf="isLoggedIn">
+      <h5>Quick Access</h5>
+      <div class="access-links">
+        <a class="access-link" (click)="goHome()">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </a>
+        <a class="access-link" (click)="router.navigate(['/clients'])">
+          <i class="fas fa-users"></i>
+          <span>Clients</span>
+        </a>
+        <a class="access-link" (click)="router.navigate(['/credit-reports'])">
+          <i class="fas fa-file-alt"></i>
+          <span>Reports</span>
+        </a>
+        <a class="access-link" (click)="router.navigate(['/profile'])">
+          <i class="fas fa-user-cog"></i>
+          <span>Profile</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="navigation-links">
+      <button 
+        type="button" 
+        class="nav-link"
+        (click)="goBack()"
+        aria-label="Go Back">
+        <i class="fas fa-arrow-left"></i>
+        Go Back
+      </button>
+    </div>
+  </div>
+
+  <!-- Background Security Icons -->
+  <div class="background-security">
+    <div class="security-icon icon-1">
+      <i class="fas fa-lock"></i>
+    </div>
+    <div class="security-icon icon-2">
+      <i class="fas fa-shield-alt"></i>
+    </div>
+    <div class="security-icon icon-3">
+      <i class="fas fa-key"></i>
+    </div>
+    <div class="security-icon icon-4">
+      <i class="fas fa-user-shield"></i>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,127 @@
+<div #chartContainer [class]="getChartClasses()">
+  <!-- Chart Header -->
+  <div class="chart-header" *ngIf="shouldShowTitle() || shouldShowSubtitle() || shouldShowExportButton()">
+    <div class="chart-title-section">
+      <h3 class="chart-title" *ngIf="shouldShowTitle()">{{ title }}</h3>
+      <p class="chart-subtitle" *ngIf="shouldShowSubtitle()">{{ subtitle }}</p>
+    </div>
+    
+    <div class="chart-actions" *ngIf="shouldShowExportButton()">
+      <button 
+        type="button" 
+        class="btn btn-outline-secondary btn-sm chart-export-btn"
+        (click)="exportChart('png')"
+        [attr.aria-label]="'Export chart as PNG'">
+        <i class="feather icon-download" [attr.aria-hidden]="true"></i>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <!-- Chart Content -->
+  <div class="chart-content">
+    <!-- Loading State -->
+    <div class="chart-loading-container" *ngIf="shouldShowLoading()">
+      <app-loading-spinner 
+        type="border" 
+        size="lg" 
+        text="Loading chart..."
+        [overlay]="false">
+      </app-loading-spinner>
+    </div>
+
+    <!-- Error State -->
+    <div class="chart-error-container" *ngIf="shouldShowError()">
+      <div class="chart-error-content">
+        <i class="feather icon-alert-triangle chart-error-icon" [attr.aria-hidden]="true"></i>
+        <h4 class="chart-error-title">Chart Error</h4>
+        <p class="chart-error-message">{{ error }}</p>
+        <button 
+          type="button" 
+          class="btn btn-primary btn-sm"
+          (click)="updateChart()"
+          [attr.aria-label]="'Retry loading chart'">
+          <i class="feather icon-refresh-cw" [attr.aria-hidden]="true"></i>
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <!-- No Data State -->
+    <div class="chart-no-data-container" *ngIf="shouldShowNoData()">
+      <div class="chart-no-data-content">
+        <i class="feather icon-bar-chart-2 chart-no-data-icon" [attr.aria-hidden]="true"></i>
+        <h4 class="chart-no-data-title">No Data Available</h4>
+        <p class="chart-no-data-message">{{ noDataMessage }}</p>
+      </div>
+    </div>
+
+    <!-- Chart Canvas -->
+    <div class="chart-canvas-container" *ngIf="shouldShowChart()">
+      <canvas 
+        #chartCanvas
+        [id]="chartId"
+        class="chart-canvas"
+        [ngStyle]="getCanvasStyles()"
+        [attr.aria-label]="title || 'Chart visualization'"
+        role="img">
+        <!-- Fallback content for accessibility -->
+        <div class="chart-fallback">
+          <h4>{{ title || 'Chart' }}</h4>
+          <p>{{ subtitle || 'Data visualization not available in this format' }}</p>
+          
+          <!-- Data Table Fallback -->
+          <table class="chart-data-table" *ngIf="data.labels && data.datasets">
+            <thead>
+              <tr>
+                <th scope="col">Label</th>
+                <th scope="col" *ngFor="let dataset of data.datasets">{{ dataset.label }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let label of data.labels; let i = index">
+                <th scope="row">{{ label }}</th>
+                <td *ngFor="let dataset of data.datasets">
+                  {{ dataset.data[i] }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Chart Legend (Custom) -->
+  <div class="chart-legend" *ngIf="config.showLegend && data.datasets && shouldShowChart()">
+    <div class="chart-legend-items">
+      <div 
+        class="chart-legend-item"
+        *ngFor="let dataset of data.datasets; let i = index"
+        (click)="onLegendClick($event)"
+        [attr.tabindex]="0"
+        [attr.role]="'button'"
+        [attr.aria-label]="'Toggle ' + dataset.label + ' dataset'">
+        <span 
+          class="chart-legend-color"
+          [style.background-color]="dataset.backgroundColor || colorPalettes[currentTheme].primary[i % colorPalettes[currentTheme].primary.length]">
+        </span>
+        <span class="chart-legend-label">{{ dataset.label }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Footer -->
+  <div class="chart-footer" *ngIf="data.datasets && shouldShowChart()">
+    <div class="chart-stats">
+      <span class="chart-stat-item">
+        <i class="feather icon-database" [attr.aria-hidden]="true"></i>
+        {{ data.datasets.length }} dataset{{ data.datasets.length !== 1 ? 's' : '' }}
+      </span>
+      <span class="chart-stat-item" *ngIf="data.labels">
+        <i class="feather icon-hash" [attr.aria-hidden]="true"></i>
+        {{ data.labels.length }} data point{{ data.labels.length !== 1 ? 's' : '' }}
+      </span>
+    </div>
+  </div>
+</div>

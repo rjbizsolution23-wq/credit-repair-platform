@@ -1,0 +1,1106 @@
+// Rick Jefferson Solutions - Registration Component Styles
+// Professional multi-step registration with brand compliance
+// Implements accessibility standards and responsive design
+
+// Brand Colors
+$primary-teal: #14B8A6;
+$navy-blue: #1E3A8A;
+$success-green: #059669;
+$warning-orange: #D97706;
+$error-red: #DC2626;
+$accent-teal: #0F766E;
+$light-gray: #F8FAFC;
+$medium-gray: #64748B;
+$dark-gray: #334155;
+$white: #FFFFFF;
+$black: #000000;
+
+// Typography
+$font-header: 'Montserrat', Arial, sans-serif;
+$font-body: 'Open Sans', Arial, Helvetica, sans-serif;
+
+// Breakpoints
+$mobile: 480px;
+$tablet: 768px;
+$desktop: 1024px;
+$large: 1200px;
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Main Container
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: linear-gradient(135deg, $navy-blue 0%, $primary-teal 100%);
+  padding: 2rem 1rem;
+  font-family: $font-body;
+  
+  @media (max-width: $tablet) {
+    padding: 1rem 0.5rem;
+    min-height: 100vh;
+  }
+}
+
+// Background Elements
+.background-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(20, 184, 166, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(30, 58, 138, 0.1) 0%, transparent 50%);
+  z-index: 1;
+}
+
+.background-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+// Main Registration Card
+.register-card {
+  background: $white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  max-width: 800px;
+  width: 100%;
+  position: relative;
+  z-index: 3;
+  animation: fadeIn 0.6s ease-out;
+  overflow: hidden;
+  
+  @media (max-width: $tablet) {
+    max-width: 95vw;
+    border-radius: 12px;
+    margin: 0.5rem;
+  }
+}
+
+// Header Section
+.register-header {
+  background: linear-gradient(135deg, $navy-blue 0%, $primary-teal 100%);
+  color: $white;
+  padding: 2rem;
+  text-align: center;
+  
+  @media (max-width: $tablet) {
+    padding: 1.5rem 1rem;
+  }
+  
+  .brand-logo {
+    margin-bottom: 1rem;
+    
+    .logo {
+      height: 60px;
+      width: auto;
+      
+      @media (max-width: $tablet) {
+        height: 50px;
+      }
+    }
+  }
+  
+  .brand-title {
+    font-family: $font-header;
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    
+    @media (max-width: $tablet) {
+      font-size: 1.5rem;
+    }
+  }
+  
+  .brand-tagline {
+    font-size: 1.1rem;
+    font-weight: 300;
+    margin: 0 0 2rem 0;
+    opacity: 0.9;
+    
+    @media (max-width: $tablet) {
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+  }
+}
+
+// Progress Container
+.progress-container {
+  margin-bottom: 2rem;
+  
+  .progress-bar {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    
+    .progress-fill {
+      background: $white;
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+  }
+  
+  .progress-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.9;
+  }
+}
+
+// Step Navigation
+.step-navigation {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  
+  @media (max-width: $tablet) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  @media (max-width: $mobile) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  cursor: default;
+  
+  &.clickable {
+    cursor: pointer;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.active {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid $white;
+  }
+  
+  &.completed {
+    background: rgba(5, 150, 105, 0.3);
+    
+    .step-number {
+      background: $success-green;
+    }
+  }
+  
+  @media (max-width: $tablet) {
+    padding: 0.5rem;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    
+    @media (max-width: $tablet) {
+      margin-right: 0;
+      margin-bottom: 0.25rem;
+      width: 28px;
+      height: 28px;
+      font-size: 0.8rem;
+    }
+  }
+  
+  .step-info {
+    flex: 1;
+    
+    .step-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      
+      @media (max-width: $tablet) {
+        font-size: 0.8rem;
+      }
+    }
+    
+    .step-description {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      
+      @media (max-width: $tablet) {
+        display: none;
+      }
+    }
+  }
+}
+
+// Form Section
+.register-form-section {
+  padding: 2rem;
+  
+  @media (max-width: $tablet) {
+    padding: 1.5rem 1rem;
+  }
+}
+
+.form-step {
+  animation: fadeIn 0.4s ease-out;
+  
+  .step-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    
+    h2 {
+      font-family: $font-header;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: $navy-blue;
+      margin: 0 0 0.5rem 0;
+      
+      @media (max-width: $tablet) {
+        font-size: 1.5rem;
+      }
+    }
+    
+    p {
+      color: $medium-gray;
+      font-size: 1rem;
+      margin: 0;
+      
+      @media (max-width: $tablet) {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Form Elements
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  
+  @media (max-width: $tablet) {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  &.three-columns {
+    grid-template-columns: 1fr 1fr 1fr;
+    
+    @media (max-width: $tablet) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  
+  @media (max-width: $tablet) {
+    margin-bottom: 1.25rem;
+  }
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: $dark-gray;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  
+  i {
+    margin-right: 0.5rem;
+    color: $primary-teal;
+    width: 16px;
+  }
+  
+  .required {
+    color: $error-red;
+    margin-left: 0.25rem;
+  }
+}
+
+.input-wrapper {
+  position: relative;
+  
+  .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #E2E8F0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: $font-body;
+    transition: all 0.3s ease;
+    background: $white;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-teal;
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+    }
+    
+    &.error {
+      border-color: $error-red;
+      
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+      }
+    }
+    
+    &::placeholder {
+      color: $medium-gray;
+    }
+    
+    @media (max-width: $tablet) {
+      padding: 0.625rem 0.875rem;
+      font-size: 0.95rem;
+    }
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: $medium-gray;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: $primary-teal;
+    }
+    
+    &:focus {
+      outline: 2px solid $primary-teal;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.error-message {
+  color: $error-red;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  
+  &::before {
+    content: '⚠';
+    margin-right: 0.25rem;
+  }
+}
+
+.field-hint {
+  color: $medium-gray;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  
+  i {
+    margin-right: 0.25rem;
+    color: $primary-teal;
+  }
+}
+
+// Password Strength
+.password-strength {
+  margin-top: 0.5rem;
+  
+  .strength-bar {
+    height: 4px;
+    background: #E2E8F0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+    
+    .strength-fill {
+      height: 100%;
+      transition: all 0.3s ease;
+      border-radius: 2px;
+      
+      &.weak {
+        background: $error-red;
+      }
+      
+      &.fair {
+        background: $warning-orange;
+      }
+      
+      &.good {
+        background: #10B981;
+      }
+      
+      &.strong {
+        background: $success-green;
+      }
+    }
+  }
+  
+  .strength-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+    
+    span {
+      &.weak { color: $error-red; }
+      &.fair { color: $warning-orange; }
+      &.good { color: #10B981; }
+      &.strong { color: $success-green; }
+    }
+  }
+}
+
+.password-requirements {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: $light-gray;
+  border-radius: 6px;
+  
+  .requirement-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $dark-gray;
+    margin-bottom: 0.5rem;
+  }
+  
+  .requirements-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+    
+    @media (max-width: $tablet) {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .requirement {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: $medium-gray;
+    
+    i {
+      margin-right: 0.5rem;
+      width: 12px;
+      opacity: 0.3;
+    }
+    
+    &.met {
+      color: $success-green;
+      
+      i {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// Consent Sections
+.consent-section {
+  margin-bottom: 2rem;
+  border: 2px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  
+  .consent-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    i {
+      color: $primary-teal;
+      font-size: 1.2rem;
+      margin-right: 0.75rem;
+    }
+    
+    h3 {
+      font-family: $font-header;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: $navy-blue;
+      margin: 0;
+    }
+  }
+  
+  .consent-content {
+    .consent-details {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: $light-gray;
+      border-radius: 6px;
+      
+      p {
+        font-size: 0.8rem;
+        color: $medium-gray;
+        margin: 0;
+        line-height: 1.4;
+      }
+    }
+  }
+}
+
+// Checkbox Styling
+.checkbox-wrapper {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  
+  .checkbox-input {
+    position: absolute;
+    opacity: 0;
+    
+    &:checked + .checkbox-custom {
+      background: $primary-teal;
+      border-color: $primary-teal;
+      
+      &::after {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    &:focus + .checkbox-custom {
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+    }
+  }
+  
+  .checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #CBD5E1;
+    border-radius: 4px;
+    margin-right: 0.75rem;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    
+    &::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      color: $white;
+      font-size: 12px;
+      font-weight: bold;
+      opacity: 0;
+      transition: all 0.2s ease;
+    }
+  }
+  
+  .checkbox-label {
+    flex: 1;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: $dark-gray;
+    cursor: pointer;
+    
+    .required {
+      color: $error-red;
+    }
+    
+    strong {
+      font-weight: 600;
+    }
+  }
+}
+
+.legal-link {
+  color: $primary-teal;
+  text-decoration: none;
+  font-weight: 500;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Legal Agreements
+.legal-agreements {
+  margin: 1.5rem 0;
+  
+  .agreement-item {
+    margin-bottom: 1rem;
+  }
+}
+
+// Optional Section
+.optional-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #E2E8F0;
+  
+  h3 {
+    font-family: $font-header;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $navy-blue;
+    margin: 0 0 1rem 0;
+  }
+}
+
+// Form Actions
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #E2E8F0;
+  
+  @media (max-width: $tablet) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .secondary-button {
+    background: transparent;
+    color: $medium-gray;
+    border: 2px solid #CBD5E1;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    &:hover:not(:disabled) {
+      border-color: $primary-teal;
+      color: $primary-teal;
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    @media (max-width: $tablet) {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .primary-button {
+    background: $primary-teal;
+    color: $white;
+    border: 2px solid $primary-teal;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    &:hover:not(:disabled) {
+      background: $accent-teal;
+      border-color: $accent-teal;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    @media (max-width: $tablet) {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .submit-button {
+    background: linear-gradient(135deg, $navy-blue 0%, $primary-teal 100%);
+    color: $white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 180px;
+    justify-content: center;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(30, 58, 138, 0.3);
+    }
+    
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    &.loading {
+      .loading-content i {
+        animation: spin 1s linear infinite;
+      }
+    }
+    
+    @media (max-width: $tablet) {
+      width: 100%;
+      padding: 1rem;
+    }
+  }
+}
+
+// Messages Section
+.messages-section {
+  margin: 1.5rem 0;
+  
+  .alert {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    
+    i {
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+    
+    &.alert-error {
+      background: #FEF2F2;
+      color: $error-red;
+      border: 1px solid #FECACA;
+    }
+    
+    &.alert-success {
+      background: #F0FDF4;
+      color: $success-green;
+      border: 1px solid #BBF7D0;
+    }
+    
+    &.alert-warning {
+      background: #FFFBEB;
+      color: $warning-orange;
+      border: 1px solid #FED7AA;
+    }
+    
+    &.alert-info {
+      background: #EFF6FF;
+      color: #2563EB;
+      border: 1px solid #BFDBFE;
+    }
+  }
+}
+
+// Login Section
+.login-section {
+  text-align: center;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: $light-gray;
+  border-radius: 8px;
+  
+  p {
+    margin: 0 0 0.5rem 0;
+    color: $medium-gray;
+  }
+  
+  .link-button {
+    background: none;
+    border: none;
+    color: $primary-teal;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 1rem;
+    
+    &:hover {
+      color: $accent-teal;
+    }
+  }
+}
+
+// Footer
+.register-footer {
+  background: $light-gray;
+  padding: 2rem;
+  margin-top: 2rem;
+  border-top: 2px solid #E2E8F0;
+  
+  @media (max-width: $tablet) {
+    padding: 1.5rem 1rem;
+  }
+  
+  .contact-info {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    
+    @media (max-width: $tablet) {
+      flex-direction: column;
+      gap: 0.75rem;
+      text-align: center;
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: center;
+      color: $dark-gray;
+      font-size: 0.9rem;
+      
+      @media (max-width: $tablet) {
+        justify-content: center;
+      }
+      
+      i {
+        color: $primary-teal;
+        margin-right: 0.5rem;
+        width: 16px;
+      }
+    }
+  }
+  
+  .business-hours {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    
+    p {
+      margin: 0.25rem 0;
+      color: $medium-gray;
+      font-size: 0.85rem;
+    }
+  }
+  
+  .legal-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    
+    @media (max-width: $tablet) {
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .legal-link {
+      font-size: 0.85rem;
+    }
+  }
+  
+  .copyright {
+    text-align: center;
+    
+    p {
+      margin: 0.5rem 0;
+      color: $medium-gray;
+      font-size: 0.8rem;
+    }
+    
+    .disclaimer {
+      font-style: italic;
+      color: $dark-gray;
+    }
+  }
+}
+
+// Security Notice
+.security-notice {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  
+  @media (max-width: $tablet) {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin-top: 2rem;
+  }
+  
+  .security-features {
+    display: flex;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    
+    @media (max-width: $tablet) {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+    
+    .security-item {
+      display: flex;
+      align-items: center;
+      color: $dark-gray;
+      font-size: 0.8rem;
+      font-weight: 500;
+      
+      i {
+        color: $success-green;
+        margin-right: 0.25rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Loading Overlay
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  
+  .loading-spinner {
+    background: $white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    
+    i {
+      font-size: 2rem;
+      color: $primary-teal;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      margin: 0;
+      color: $dark-gray;
+      font-weight: 500;
+    }
+  }
+}
+
+// Accessibility Improvements
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// High Contrast Mode
+@media (prefers-contrast: high) {
+  .register-card {
+    border: 3px solid $black;
+  }
+  
+  .form-input {
+    border-width: 3px;
+  }
+  
+  .primary-button,
+  .submit-button {
+    border: 3px solid $black;
+  }
+}
+
+// Focus Indicators
+*:focus {
+  outline: 2px solid $primary-teal;
+  outline-offset: 2px;
+}
+
+button:focus,
+input:focus,
+select:focus {
+  outline: 2px solid $primary-teal;
+  outline-offset: 2px;
+}
+
+// Print Styles
+@media print {
+  .register-container {
+    background: $white;
+    
+    .background-pattern,
+    .background-overlay,
+    .security-notice,
+    .loading-overlay {
+      display: none;
+    }
+  }
+  
+  .register-card {
+    box-shadow: none;
+    border: 2px solid $black;
+  }
+}
+
+// Rick Jefferson Solutions - Registration Component Styles
+// Professional multi-step registration with comprehensive validation
+// Implements brand compliance and accessibility standards

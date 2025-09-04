@@ -1,0 +1,413 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h4 class="page-title">Create New Dispute</h4>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a routerLink="/disputes">Disputes</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Create</li>
+      </ol>
+    </nav>
+  </div>
+  <div class="d-flex gap-2">
+    <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
+      <i data-feather="x" class="me-1"></i>
+      Cancel
+    </button>
+  </div>
+</div>
+
+<!-- Progress Steps -->
+<div class="card mb-4">
+  <div class="card-body py-3">
+    <div class="row">
+      <div class="col-12">
+        <div class="step-progress">
+          <div class="step" [ngClass]="{'active': currentStep >= 1, 'completed': currentStep > 1}" (click)="goToStep(1)">
+            <div class="step-number">1</div>
+            <div class="step-label">Basic Info</div>
+          </div>
+          <div class="step-line" [ngClass]="{'completed': currentStep > 1}"></div>
+          <div class="step" [ngClass]="{'active': currentStep >= 2, 'completed': currentStep > 2}" (click)="goToStep(2)">
+            <div class="step-number">2</div>
+            <div class="step-label">Account Details</div>
+          </div>
+          <div class="step-line" [ngClass]="{'completed': currentStep > 2}"></div>
+          <div class="step" [ngClass]="{'active': currentStep >= 3, 'completed': currentStep > 3}" (click)="goToStep(3)">
+            <div class="step-number">3</div>
+            <div class="step-label">Dispute Details</div>
+          </div>
+          <div class="step-line" [ngClass]="{'completed': currentStep > 3}"></div>
+          <div class="step" [ngClass]="{'active': currentStep >= 4, 'completed': currentStep > 4}" (click)="goToStep(4)">
+            <div class="step-number">4</div>
+            <div class="step-label">Additional Info</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Duplicate Warning -->
+<div class="alert alert-warning" *ngIf="showDuplicateWarning">
+  <div class="d-flex align-items-center">
+    <i data-feather="alert-triangle" class="me-2"></i>
+    <div>
+      <strong>Potential Duplicate Detected!</strong>
+      <p class="mb-0">Found {{duplicateDisputes.length}} similar dispute(s) for this account. Please review before proceeding.</p>
+    </div>
+  </div>
+  <div class="mt-2">
+    <button class="btn btn-sm btn-outline-warning" data-bs-toggle="collapse" data-bs-target="#duplicateDetails">
+      View Details
+    </button>
+  </div>
+  <div class="collapse mt-2" id="duplicateDetails">
+    <div class="table-responsive">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Type</th>
+            <th>Bureau</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let duplicate of duplicateDisputes">
+            <td><span class="badge badge-secondary">{{duplicate.status}}</span></td>
+            <td>{{getDisputeTypeLabel(duplicate.type)}}</td>
+            <td>{{getCreditBureauLabel(duplicate.bureau)}}</td>
+            <td>{{duplicate.createdAt | date:'MMM d, y'}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Main Form -->
+<form [formGroup]="disputeForm" (ngSubmit)="onSubmit()">
+  <div class="card">
+    <div class="card-body">
+      
+      <!-- Step 1: Basic Information -->
+      <div *ngIf="currentStep === 1" class="step-content">
+        <h5 class="mb-4">Basic Information</h5>
+        
+        <div class="row g-3">
+          <!-- Client Selection -->
+          <div class="col-md-6">
+            <label class="form-label">Client <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="clientId" [class.is-invalid]="isFieldInvalid('clientId')">
+              <option value="">Select a client...</option>
+              <option *ngFor="let client of clients" [value]="client.id">
+                {{client.firstName}} {{client.lastName}} ({{client.email}})
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('clientId')">
+              {{getFieldError('clientId')}}
+            </div>
+          </div>
+
+          <!-- Dispute Type -->
+          <div class="col-md-6">
+            <label class="form-label">Dispute Type <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="type" [class.is-invalid]="isFieldInvalid('type')">
+              <option value="">Select dispute type...</option>
+              <option *ngFor="let type of disputeTypes" [value]="type">
+                {{getDisputeTypeLabel(type)}}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('type')">
+              {{getFieldError('type')}}
+            </div>
+          </div>
+
+          <!-- Credit Bureau -->
+          <div class="col-md-6">
+            <label class="form-label">Credit Bureau <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="bureau" [class.is-invalid]="isFieldInvalid('bureau')">
+              <option value="">Select credit bureau...</option>
+              <option *ngFor="let bureau of creditBureaus" [value]="bureau">
+                {{getCreditBureauLabel(bureau)}}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('bureau')">
+              {{getFieldError('bureau')}}
+            </div>
+          </div>
+
+          <!-- Priority -->
+          <div class="col-md-6">
+            <label class="form-label">Priority <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="priority" [class.is-invalid]="isFieldInvalid('priority')">
+              <option *ngFor="let priority of priorities" [value]="priority">
+                {{getDisputePriorityLabel(priority)}}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('priority')">
+              {{getFieldError('priority')}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Client Info -->
+        <div class="mt-4" *ngIf="getSelectedClient()">
+          <div class="alert alert-info">
+            <h6 class="mb-2">Selected Client Information</h6>
+            <div class="row">
+              <div class="col-md-6">
+                <strong>Name:</strong> {{getSelectedClient()?.firstName}} {{getSelectedClient()?.lastName}}<br>
+                <strong>Email:</strong> {{getSelectedClient()?.email}}<br>
+                <strong>Phone:</strong> {{getSelectedClient()?.phone}}
+              </div>
+              <div class="col-md-6">
+                <strong>Status:</strong> <span class="badge badge-primary">{{getSelectedClient()?.status}}</span><br>
+                <strong>Stage:</strong> {{getSelectedClient()?.currentStage}}<br>
+                <strong>Joined:</strong> {{getSelectedClient()?.createdAt | date:'MMM d, y'}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Account/Item Details -->
+      <div *ngIf="currentStep === 2" class="step-content">
+        <h5 class="mb-4">Account/Item Details</h5>
+        
+        <div class="row g-3">
+          <!-- Creditor Name -->
+          <div class="col-md-6">
+            <label class="form-label">Creditor Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="creditorName" 
+                   placeholder="Enter creditor name" [class.is-invalid]="isFieldInvalid('creditorName')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('creditorName')">
+              {{getFieldError('creditorName')}}
+            </div>
+          </div>
+
+          <!-- Original Creditor -->
+          <div class="col-md-6">
+            <label class="form-label">Original Creditor</label>
+            <input type="text" class="form-control" formControlName="originalCreditor" 
+                   placeholder="Enter original creditor (if different)">
+            <small class="form-text text-muted">Only if different from current creditor</small>
+          </div>
+
+          <!-- Account Number -->
+          <div class="col-md-6">
+            <label class="form-label">Account Number <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="accountNumber" 
+                   placeholder="Enter account number" [class.is-invalid]="isFieldInvalid('accountNumber')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('accountNumber')">
+              {{getFieldError('accountNumber')}}
+            </div>
+          </div>
+
+          <!-- Amount -->
+          <div class="col-md-6">
+            <label class="form-label">Amount</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" formControlName="amount" 
+                     placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+
+          <!-- Reason -->
+          <div class="col-12">
+            <label class="form-label">Dispute Reason <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="reason" [class.is-invalid]="isFieldInvalid('reason')">
+              <option value="">Select a reason...</option>
+              <option *ngFor="let reason of getReasonOptions()" [value]="reason">
+                {{reason}}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('reason')">
+              {{getFieldError('reason')}}
+            </div>
+          </div>
+
+          <!-- Custom Reason -->
+          <div class="col-12" *ngIf="disputeForm.get('reason')?.value === 'Other'">
+            <label class="form-label">Custom Reason <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="customReason" 
+                   placeholder="Enter custom reason" [class.is-invalid]="isFieldInvalid('customReason')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('customReason')">
+              {{getFieldError('customReason')}}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Dispute Details -->
+      <div *ngIf="currentStep === 3" class="step-content">
+        <h5 class="mb-4">Dispute Details</h5>
+        
+        <div class="row g-3">
+          <!-- Template Selection -->
+          <div class="col-12" *ngIf="templates.length > 0">
+            <label class="form-label">Use Template (Optional)</label>
+            <select class="form-select" formControlName="templateId">
+              <option value="">Select a template...</option>
+              <option *ngFor="let template of templates" [value]="template.id">
+                {{template.name}} - {{template.description}}
+              </option>
+            </select>
+            <small class="form-text text-muted">Templates will auto-fill the description field</small>
+          </div>
+
+          <!-- Description -->
+          <div class="col-12">
+            <label class="form-label">Dispute Description <span class="text-danger">*</span></label>
+            <textarea class="form-control" formControlName="description" rows="6" 
+                      placeholder="Provide detailed description of the dispute..." 
+                      [class.is-invalid]="isFieldInvalid('description')"></textarea>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('description')">
+              {{getFieldError('description')}}
+            </div>
+            <small class="form-text text-muted">
+              Character count: {{disputeForm.get('description')?.value?.length || 0}} (minimum 10 characters)
+            </small>
+          </div>
+
+          <!-- Due Date -->
+          <div class="col-md-6">
+            <label class="form-label">Due Date</label>
+            <input type="date" class="form-control" formControlName="dueDate">
+            <small class="form-text text-muted">Expected response date from bureau</small>
+          </div>
+
+          <!-- Tags -->
+          <div class="col-md-6">
+            <label class="form-label">Tags</label>
+            <input type="text" class="form-control" formControlName="tags" 
+                   placeholder="Enter tags separated by commas">
+            <small class="form-text text-muted">e.g., urgent, medical, identity-theft</small>
+          </div>
+        </div>
+
+        <!-- Template Preview -->
+        <div class="mt-4" *ngIf="selectedTemplate">
+          <div class="alert alert-info">
+            <h6 class="mb-2">Template: {{selectedTemplate.name}}</h6>
+            <p class="mb-0">{{selectedTemplate.description}}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Additional Information -->
+      <div *ngIf="currentStep === 4" class="step-content">
+        <h5 class="mb-4">Additional Information</h5>
+        
+        <div class="row g-3">
+          <!-- Notes -->
+          <div class="col-12">
+            <label class="form-label">Internal Notes</label>
+            <textarea class="form-control" formControlName="notes" rows="4" 
+                      placeholder="Add any internal notes or comments..."></textarea>
+            <small class="form-text text-muted">These notes are for internal use only</small>
+          </div>
+
+          <!-- Flags -->
+          <div class="col-12">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" formControlName="isUrgent" id="isUrgent">
+                  <label class="form-check-label" for="isUrgent">
+                    Mark as Urgent
+                  </label>
+                </div>
+                <small class="form-text text-muted">High priority dispute requiring immediate attention</small>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" formControlName="requiresFollowUp" id="requiresFollowUp">
+                  <label class="form-check-label" for="requiresFollowUp">
+                    Requires Follow-up
+                  </label>
+                </div>
+                <small class="form-text text-muted">Schedule a follow-up reminder</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Follow-up Date -->
+          <div class="col-md-6" *ngIf="disputeForm.get('requiresFollowUp')?.value">
+            <label class="form-label">Follow-up Date <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" formControlName="followUpDate" 
+                   [class.is-invalid]="isFieldInvalid('followUpDate')">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('followUpDate')">
+              {{getFieldError('followUpDate')}}
+            </div>
+          </div>
+
+          <!-- File Attachments -->
+          <div class="col-12">
+            <label class="form-label">Attachments</label>
+            <input type="file" class="form-control" multiple (change)="onFileSelected($event)" 
+                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+            <small class="form-text text-muted">Supported formats: PDF, DOC, DOCX, JPG, PNG, TXT</small>
+            
+            <!-- Selected Files -->
+            <div class="mt-2" *ngIf="disputeForm.get('attachments')?.value?.length > 0">
+              <h6>Selected Files:</h6>
+              <div class="list-group">
+                <div class="list-group-item d-flex justify-content-between align-items-center" 
+                     *ngFor="let file of disputeForm.get('attachments')?.value; let i = index">
+                  <div>
+                    <i data-feather="file" class="me-2"></i>
+                    {{file.name}} ({{(file.size / 1024 / 1024).toFixed(2)}} MB)
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeAttachment(i)">
+                    <i data-feather="x"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Form Actions -->
+    <div class="card-footer">
+      <div class="d-flex justify-content-between">
+        <div>
+          <button type="button" class="btn btn-outline-secondary" 
+                  (click)="previousStep()" [disabled]="currentStep === 1">
+            <i data-feather="chevron-left" class="me-1"></i>
+            Previous
+          </button>
+        </div>
+        
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-primary" (click)="saveDraft()" 
+                  [disabled]="submitting">
+            <i data-feather="save" class="me-1"></i>
+            Save Draft
+          </button>
+          
+          <button type="button" class="btn btn-primary" 
+                  (click)="nextStep()" 
+                  [disabled]="!canProceed()" 
+                  *ngIf="currentStep < totalSteps">
+            Next
+            <i data-feather="chevron-right" class="ms-1"></i>
+          </button>
+          
+          <button type="submit" class="btn btn-success" 
+                  [disabled]="!disputeForm.valid || submitting" 
+                  *ngIf="currentStep === totalSteps">
+            <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            <i data-feather="check" class="me-1" *ngIf="!submitting"></i>
+            Create Dispute
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

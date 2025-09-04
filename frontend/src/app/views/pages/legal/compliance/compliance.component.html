@@ -1,0 +1,55 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title mb-0">
+            <i class="feather-shield" featherIcon="shield"></i>
+            Legal Compliance
+          </h4>
+        </div>
+        <div class="card-body">
+          <div class="row" *ngIf="mode === 'default'">
+            <div class="col-md-4">
+              <div class="card bg-primary text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Compliance Audit</h5>
+                  <p class="card-text">Review and audit compliance status</p>
+                  <a href="/legal/compliance/audit" class="btn btn-light">View Audit</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-success text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Compliance Reports</h5>
+                  <p class="card-text">Generate and view compliance reports</p>
+                  <a href="/legal/compliance/reports" class="btn btn-light">View Reports</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-info text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Compliance Guidelines</h5>
+                  <p class="card-text">Review legal compliance guidelines</p>
+                  <button class="btn btn-light">View Guidelines</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="mode === 'audit'">
+            <h5>Compliance Audit</h5>
+            <p>Compliance audit functionality will be implemented here.</p>
+          </div>
+
+          <div *ngIf="mode === 'reports'">
+            <h5>Compliance Reports</h5>
+            <p>Compliance reports functionality will be implemented here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

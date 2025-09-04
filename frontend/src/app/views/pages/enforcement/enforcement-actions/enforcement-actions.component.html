@@ -1,0 +1,466 @@
+<div class="enforcement-actions">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="row align-items-center">
+      <div class="col">
+        <div class="page-header-title">
+          <h4 class="page-title">Enforcement Actions</h4>
+          <div class="page-header-breadcrumb">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                  <a routerLink="/dashboard">Dashboard</a>
+                </li>
+                <li class="breadcrumb-item">
+                  <a routerLink="/enforcement">Enforcement</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                  Actions
+                </li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="page-header-actions">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary me-2"
+            (click)="toggleFilters()"
+            [class.active]="showFilters">
+            <i data-feather="filter" appFeatherIcon></i>
+            Filters
+          </button>
+          
+          <div class="dropdown me-2">
+            <button 
+              class="btn btn-outline-secondary dropdown-toggle" 
+              type="button" 
+              data-bs-toggle="dropdown">
+              <i data-feather="download" appFeatherIcon></i>
+              Export
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="#" (click)="exportActions()">
+                  <i data-feather="file-text" appFeatherIcon class="me-2"></i>
+                  Export as CSV
+                </a>
+              </li>
+            </ul>
+          </div>
+          
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary me-2"
+            (click)="refresh()"
+            [disabled]="loading">
+            <i data-feather="refresh-cw" appFeatherIcon [class.spin]="loading"></i>
+            Refresh
+          </button>
+          
+          <button 
+            type="button" 
+            class="btn btn-primary"
+            (click)="createAction()">
+            <i data-feather="plus" appFeatherIcon></i>
+            New Action
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel" [class.show]="showFilters">
+    <div class="card">
+      <div class="card-body">
+        <form [formGroup]="filterForm">
+          <div class="row">
+            <div class="col-md-3">
+              <label class="form-label">Search</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                formControlName="search"
+                placeholder="Search actions...">
+            </div>
+            
+            <div class="col-md-2">
+              <label class="form-label">Type</label>
+              <select class="form-select" formControlName="type">
+                <option value="">All Types</option>
+                <option [value]="ActionType.INVESTIGATION">Investigation</option>
+                <option [value]="ActionType.CORRECTIVE_ACTION">Corrective Action</option>
+                <option [value]="ActionType.FINE">Fine</option>
+                        <option [value]="ActionType.SUSPENSION">Suspension</option>
+                        <option [value]="ActionType.LEGAL_ACTION">Legal Action</option>
+                <option [value]="ActionType.WARNING">Warning</option>
+                        <option [value]="ActionType.POLICY_UPDATE">Policy Update</option>
+                        <option [value]="ActionType.TRAINING">Training</option>
+              </select>
+            </div>
+            
+            <div class="col-md-2">
+              <label class="form-label">Status</label>
+              <select class="form-select" formControlName="status">
+                <option value="">All Statuses</option>
+                <option [value]="ActionStatus.PLANNED">Planned</option>
+                <option [value]="ActionStatus.IN_PROGRESS">In Progress</option>
+                <option [value]="ActionStatus.COMPLETED">Completed</option>
+                <option [value]="ActionStatus.CANCELLED">Cancelled</option>
+                <option [value]="ActionStatus.ON_HOLD">On Hold</option>
+              </select>
+            </div>
+            
+            <div class="col-md-2">
+              <label class="form-label">Assigned To</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                formControlName="assignedTo"
+                placeholder="Assigned to...">
+            </div>
+            
+            <div class="col-md-2">
+              <label class="form-label">Priority</label>
+              <select class="form-select" formControlName="priority">
+                <option value="">All Priorities</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            
+            <div class="col-md-1">
+              <label class="form-label">&nbsp;</label>
+              <div>
+                <button 
+                  type="button" 
+                  class="btn btn-outline-secondary"
+                  (click)="clearFilters()">
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mt-3" formGroupName="dateRange">
+            <div class="col-md-3">
+              <label class="form-label">Start Date</label>
+              <input 
+                type="date" 
+                class="form-control" 
+                formControlName="start">
+            </div>
+            
+            <div class="col-md-3">
+              <label class="form-label">End Date</label>
+              <input 
+                type="date" 
+                class="form-control" 
+                formControlName="end">
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Actions -->
+  <div class="bulk-actions" *ngIf="selectedActions.size > 0">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <strong>{{ selectedActions.size }}</strong> action(s) selected
+          </div>
+          <div class="bulk-action-buttons">
+            <button 
+              type="button" 
+              class="btn btn-outline-success btn-sm me-2"
+              (click)="bulkUpdateStatus(ActionStatus.COMPLETED)">
+              <i data-feather="check" appFeatherIcon class="me-1"></i>
+              Mark Complete
+            </button>
+            
+            <button 
+              type="button" 
+              class="btn btn-outline-warning btn-sm me-2"
+              (click)="bulkUpdateStatus(ActionStatus.ON_HOLD)">
+              <i data-feather="pause" appFeatherIcon class="me-1"></i>
+              Put On Hold
+            </button>
+            
+            <button 
+              type="button" 
+              class="btn btn-outline-danger btn-sm"
+              (click)="bulkDelete()">
+              <i data-feather="trash-2" appFeatherIcon class="me-1"></i>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="alert alert-danger" *ngIf="error && !loading">
+    <i data-feather="alert-circle" appFeatherIcon class="me-2"></i>
+    {{ error }}
+    <button type="button" class="btn btn-outline-danger btn-sm ms-2" (click)="refresh()">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Actions Table -->
+  <div class="actions-table" *ngIf="!loading && !error">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th width="40">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    [checked]="isAllSelected()"
+                    [indeterminate]="isIndeterminate()"
+                    (change)="toggleSelectAll()">
+                </div>
+              </th>
+              <th class="sortable" (click)="onSort('title')">
+                Action
+                <i data-feather="chevron-up" appFeatherIcon
+                  class="sort-icon"
+                  *ngIf="sortField === 'title' && sortDirection === 'asc'"></i>
+                <i data-feather="chevron-down" appFeatherIcon
+                  class="sort-icon"
+                  *ngIf="sortField === 'title' && sortDirection === 'desc'"></i>
+              </th>
+              <th class="sortable" (click)="onSort('type')">
+                Type
+                <i data-feather="chevron-up" appFeatherIcon
+                  class="sort-icon"
+                  *ngIf="sortField === 'type' && sortDirection === 'asc'"></i>
+                <i data-feather="chevron-down" appFeatherIcon
+                  class="sort-icon"
+                  *ngIf="sortField === 'type' && sortDirection === 'desc'"></i>
+              </th>
+              <th class="sortable" (click)="onSort('status')">
+                Status
+                <i data-feather="chevron-up" appFeatherIcon
+                  class="sort-icon"
+                  *ngIf="sortField === 'status' && sortDirection === 'asc'"></i>
+                <i data-feather="chevron-down" appFeatherIcon
+                  class="sort-icon"
+                  *ngIf="sortField === 'status' && sortDirection === 'desc'"></i>
+              </th>
+              <th>Priority</th>
+              <th>Progress</th>
+              <th class="sortable" (click)="onSort('assignedTo')">
+                Assigned To
+                <i data-feather="chevron-up" appFeatherIcon
+                  class="sort-icon"
+                  *ngIf="sortField === 'assignedTo' && sortDirection === 'asc'"></i>
+                <i data-feather="chevron-down" appFeatherIcon
+                  class="sort-icon"
+                  *ngIf="sortField === 'assignedTo' && sortDirection === 'desc'"></i>
+              </th>
+              <th class="sortable" (click)="onSort('dueDate')">
+                Due Date
+                <i data-feather="chevron-up" appFeatherIcon
+                  class="sort-icon"
+                  *ngIf="sortField === 'dueDate' && sortDirection === 'asc'"></i>
+                <i data-feather="chevron-down" appFeatherIcon
+                  class="sort-icon"
+                  *ngIf="sortField === 'dueDate' && sortDirection === 'desc'"></i>
+              </th>
+              <th width="120">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              *ngFor="let action of filteredActions" 
+              class="action-row"
+              [class.table-warning]="isOverdue(action)">
+              <td>
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    [checked]="isSelected(action.id)"
+                    (change)="toggleSelect(action.id)">
+                </div>
+              </td>
+              
+              <td>
+                <div class="action-title">
+                  <a 
+                    href="#" 
+                    class="fw-semibold text-decoration-none"
+                    (click)="viewAction(action.id)">
+                    {{ action.title }}
+                  </a>
+                  <div class="text-muted small mt-1" *ngIf="action.description">
+                    {{ action.description | slice:0:100 }}<span *ngIf="action.description.length > 100">...</span>
+                  </div>
+                </div>
+              </td>
+              
+              <td>
+                <span class="badge bg-info">
+                  {{ getActionTypeLabel(action.type) }}
+                </span>
+              </td>
+              
+              <td>
+                <span 
+                  class="badge"
+                  [class]="'bg-' + getActionStatusColor(action.status)">
+                  {{ getActionStatusLabel(action.status) }}
+                </span>
+              </td>
+              
+              <td>
+                <span 
+                  class="badge"
+                  [class]="'bg-' + getPriorityColor(action.priority)">
+                  {{ action.priority | titlecase }}
+                </span>
+              </td>
+              
+              <td>
+                <div class="progress-container">
+                  <div class="progress" style="height: 8px;">
+                    <div 
+                      class="progress-bar"
+                      [style.width.%]="calculateProgress(action)"
+                      [class]="'bg-' + getActionStatusColor(action.status)"></div>
+                  </div>
+                  <small class="text-muted">{{ calculateProgress(action) }}%</small>
+                </div>
+              </td>
+              
+              <td>
+                <div class="assigned-info">
+                  <div class="fw-semibold">{{ action.assignedTo }}</div>
+                  <div class="small text-muted" *ngIf="action.assignedAt">
+                    Assigned {{ formatDate(action.assignedAt) }}
+                  </div>
+                </div>
+              </td>
+              
+              <td>
+                <div class="date-info" *ngIf="action.dueDate">
+                  <div [class.text-danger]="isOverdue(action)">
+                    {{ formatDate(action.dueDate) }}
+                  </div>
+                  <div class="small text-muted" *ngIf="getDaysUntilDue(action) !== null">
+                    <span *ngIf="getDaysUntilDue(action)! > 0">{{ getDaysUntilDue(action) }} days left</span>
+                    <span *ngIf="getDaysUntilDue(action)! === 0" class="text-warning">Due today</span>
+                    <span *ngIf="getDaysUntilDue(action)! < 0" class="text-danger">{{ Math.abs(getDaysUntilDue(action)!) }} days overdue</span>
+                  </div>
+                </div>
+                <span *ngIf="!action.dueDate" class="text-muted">No due date</span>
+              </td>
+              
+              <td>
+                <div class="dropdown">
+                  <button 
+                    class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                    type="button" 
+                    data-bs-toggle="dropdown">
+                    <i data-feather="more-horizontal" appFeatherIcon></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item" href="#" (click)="viewAction(action.id)">
+                        <i data-feather="eye" appFeatherIcon class="me-2"></i>
+                        View
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="#" (click)="editAction(action.id)">
+                        <i data-feather="edit" appFeatherIcon class="me-2"></i>
+                        Edit
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li *ngIf="action.status !== ActionStatus.COMPLETED">
+                      <a class="dropdown-item" href="#" (click)="updateActionStatus(action.id, ActionStatus.COMPLETED)">
+                        <i data-feather="check" appFeatherIcon class="me-2"></i>
+                        Mark Complete
+                      </a>
+                    </li>
+                    <li *ngIf="action.status !== ActionStatus.ON_HOLD">
+                      <a class="dropdown-item" href="#" (click)="updateActionStatus(action.id, ActionStatus.ON_HOLD)">
+                        <i data-feather="pause" appFeatherIcon class="me-2"></i>
+                        Put On Hold
+                      </a>
+                    </li>
+                    <li *ngIf="action.status === ActionStatus.ON_HOLD">
+                      <a class="dropdown-item" href="#" (click)="updateActionStatus(action.id, ActionStatus.IN_PROGRESS)">
+                        <i data-feather="play" appFeatherIcon class="me-2"></i>
+                        Resume
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <a class="dropdown-item text-danger" href="#" (click)="deleteAction(action.id)">
+                        <i data-feather="trash-2" appFeatherIcon class="me-2"></i>
+                        Delete
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Empty State -->
+      <div class="text-center py-5" *ngIf="filteredActions.length === 0 && !loading">
+        <i data-feather="clipboard" appFeatherIcon size="48" class="text-muted mb-3"></i>
+        <h5 class="text-muted">No enforcement actions found</h5>
+        <p class="text-muted">No actions match your current filters.</p>
+        <button type="button" class="btn btn-primary" (click)="createAction()">
+          <i data-feather="plus" appFeatherIcon class="me-2"></i>
+          Create First Action
+        </button>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="card-footer" *ngIf="filteredActions.length > 0">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <div class="pagination-info">
+              Showing {{ (currentPage - 1) * pageSize + 1 }} to 
+              {{ Math.min(currentPage * pageSize, totalItems) }} of 
+              {{ totalItems }} entries
+            </div>
+          </div>
+          <div class="col-md-6">
+            <ngb-pagination
+              [(page)]="currentPage"
+              [pageSize]="pageSize"
+              [collectionSize]="totalItems"
+              (pageChange)="onPageChange($event)">
+            </ngb-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

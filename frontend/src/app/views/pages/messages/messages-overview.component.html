@@ -1,0 +1,433 @@
+<div class="messages-overview">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">Messages Overview</h1>
+        <p class="page-description">Manage client communications, notifications, and campaigns</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          class="btn btn-outline" 
+          (click)="onRefresh()" 
+          [disabled]="loading"
+          title="Refresh data">
+          <i class="icon">refresh</i>
+          Refresh
+        </button>
+        <button 
+          class="btn btn-primary" 
+          (click)="onQuickAction(quickActions[0])"
+          title="Compose new message">
+          <i class="icon">edit</i>
+          Compose Message
+        </button>
+        <button 
+          class="btn btn-success" 
+          (click)="onQuickAction(quickActions[2])"
+          title="Create new campaign">
+          <i class="icon">campaign</i>
+          New Campaign
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading messages overview...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-content">
+      <i class="icon error-icon">error</i>
+      <h3>Error Loading Data</h3>
+      <p>{{ error }}</p>
+      <button class="btn btn-primary" (click)="onRefresh()">Try Again</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error" class="overview-content">
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="icon">{{ getStatIcon('totalMessages') }}</i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatNumber(stats.totalMessages) }}</div>
+          <div class="stat-label">Total Messages</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon unread">
+          <i class="icon">{{ getStatIcon('unreadMessages') }}</i>
+          <span *ngIf="stats.unreadMessages > 0" class="badge">{{ stats.unreadMessages }}</span>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatNumber(stats.unreadMessages) }}</div>
+          <div class="stat-label">Unread Messages</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="icon">{{ getStatIcon('sentToday') }}</i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatNumber(stats.sentToday) }}</div>
+          <div class="stat-label">Sent Today</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" [class]="getStatColor(stats.deliveryRate, 90)">
+          <i class="icon">{{ getStatIcon('deliveryRate') }}</i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatPercentage(stats.deliveryRate) }}</div>
+          <div class="stat-label">Delivery Rate</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" [class]="getStatColor(stats.responseRate, 25)">
+          <i class="icon">{{ getStatIcon('responseRate') }}</i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatPercentage(stats.responseRate) }}</div>
+          <div class="stat-label">Response Rate</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="icon">{{ getStatIcon('activeCampaigns') }}</i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatNumber(stats.activeCampaigns) }}</div>
+          <div class="stat-label">Active Campaigns</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="icon">{{ getStatIcon('pendingNotifications') }}</i>
+          <span *ngIf="stats.pendingNotifications > 0" class="badge">{{ stats.pendingNotifications }}</span>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatNumber(stats.pendingNotifications) }}</div>
+          <div class="stat-label">Pending Notifications</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" [class]="getStatColor(stats.averageResponseTime, 120, true)">
+          <i class="icon">{{ getStatIcon('averageResponseTime') }}</i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value">{{ formatDuration(stats.averageResponseTime) }}</div>
+          <div class="stat-label">Avg Response Time</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="chart-grid">
+        
+        <!-- Messages by Type Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Messages by Type</h3>
+            <div class="chart-actions">
+              <button class="btn btn-sm btn-outline" title="View details">
+                <i class="icon">more_vert</i>
+              </button>
+            </div>
+          </div>
+          <div class="chart-content">
+            <div *ngIf="messagesByTypeData.length > 0" class="pie-chart">
+              <div class="chart-legend">
+                <div *ngFor="let item of messagesByTypeData" class="legend-item">
+                  <div class="legend-color" [style.background-color]="item.color"></div>
+                  <span class="legend-label">{{ item.name }}</span>
+                  <span class="legend-value">{{ item.value }}</span>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="messagesByTypeData.length === 0" class="no-data">
+              <i class="icon">pie_chart</i>
+              <p>No data available</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Trends Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Message Trends (7 Days)</h3>
+            <div class="chart-actions">
+              <button class="btn btn-sm btn-outline" title="View details">
+                <i class="icon">more_vert</i>
+              </button>
+            </div>
+          </div>
+          <div class="chart-content">
+            <div *ngIf="messageTrendsData.length > 0" class="line-chart">
+              <div class="chart-bars">
+                <div *ngFor="let item of messageTrendsData" class="bar-item">
+                  <div class="bar" [style.height.%]="(item.messages / 100) * 100"></div>
+                  <span class="bar-label">{{ item.date }}</span>
+                  <span class="bar-value">{{ item.messages }}</span>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="messageTrendsData.length === 0" class="no-data">
+              <i class="icon">trending_up</i>
+              <p>No trend data available</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delivery Rate Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Delivery Rate Trends</h3>
+            <div class="chart-actions">
+              <button class="btn btn-sm btn-outline" title="View details">
+                <i class="icon">more_vert</i>
+              </button>
+            </div>
+          </div>
+          <div class="chart-content">
+            <div *ngIf="deliveryRateData.length > 0" class="line-chart">
+              <div class="chart-bars">
+                <div *ngFor="let item of deliveryRateData" class="bar-item">
+                  <div class="bar delivery-rate" [style.height.%]="item.rate"></div>
+                  <span class="bar-label">{{ item.date }}</span>
+                  <span class="bar-value">{{ item.rate }}%</span>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="deliveryRateData.length === 0" class="no-data">
+              <i class="icon">check_circle</i>
+              <p>No delivery data available</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-sections">
+      <div class="content-grid">
+        
+        <!-- Recent Messages -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3>Recent Messages</h3>
+            <div class="card-actions">
+              <button class="btn btn-sm btn-outline" (click)="onViewAllMessages()">
+                View All
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div *ngIf="recentMessages.length > 0" class="message-list">
+              <div *ngFor="let message of recentMessages" 
+                   class="message-item" 
+                   (click)="onViewMessage(message)">
+                <div class="message-icon">
+                  <i class="icon">{{ getMessageIcon(message.type) }}</i>
+                  <span class="status-badge" [class]="getMessageStatusColor(message.status)"></span>
+                </div>
+                <div class="message-content">
+                  <div class="message-subject">{{ message.subject }}</div>
+                  <div class="message-meta">
+                    <span class="recipient">{{ message.recipientName }}</span>
+                    <span class="separator">•</span>
+                    <span class="timestamp">{{ getTimeAgo(message.createdAt) }}</span>
+                  </div>
+                </div>
+                <div class="message-status">
+                  <span class="status-label" [class]="getMessageStatusColor(message.status)">
+                    {{ getMessageStatusLabel(message.status) }}
+                  </span>
+                  <span *ngIf="message.priority !== 'normal'" 
+                        class="priority-badge" 
+                        [class]="getMessagePriorityColor(message.priority)">
+                    {{ getMessagePriorityLabel(message.priority) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="recentMessages.length === 0" class="no-data">
+              <i class="icon">message</i>
+              <p>No recent messages</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Notifications -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3>Recent Notifications</h3>
+            <div class="card-actions">
+              <button *ngIf="stats.pendingNotifications > 0" 
+                      class="btn btn-sm btn-outline" 
+                      (click)="onMarkAllNotificationsRead()">
+                Mark All Read
+              </button>
+              <button class="btn btn-sm btn-outline" (click)="onViewAllNotifications()">
+                View All
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div *ngIf="recentNotifications.length > 0" class="notification-list">
+              <div *ngFor="let notification of recentNotifications" 
+                   class="notification-item" 
+                   [class.unread]="!notification.isRead"
+                   (click)="onViewNotification(notification)">
+                <div class="notification-icon">
+                  <i class="icon">notifications</i>
+                  <span *ngIf="!notification.isRead" class="unread-indicator"></span>
+                </div>
+                <div class="notification-content">
+                  <div class="notification-title">{{ notification.title }}</div>
+                  <div class="notification-message">{{ notification.message }}</div>
+                  <div class="notification-meta">
+                    <span class="timestamp">{{ getTimeAgo(notification.createdAt) }}</span>
+                    <span *ngIf="notification.actionText" class="action-text">
+                      • {{ notification.actionText }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="recentNotifications.length === 0" class="no-data">
+              <i class="icon">notifications</i>
+              <p>No recent notifications</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Campaigns -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3>Active Campaigns</h3>
+            <div class="card-actions">
+              <button class="btn btn-sm btn-outline" (click)="onViewAllCampaigns()">
+                View All
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div *ngIf="activeCampaigns.length > 0" class="campaign-list">
+              <div *ngFor="let campaign of activeCampaigns" 
+                   class="campaign-item" 
+                   (click)="onViewCampaign(campaign)">
+                <div class="campaign-icon">
+                  <i class="icon">campaign</i>
+                  <span class="status-badge" [class]="getCampaignColor(campaign.status)"></span>
+                </div>
+                <div class="campaign-content">
+                  <div class="campaign-name">{{ campaign.name }}</div>
+                  <div class="campaign-meta">
+                    <span class="type">{{ campaign.type }}</span>
+                    <span class="separator">•</span>
+                    <span class="recipients">{{ campaign.statistics.totalRecipients }} recipients</span>
+                  </div>
+                  <div class="campaign-progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" 
+                           [style.width.%]="(campaign.statistics.sentCount / campaign.statistics.totalRecipients) * 100">
+                      </div>
+                    </div>
+                    <span class="progress-text">
+                      {{ campaign.statistics.sentCount }} / {{ campaign.statistics.totalRecipients }}
+                    </span>
+                  </div>
+                </div>
+                <div class="campaign-status">
+                  <span class="status-label" [class]="getCampaignColor(campaign.status)">
+                    {{ campaign.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="activeCampaigns.length === 0" class="no-data">
+              <i class="icon">campaign</i>
+              <p>No active campaigns</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3>Recent Activity</h3>
+            <div class="card-actions">
+              <button class="btn btn-sm btn-outline" (click)="onRefresh()">
+                Refresh
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div *ngIf="recentActivity.length > 0" class="activity-list">
+              <div *ngFor="let activity of recentActivity" class="activity-item">
+                <div class="activity-icon" [class]="activity.color">
+                  <i class="icon">{{ activity.icon }}</i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-title">{{ activity.title }}</div>
+                  <div class="activity-description">{{ activity.description }}</div>
+                  <div class="activity-meta">
+                    <span class="timestamp">{{ getTimeAgo(activity.timestamp) }}</span>
+                    <span *ngIf="activity.status" class="status">• {{ activity.status }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="recentActivity.length === 0" class="no-data">
+              <i class="icon">history</i>
+              <p>No recent activity</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <h3>Quick Actions</h3>
+      <div class="quick-actions-grid">
+        <div *ngFor="let action of quickActions" 
+             class="quick-action-card" 
+             [class]="action.color"
+             (click)="onQuickAction(action)">
+          <div class="action-icon">
+            <i class="icon">{{ action.icon }}</i>
+            <span *ngIf="action.count && action.count > 0" class="action-badge">{{ action.count }}</span>
+          </div>
+          <div class="action-content">
+            <div class="action-title">{{ action.title }}</div>
+            <div class="action-description">{{ action.description }}</div>
+          </div>
+          <div class="action-arrow">
+            <i class="icon">arrow_forward</i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

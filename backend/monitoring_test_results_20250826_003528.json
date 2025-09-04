@@ -1,0 +1,66 @@
+{
+  "test_suite": "Rick Jefferson Solutions - Monitoring System Test",
+  "timestamp": "2025-08-26T05:35:28.119197+00:00",
+  "duration_seconds": 0.0,
+  "total_tests": 7,
+  "passed_tests": 2,
+  "failed_tests": 5,
+  "success_rate_percent": 28.57,
+  "overall_status": "FAIL",
+  "test_results": [
+    {
+      "test_name": "Monitoring Directory Structure",
+      "success": true,
+      "details": "All required files present: health_checks.py, dashboard.py, requirements.txt, .env.example",
+      "error": "",
+      "timestamp": "2025-08-26T05:35:28.116119+00:00"
+    },
+    {
+      "test_name": "Environment Configuration",
+      "success": true,
+      "details": "All required environment variables present: API_BASE_URL, FRONTEND_URL, ALERT_EMAIL_ENABLED, SMTP_SERVER, ALERT_RECIPIENTS",
+      "error": "",
+      "timestamp": "2025-08-26T05:35:28.116869+00:00"
+    },
+    {
+      "test_name": "Health Monitor Initialization",
+      "success": false,
+      "details": "",
+      "error": "HealthMonitor class not available",
+      "timestamp": "2025-08-26T05:35:28.117063+00:00"
+    },
+    {
+      "test_name": "Health Checks Execution",
+      "success": false,
+      "details": "",
+      "error": "HealthMonitor class not available",
+      "timestamp": "2025-08-26T05:35:28.117450+00:00"
+    },
+    {
+      "test_name": "Dashboard Generation",
+      "success": false,
+      "details": "",
+      "error": "MonitoringDashboard class not available",
+      "timestamp": "2025-08-26T05:35:28.117881+00:00"
+    },
+    {
+      "test_name": "Alert Configuration",
+      "success": false,
+      "details": "",
+      "error": "MonitoringDashboard class not available",
+      "timestamp": "2025-08-26T05:35:28.118308+00:00"
+    },
+    {
+      "test_name": "Report Generation",
+      "success": false,
+      "details": "",
+      "error": "HealthMonitor class not available",
+      "timestamp": "2025-08-26T05:35:28.118763+00:00"
+    }
+  ],
+  "platform_info": {
+    "python_version": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+    "operating_system": "nt",
+    "working_directory": "C:\\Users\\ricky\\Downloads\\Tencloud\\credit-repair-platform\\backend"
+  }
+}

@@ -1,0 +1,516 @@
+<div class="view-client-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button 
+          type="button" 
+          class="btn btn-link back-btn" 
+          routerLink="/clients"
+          [attr.aria-label]="'Back to clients'"
+        >
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-text">
+          <h1 class="page-title" *ngIf="client">
+            {{ getFullName() }}
+          </h1>
+          <h1 class="page-title" *ngIf="!client && !isLoading">
+            Client Details
+          </h1>
+          <p class="page-subtitle" *ngIf="client">
+            Client ID: {{ client.id }}
+          </p>
+        </div>
+      </div>
+      <div class="header-actions" *ngIf="client && !isLoading">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="onRefresh()"
+          [attr.aria-label]="'Refresh client data'"
+        >
+          <i class="fas fa-sync-alt"></i>
+          Refresh
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="onCreateDispute()"
+        >
+          <i class="fas fa-plus"></i>
+          Create Dispute
+        </button>
+        <div class="dropdown">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <button 
+                type="button" 
+                class="dropdown-item"
+                (click)="onEdit()"
+              >
+                <i class="fas fa-edit"></i>
+                Edit Client
+              </button>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button 
+                type="button" 
+                class="dropdown-item text-danger"
+                (click)="onDelete()"
+              >
+                <i class="fas fa-trash"></i>
+                Delete Client
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading client information...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !isLoading">
+    <div class="alert alert-danger">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{ error }}</span>
+      <button 
+        type="button" 
+        class="btn btn-sm btn-outline-danger"
+        (click)="onRefresh()"
+      >
+        <i class="fas fa-redo"></i>
+        Retry
+      </button>
+    </div>
+  </div>
+
+  <!-- Client Content -->
+  <div class="client-content" *ngIf="client && !isLoading && !error">
+    <!-- Client Summary Card -->
+    <div class="summary-card">
+      <div class="summary-header">
+        <div class="client-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="client-info">
+          <h2 class="client-name">{{ getFullName() }}</h2>
+          <div class="client-meta">
+            <span class="status-badge" [class]="getStatusBadgeClass(client.status)">
+              {{ client.status | titlecase }}
+            </span>
+            <span class="client-age">{{ getClientAge() }}</span>
+            <span class="join-date">Joined {{ getFormattedDate(client.createdAt) }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="summary-stats">
+        <div class="stat-item">
+          <div class="stat-value">{{ recentDisputes.length }}</div>
+          <div class="stat-label">Recent Disputes</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ client.lastContactDate ? getFormattedDate(client.lastContactDate) : 'Never' }}</div>
+          <div class="stat-label">Last Contact</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ getContactMethodLabel(client.preferredContactMethod) }}</div>
+          <div class="stat-label">Preferred Contact</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <nav class="nav nav-tabs">
+        <button 
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab === 'overview'"
+          (click)="setActiveTab('overview')"
+        >
+          <i class="fas fa-info-circle"></i>
+          Overview
+        </button>
+        <button 
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab === 'contact'"
+          (click)="setActiveTab('contact')"
+        >
+          <i class="fas fa-address-book"></i>
+          Contact Info
+        </button>
+        <button 
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab === 'employment'"
+          (click)="setActiveTab('employment')"
+        >
+          <i class="fas fa-briefcase"></i>
+          Employment
+        </button>
+        <button 
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab === 'disputes'"
+          (click)="setActiveTab('disputes')"
+        >
+          <i class="fas fa-gavel"></i>
+          Disputes
+        </button>
+      </nav>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Overview Tab -->
+      <div class="tab-pane" [class.active]="activeTab === 'overview'">
+        <div class="content-grid">
+          <!-- Personal Information -->
+          <div class="info-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-user"></i>
+                Personal Information
+              </h3>
+            </div>
+            <div class="card-body">
+              <div class="info-row">
+                <span class="info-label">Full Name:</span>
+                <span class="info-value">{{ getFullName() }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Date of Birth:</span>
+                <span class="info-value">{{ getFormattedDate(client.dateOfBirth) }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Age:</span>
+                <span class="info-value">{{ getClientAge() }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">SSN:</span>
+                <span class="info-value">{{ getFormattedSSN(client.ssn) }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Status:</span>
+                <span class="info-value">
+                  <span [class]="getStatusBadgeClass(client.status)">
+                    {{ client.status | titlecase }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Address -->
+          <div class="info-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-home"></i>
+                Current Address
+              </h3>
+            </div>
+            <div class="card-body">
+              <div class="address-display">
+                {{ getFormattedAddress(client.address) }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Previous Address -->
+          <div class="info-card" *ngIf="hasPreviousAddress()">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-map-marker-alt"></i>
+                Previous Address
+              </h3>
+            </div>
+            <div class="card-body">
+              <div class="address-display">
+                {{ getFormattedAddress(client.previous_address) }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="info-card full-width" *ngIf="client.notes">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-sticky-note"></i>
+                Notes
+              </h3>
+            </div>
+            <div class="card-body">
+              <p class="notes-text">{{ client.notes }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Info Tab -->
+      <div class="tab-pane" [class.active]="activeTab === 'contact'">
+        <div class="content-grid">
+          <!-- Contact Details -->
+          <div class="info-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-phone"></i>
+                Contact Details
+              </h3>
+            </div>
+            <div class="card-body">
+              <div class="info-row">
+                <span class="info-label">Email:</span>
+                <span class="info-value">
+                  <a [href]="'mailto:' + client.email" class="contact-link">
+                    {{ client.email }}
+                  </a>
+                </span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Primary Phone:</span>
+                <span class="info-value">
+                  <a [href]="'tel:' + client.phone" class="contact-link">
+                    {{ getFormattedPhone(client.phone) }}
+                  </a>
+                </span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">Preferred Method:</span>
+                <span class="info-value">{{ getContactMethodLabel(client.preferredContactMethod) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact History -->
+          <div class="info-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-history"></i>
+                Contact History
+              </h3>
+            </div>
+            <div class="card-body">
+              <div class="info-row">
+                <span class="info-label">Last Contact:</span>
+                <span class="info-value">{{ getFormattedDateTime(client.lastContactDate) }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Created:</span>
+                <span class="info-value">{{ getFormattedDateTime(client.createdAt) }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Last Updated:</span>
+                <span class="info-value">{{ getFormattedDateTime(client.updatedAt) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employment Tab -->
+      <div class="tab-pane" [class.active]="activeTab === 'employment'">
+        <div class="content-grid">
+          <div class="info-card" *ngIf="hasEmploymentInfo(); else noEmploymentInfo">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-briefcase"></i>
+                Employment Information
+              </h3>
+            </div>
+            <div class="card-body">
+              <div class="info-row" *ngIf="client.employment?.employer_name">
+                <span class="info-label">Employer:</span>
+                <span class="info-value">{{ client.employment?.employer_name }}</span>
+              </div>
+              <div class="info-row" *ngIf="client.employment?.job_title">
+                <span class="info-label">Job Title:</span>
+                <span class="info-value">{{ client.employment?.job_title }}</span>
+              </div>
+              <div class="info-row" *ngIf="client.employment?.work_phone">
+                <span class="info-label">Work Phone:</span>
+                <span class="info-value">
+                  <a [href]="'tel:' + client.employment?.work_phone" class="contact-link">
+                  {{ getFormattedPhone(client.employment?.work_phone) }}
+                </a>
+                </span>
+              </div>
+              <div class="info-row" *ngIf="client.employment?.monthly_income">
+                <span class="info-label">Monthly Income:</span>
+                <span class="info-value">{{ getFormattedIncome(client.employment?.monthly_income) }}</span>
+              </div>
+              <div class="info-row" *ngIf="client.employment?.employment_length">
+                <span class="info-label">Employment Length:</span>
+                <span class="info-value">{{ client.employment?.employment_length }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <ng-template #noEmploymentInfo>
+            <div class="empty-state">
+              <i class="fas fa-briefcase"></i>
+              <h3>No Employment Information</h3>
+              <p>No employment details have been provided for this client.</p>
+              <button 
+                type="button" 
+                class="btn btn-primary"
+                (click)="onEdit()"
+              >
+                <i class="fas fa-plus"></i>
+                Add Employment Info
+              </button>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Disputes Tab -->
+      <div class="tab-pane" [class.active]="activeTab === 'disputes'">
+        <div class="disputes-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="fas fa-gavel"></i>
+              Recent Disputes
+            </h3>
+            <div class="section-actions">
+              <button 
+                type="button" 
+                class="btn btn-outline-primary btn-sm"
+                (click)="onViewAllDisputes()"
+              >
+                <i class="fas fa-list"></i>
+                View All
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-primary btn-sm"
+                (click)="onCreateDispute()"
+              >
+                <i class="fas fa-plus"></i>
+                Create Dispute
+              </button>
+            </div>
+          </div>
+
+          <!-- Disputes Loading -->
+          <div class="disputes-loading" *ngIf="disputesLoading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Loading disputes...</span>
+          </div>
+
+          <!-- Disputes List -->
+          <div class="disputes-list" *ngIf="!disputesLoading && recentDisputes.length > 0">
+            <div 
+              class="dispute-item"
+              *ngFor="let dispute of recentDisputes"
+              (click)="onViewDispute(dispute)"
+            >
+              <div class="dispute-header">
+                <div class="dispute-title">
+                  <h4>{{ getDisputeTypeLabel(dispute.type) }}</h4>
+                  <span [class]="getDisputeStatusBadgeClass(dispute.status)">
+                    {{ dispute.status | titlecase }}
+                  </span>
+                </div>
+                <div class="dispute-meta">
+                  <span class="dispute-bureau">{{ getBureauLabel(dispute.bureau) }}</span>
+                  <span class="dispute-date">{{ getFormattedDate(dispute.created_date) }}</span>
+                </div>
+              </div>
+              <div class="dispute-description">
+                {{ dispute.description }}
+              </div>
+              <div class="dispute-footer">
+                <span class="dispute-items">{{ dispute.dispute_items?.length || 0 }} items</span>
+                <i class="fas fa-chevron-right"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- No Disputes -->
+          <div class="empty-state" *ngIf="!disputesLoading && recentDisputes.length === 0">
+            <i class="fas fa-gavel"></i>
+            <h3>No Disputes Found</h3>
+            <p>This client doesn't have any disputes yet.</p>
+            <button 
+              type="button" 
+              class="btn btn-primary"
+              (click)="onCreateDispute()"
+            >
+              <i class="fas fa-plus"></i>
+              Create First Dispute
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" [class.show]="showDeleteConfirm" [style.display]="showDeleteConfirm ? 'block' : 'none'" *ngIf="showDeleteConfirm">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-exclamation-triangle text-danger"></i>
+            Confirm Delete
+          </h5>
+          <button 
+            type="button" 
+            class="btn-close" 
+            (click)="cancelDelete()"
+            [disabled]="isDeleting"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete <strong>{{ getFullName() }}</strong>?</p>
+          <p class="text-danger">
+            <i class="fas fa-warning"></i>
+            This action cannot be undone. All associated disputes and data will also be deleted.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="cancelDelete()"
+            [disabled]="isDeleting"
+          >
+            Cancel
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-danger"
+            (click)="confirmDelete()"
+            [disabled]="isDeleting"
+          >
+            <i class="fas fa-spinner fa-spin" *ngIf="isDeleting"></i>
+            <i class="fas fa-trash" *ngIf="!isDeleting"></i>
+            {{ isDeleting ? 'Deleting...' : 'Delete Client' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade" [class.show]="showDeleteConfirm" *ngIf="showDeleteConfirm"></div>
+</div>

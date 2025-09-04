@@ -1,0 +1,663 @@
+<!-- Rick Jefferson Solutions - Registration Component -->
+<!-- Multi-step client registration with comprehensive validation -->
+<!-- Implements TCPA compliance and professional onboarding experience -->
+
+<div class="register-container">
+  <!-- Background Elements -->
+  <div class="background-pattern"></div>
+  <div class="background-overlay"></div>
+  
+  <!-- Main Registration Card -->
+  <div class="register-card">
+    <!-- Header Section -->
+    <div class="register-header">
+      <div class="brand-logo">
+        <img src="/assets/images/rjs-logo-white.svg" alt="Rick Jefferson Solutions" class="logo">
+      </div>
+      <h1 class="brand-title">Rick Jefferson Solutions</h1>
+      <p class="brand-tagline">Your Credit Freedom Starts Here</p>
+      
+      <!-- Progress Indicator -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+        </div>
+        <div class="progress-text">
+          Step {{ currentStep }} of {{ totalSteps }}: {{ currentStepData.title }}
+        </div>
+      </div>
+      
+      <!-- Step Navigation -->
+      <div class="step-navigation">
+        <div 
+          *ngFor="let step of steps; let i = index"
+          class="step-indicator"
+          [class.completed]="step.isCompleted"
+          [class.active]="step.isActive"
+          [class.clickable]="i < currentStep || step.isCompleted"
+          (click)="goToStep(step.id)">
+          <div class="step-number">
+            <i *ngIf="step.isCompleted" class="fas fa-check"></i>
+            <span *ngIf="!step.isCompleted">{{ step.id }}</span>
+          </div>
+          <div class="step-info">
+            <div class="step-title">{{ step.title }}</div>
+            <div class="step-description">{{ step.description }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Form Section -->
+    <div class="register-form-section">
+      <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" novalidate>
+        
+        <!-- Step 1: Personal Information -->
+        <div class="form-step" *ngIf="currentStep === 1">
+          <div class="step-header">
+            <h2>Personal Information</h2>
+            <p>Let's start with your basic contact details</p>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="firstName">
+                <i class="fas fa-user"></i>
+                First Name <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  id="firstName"
+                  formControlName="firstName"
+                  class="form-input"
+                  [class.error]="fieldErrors['firstName']"
+                  placeholder="Enter your first name"
+                  autocomplete="given-name">
+              </div>
+              <div class="error-message" *ngIf="fieldErrors['firstName']">
+                {{ fieldErrors['firstName'] }}
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="lastName">
+                <i class="fas fa-user"></i>
+                Last Name <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  id="lastName"
+                  formControlName="lastName"
+                  class="form-input"
+                  [class.error]="fieldErrors['lastName']"
+                  placeholder="Enter your last name"
+                  autocomplete="family-name">
+              </div>
+              <div class="error-message" *ngIf="fieldErrors['lastName']">
+                {{ fieldErrors['lastName'] }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="email">
+              <i class="fas fa-envelope"></i>
+              Email Address <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                class="form-input"
+                [class.error]="fieldErrors['email']"
+                placeholder="your.email@company.com"
+                autocomplete="email">
+            </div>
+            <div class="error-message" *ngIf="fieldErrors['email']">
+              {{ fieldErrors['email'] }}
+            </div>
+            <div class="field-hint" *ngIf="registrationForm.get('email')?.errors?.['businessEmail']">
+              <i class="fas fa-info-circle"></i>
+              Business email detected - great for professional services!
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="phone">
+              <i class="fas fa-phone"></i>
+              Phone Number <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="tel"
+                id="phone"
+                formControlName="phone"
+                class="form-input"
+                [class.error]="fieldErrors['phone']"
+                placeholder="(555) 123-4567"
+                autocomplete="tel"
+                (input)="formatPhone($event)">
+            </div>
+            <div class="error-message" *ngIf="fieldErrors['phone']">
+              {{ fieldErrors['phone'] }}
+            </div>
+            <div class="field-hint">
+              <i class="fas fa-shield-alt"></i>
+              Your phone number is secure and used only for account verification
+            </div>
+          </div>
+        </div>
+        
+        <!-- Step 2: Address & Identity -->
+        <div class="form-step" *ngIf="currentStep === 2">
+          <div class="step-header">
+            <h2>Address & Identity Verification</h2>
+            <p>We need this information to verify your identity and comply with federal regulations</p>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="dateOfBirth">
+              <i class="fas fa-calendar-alt"></i>
+              Date of Birth <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="date"
+                id="dateOfBirth"
+                formControlName="dateOfBirth"
+                class="form-input"
+                [class.error]="fieldErrors['dateOfBirth']"
+                autocomplete="bday">
+            </div>
+            <div class="error-message" *ngIf="fieldErrors['dateOfBirth']">
+              {{ fieldErrors['dateOfBirth'] }}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="ssn">
+              <i class="fas fa-id-card"></i>
+              Social Security Number <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="ssn"
+                formControlName="ssn"
+                class="form-input"
+                [class.error]="fieldErrors['ssn']"
+                placeholder="123-45-6789"
+                autocomplete="off"
+                (input)="formatSSN($event)">
+            </div>
+            <div class="error-message" *ngIf="fieldErrors['ssn']">
+              {{ fieldErrors['ssn'] }}
+            </div>
+            <div class="field-hint">
+              <i class="fas fa-lock"></i>
+              Your SSN is encrypted and used only for identity verification
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="street">
+              <i class="fas fa-home"></i>
+              Street Address <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="street"
+                formControlName="street"
+                class="form-input"
+                [class.error]="fieldErrors['street']"
+                placeholder="123 Main Street"
+                autocomplete="street-address">
+            </div>
+            <div class="error-message" *ngIf="fieldErrors['street']">
+              {{ fieldErrors['street'] }}
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="city">
+                <i class="fas fa-city"></i>
+                City <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  id="city"
+                  formControlName="city"
+                  class="form-input"
+                  [class.error]="fieldErrors['city']"
+                  placeholder="Dallas"
+                  autocomplete="address-level2">
+              </div>
+              <div class="error-message" *ngIf="fieldErrors['city']">
+                {{ fieldErrors['city'] }}
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="state">
+                <i class="fas fa-map-marker-alt"></i>
+                State <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <select
+                  id="state"
+                  formControlName="state"
+                  class="form-input"
+                  [class.error]="fieldErrors['state']"
+                  autocomplete="address-level1">
+                  <option value="">Select State</option>
+                  <option *ngFor="let state of states" [value]="state.code">
+                    {{ state.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="error-message" *ngIf="fieldErrors['state']">
+                {{ fieldErrors['state'] }}
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="zipCode">
+                <i class="fas fa-mail-bulk"></i>
+                ZIP Code <span class="required">*</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  id="zipCode"
+                  formControlName="zipCode"
+                  class="form-input"
+                  [class.error]="fieldErrors['zipCode']"
+                  placeholder="75034"
+                  autocomplete="postal-code"
+                  (input)="formatZipCode($event)">
+              </div>
+              <div class="error-message" *ngIf="fieldErrors['zipCode']">
+                {{ fieldErrors['zipCode'] }}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Step 3: Security Setup -->
+        <div class="form-step" *ngIf="currentStep === 3">
+          <div class="step-header">
+            <h2>Security Setup</h2>
+            <p>Create a strong password to protect your account</p>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="password">
+              <i class="fas fa-lock"></i>
+              Password <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                formControlName="password"
+                class="form-input"
+                [class.error]="fieldErrors['password']"
+                placeholder="Create a strong password"
+                autocomplete="new-password">
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+                <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
+            <div class="error-message" *ngIf="fieldErrors['password']">
+              {{ fieldErrors['password'] }}
+            </div>
+            
+            <!-- Password Strength Indicator -->
+            <div class="password-strength" *ngIf="registrationForm.get('password')?.value">
+              <div class="strength-bar">
+                <div 
+                  class="strength-fill"
+                  [class]="passwordStrengthClass"
+                  [style.width.%]="passwordStrength">
+                </div>
+              </div>
+              <div class="strength-text">
+                Password Strength: <span [class]="passwordStrengthClass">{{ passwordStrengthText }}</span>
+              </div>
+            </div>
+            
+            <!-- Password Requirements -->
+            <div class="password-requirements">
+              <div class="requirement-title">Password must contain:</div>
+              <div class="requirements-list">
+                <div class="requirement" [class.met]="registrationForm.get('password')?.value?.length >= 8">
+                  <i class="fas fa-check"></i>
+                  At least 8 characters
+                </div>
+                <div class="requirement" [class.met]="/[A-Z]/.test(registrationForm.get('password')?.value)">
+                  <i class="fas fa-check"></i>
+                  One uppercase letter
+                </div>
+                <div class="requirement" [class.met]="/[a-z]/.test(registrationForm.get('password')?.value)">
+                  <i class="fas fa-check"></i>
+                  One lowercase letter
+                </div>
+                <div class="requirement" [class.met]="/\d/.test(registrationForm.get('password')?.value)">
+                  <i class="fas fa-check"></i>
+                  One number
+                </div>
+                <div class="requirement" [class.met]="/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(registrationForm.get('password')?.value)">
+                  <i class="fas fa-check"></i>
+                  One special character
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="confirmPassword">
+              <i class="fas fa-lock"></i>
+              Confirm Password <span class="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                id="confirmPassword"
+                formControlName="confirmPassword"
+                class="form-input"
+                [class.error]="fieldErrors['confirmPassword'] || registrationForm.errors?.['passwordMismatch']"
+                placeholder="Confirm your password"
+                autocomplete="new-password">
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="toggleConfirmPasswordVisibility()"
+                [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">
+                <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
+            <div class="error-message" *ngIf="fieldErrors['confirmPassword'] || registrationForm.errors?.['passwordMismatch']">
+              {{ fieldErrors['confirmPassword'] || 'Passwords do not match' }}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Step 4: Consent & Verification -->
+        <div class="form-step" *ngIf="currentStep === 4">
+          <div class="step-header">
+            <h2>Legal Agreements & Consent</h2>
+            <p>Please review and accept our terms to complete your registration</p>
+          </div>
+          
+          <!-- TCPA Consent -->
+          <div class="consent-section">
+            <div class="consent-header">
+              <i class="fas fa-phone-alt"></i>
+              <h3>Communication Consent (TCPA)</h3>
+            </div>
+            <div class="consent-content">
+              <div class="checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  id="tcpaConsent"
+                  formControlName="tcpaConsent"
+                  class="checkbox-input">
+                <div class="checkbox-custom"></div>
+                <label for="tcpaConsent" class="checkbox-label">
+                  <strong>I consent to receive calls and text messages</strong> from Rick Jefferson Solutions 
+                  at the phone number provided, including automated calls/texts for marketing purposes. 
+                  Message and data rates may apply. <span class="required">*</span>
+                </label>
+              </div>
+              <div class="consent-details">
+                <p>By providing your phone number and checking this box, you agree that Rick Jefferson Solutions 
+                may contact you via phone calls and text messages (including automated/pre-recorded calls and texts) 
+                at the number you provided for marketing purposes. Consent is not required for purchase. 
+                Reply STOP to opt out.</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Email Consent -->
+          <div class="consent-section">
+            <div class="consent-header">
+              <i class="fas fa-envelope"></i>
+              <h3>Email Marketing</h3>
+            </div>
+            <div class="consent-content">
+              <div class="checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  id="emailConsent"
+                  formControlName="emailConsent"
+                  class="checkbox-input">
+                <div class="checkbox-custom"></div>
+                <label for="emailConsent" class="checkbox-label">
+                  I would like to receive email updates about credit repair tips, 
+                  financial education, and special offers (optional)
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Legal Agreements -->
+          <div class="legal-agreements">
+            <div class="agreement-item">
+              <div class="checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  id="privacyPolicy"
+                  formControlName="privacyPolicy"
+                  class="checkbox-input">
+                <div class="checkbox-custom"></div>
+                <label for="privacyPolicy" class="checkbox-label">
+                  I have read and agree to the 
+                  <a href="/privacy-policy" target="_blank" class="legal-link">Privacy Policy</a>
+                  <span class="required">*</span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="agreement-item">
+              <div class="checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  id="termsOfService"
+                  formControlName="termsOfService"
+                  class="checkbox-input">
+                <div class="checkbox-custom"></div>
+                <label for="termsOfService" class="checkbox-label">
+                  I have read and agree to the 
+                  <a href="/terms-of-service" target="_blank" class="legal-link">Terms of Service</a>
+                  <span class="required">*</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Optional Information -->
+          <div class="optional-section">
+            <h3>Optional Information</h3>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="referralCode">
+                  <i class="fas fa-gift"></i>
+                  Referral Code
+                </label>
+                <div class="input-wrapper">
+                  <input
+                    type="text"
+                    id="referralCode"
+                    formControlName="referralCode"
+                    class="form-input"
+                    placeholder="Enter referral code (if any)">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" for="marketingSource">
+                  <i class="fas fa-chart-line"></i>
+                  How did you hear about us?
+                </label>
+                <div class="input-wrapper">
+                  <select
+                    id="marketingSource"
+                    formControlName="marketingSource"
+                    class="form-input">
+                    <option value="">Select source</option>
+                    <option *ngFor="let source of marketingSources" [value]="source">
+                      {{ source }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            *ngIf="currentStep > 1"
+            (click)="previousStep()"
+            [disabled]="isSubmitting">
+            <i class="fas fa-arrow-left"></i>
+            Previous
+          </button>
+          
+          <button
+            type="button"
+            class="primary-button"
+            *ngIf="!isLastStep"
+            (click)="nextStep()"
+            [disabled]="!canProceed || isSubmitting">
+            Next
+            <i class="fas fa-arrow-right"></i>
+          </button>
+          
+          <button
+            type="submit"
+            class="submit-button"
+            *ngIf="isLastStep"
+            [disabled]="!canProceed || isSubmitting"
+            [class.loading]="isSubmitting">
+            <div class="loading-content" *ngIf="isSubmitting">
+              <i class="fas fa-spinner"></i>
+              Creating Account...
+            </div>
+            <div *ngIf="!isSubmitting">
+              <i class="fas fa-user-plus"></i>
+              Create Account
+            </div>
+          </button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Messages Section -->
+    <div class="messages-section" *ngIf="validationMessages.length > 0">
+      <div 
+        *ngFor="let message of validationMessages"
+        class="alert"
+        [class]="'alert-' + message.type">
+        <i [class]="message.type === 'error' ? 'fas fa-exclamation-triangle' : 
+                   message.type === 'success' ? 'fas fa-check-circle' : 
+                   message.type === 'warning' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle'"></i>
+        {{ message.message }}
+      </div>
+    </div>
+    
+    <!-- Login Link -->
+    <div class="login-section">
+      <p>Already have an account?</p>
+      <button type="button" class="link-button" (click)="goToLogin()">
+        Sign In Here
+      </button>
+    </div>
+    
+    <!-- Footer -->
+    <div class="register-footer">
+      <div class="contact-info">
+        <div class="contact-item">
+          <i class="fas fa-phone"></i>
+          <span>877-763-8587</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-envelope"></i>
+          <span>info@rickjeffersonsolutions.com</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-globe"></i>
+          <span>rickjeffersonsolutions.com</span>
+        </div>
+      </div>
+      
+      <div class="business-hours">
+        <p><strong>Business Hours:</strong> Monday - Friday, 9:00 AM - 5:00 PM CST</p>
+        <p><strong>Offices:</strong> Frisco HQ • Dallas • Milwaukee</p>
+      </div>
+      
+      <div class="legal-links">
+        <a href="/privacy-policy" class="legal-link">Privacy Policy</a>
+        <a href="/terms-of-service" class="legal-link">Terms of Service</a>
+        <a href="/fcra-disclosure" class="legal-link">FCRA Disclosure</a>
+        <a href="/croa-disclosure" class="legal-link">CROA Disclosure</a>
+      </div>
+      
+      <div class="copyright">
+        <p>&copy; {{ new Date().getFullYear() }} Rick Jefferson Solutions. All rights reserved.</p>
+        <p class="disclaimer">
+          <strong>Disclaimer:</strong> Results vary. No outcome is guaranteed. 
+          Accurate information cannot be removed from credit reports.
+        </p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Security Features Notice -->
+  <div class="security-notice">
+    <div class="security-features">
+      <div class="security-item">
+        <i class="fas fa-shield-alt"></i>
+        <span>256-bit SSL Encryption</span>
+      </div>
+      <div class="security-item">
+        <i class="fas fa-lock"></i>
+        <span>FCRA Compliant</span>
+      </div>
+      <div class="security-item">
+        <i class="fas fa-user-shield"></i>
+        <span>Identity Protected</span>
+      </div>
+      <div class="security-item">
+        <i class="fas fa-certificate"></i>
+        <span>CROA Certified</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner"></i>
+      <p>Processing your registration...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Rick Jefferson Solutions - Registration Component -->
+<!-- Professional multi-step registration with legal compliance -->
+<!-- Implements comprehensive validation and security standards -->

@@ -1,0 +1,838 @@
+<div class="reports-container">
+  <!-- Header -->
+  <div class="reports-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Credit Reports & Analytics</h1>
+        <p class="page-subtitle">Generate, schedule, and manage comprehensive credit reports</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline" (click)="openTemplateModal()">
+          <i class="fas fa-template"></i>
+          Templates
+        </button>
+        <button class="btn btn-outline" (click)="clearFilters()">
+          <i class="fas fa-filter"></i>
+          Clear Filters
+        </button>
+        <button class="btn btn-primary" (click)="openReportModal(undefined, 'create')">
+          <i class="fas fa-plus"></i>
+          New Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.totalReports }}</div>
+        <div class="stat-label">Total Reports</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon completed">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.completedReports }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon scheduled">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.scheduledReports }}</div>
+        <div class="stat-label">Scheduled</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon size">
+        <i class="fas fa-database"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ formatFileSize(stats.totalSize) }}</div>
+        <div class="stat-label">Total Size</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label for="search">Search Reports</label>
+        <input 
+          type="text" 
+          id="search"
+          class="form-control" 
+          placeholder="Search by title, description, or tags..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+        >
+      </div>
+      <div class="filter-group">
+        <label for="category">Category</label>
+        <select 
+          id="category"
+          class="form-control" 
+          [(ngModel)]="selectedCategory"
+          (change)="onFilterChange()"
+        >
+          <option value="">All Categories</option>
+          <option *ngFor="let category of categories" [value]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="type">Type</label>
+        <select 
+          id="type"
+          class="form-control" 
+          [(ngModel)]="selectedType"
+          (change)="onFilterChange()"
+        >
+          <option value="">All Types</option>
+          <option value="credit_analysis">Credit Analysis</option>
+          <option value="dispute_summary">Dispute Summary</option>
+          <option value="progress_tracking">Progress Tracking</option>
+          <option value="client_overview">Client Overview</option>
+          <option value="financial_summary">Financial Summary</option>
+          <option value="compliance_audit">Compliance Audit</option>
+          <option value="performance_metrics">Performance Metrics</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="status">Status</label>
+        <select 
+          id="status"
+          class="form-control" 
+          [(ngModel)]="selectedStatus"
+          (change)="onFilterChange()"
+        >
+          <option value="">All Status</option>
+          <option value="draft">Draft</option>
+          <option value="generating">Generating</option>
+          <option value="completed">Completed</option>
+          <option value="failed">Failed</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="archived">Archived</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="format">Format</label>
+        <select 
+          id="format"
+          class="form-control" 
+          [(ngModel)]="selectedFormat"
+          (change)="onFilterChange()"
+        >
+          <option value="">All Formats</option>
+          <option value="pdf">PDF</option>
+          <option value="excel">Excel</option>
+          <option value="csv">CSV</option>
+          <option value="json">JSON</option>
+          <option value="html">HTML</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filters-row-secondary">
+      <div class="filter-group">
+        <label for="dateStart">Date Range</label>
+        <div class="date-range">
+          <input 
+            type="date" 
+            id="dateStart"
+            class="form-control" 
+            [(ngModel)]="dateRange.start"
+            (change)="onFilterChange()"
+          >
+          <span class="date-separator">to</span>
+          <input 
+            type="date" 
+            id="dateEnd"
+            class="form-control" 
+            [(ngModel)]="dateRange.end"
+            (change)="onFilterChange()"
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="view-controls">
+      <div class="view-modes">
+        <button 
+          class="view-mode-btn" 
+          [class.active]="viewMode === 'grid'"
+          (click)="viewMode = 'grid'"
+        >
+          <i class="fas fa-th"></i>
+          Grid
+        </button>
+        <button 
+          class="view-mode-btn" 
+          [class.active]="viewMode === 'list'"
+          (click)="viewMode = 'list'"
+        >
+          <i class="fas fa-list"></i>
+          List
+        </button>
+      </div>
+      <div class="sort-controls">
+        <label for="sort">Sort by:</label>
+        <select 
+          id="sort"
+          class="form-control" 
+          [(ngModel)]="sortBy"
+          (change)="onFilterChange()"
+        >
+          <option value="createdDate">Created Date</option>
+          <option value="title">Title</option>
+          <option value="status">Status</option>
+          <option value="lastGenerated">Last Generated</option>
+          <option value="size">File Size</option>
+        </select>
+        <button 
+          class="btn btn-outline" 
+          (click)="onSortChange(sortBy)"
+        >
+          <i class="fas" [class.fa-sort-up]="sortOrder === 'asc'" [class.fa-sort-down]="sortOrder === 'desc'"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reports Content -->
+  <div class="reports-content">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading reports...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3 class="error-title">Error Loading Reports</h3>
+      <p class="error-description">{{ error }}</p>
+      <button class="btn btn-primary" (click)="loadReports()">
+        <i class="fas fa-redo"></i>
+        Retry
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && filteredReports.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <h3 class="empty-title">No Reports Found</h3>
+      <p class="empty-description">
+        No reports match your current filters. Try adjusting your search criteria or create a new report.
+      </p>
+      <div class="empty-actions">
+        <button class="btn btn-outline" (click)="clearFilters()">
+          <i class="fas fa-filter"></i>
+          Clear Filters
+        </button>
+        <button class="btn btn-primary" (click)="openReportModal(undefined, 'create')">
+          <i class="fas fa-plus"></i>
+          Create Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid View -->
+    <div *ngIf="!loading && !error && filteredReports.length > 0 && viewMode === 'grid'" class="reports-grid">
+      <div *ngFor="let report of getPaginatedReports()" class="report-card">
+        <div class="report-header">
+          <div class="report-icon" [style.background-color]="report.category.color + '20'" [style.color]="report.category.color">
+            <i class="fas" [class]="report.category.icon"></i>
+          </div>
+          <div class="report-status">
+            <span class="badge status" [class]="getStatusClass(report.status)">{{ report.status | titlecase }}</span>
+          </div>
+          <div class="report-actions">
+            <button class="action-btn" (click)="openReportModal(report, 'view')" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button *ngIf="report.status === 'completed' && report.downloadUrl" class="action-btn" (click)="downloadReport(report)" title="Download">
+              <i class="fas fa-download"></i>
+            </button>
+            <button class="action-btn" (click)="duplicateReport(report)" title="Duplicate">
+              <i class="fas fa-copy"></i>
+            </button>
+            <button class="action-btn" (click)="openReportModal(report, 'edit')" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn danger" (click)="deleteReport(report)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="report-content">
+          <h3 class="report-title">{{ report.title }}</h3>
+          <p class="report-description">{{ report.description }}</p>
+          
+          <div class="report-meta">
+            <div class="meta-item">
+              <span class="meta-label">Type:</span>
+              <span class="meta-value">{{ report.type | titlecase }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Created:</span>
+              <span class="meta-value">{{ formatDate(report.createdDate) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Size:</span>
+              <span class="meta-value">{{ formatFileSize(report.size) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Format:</span>
+              <div class="format-icons">
+                <i *ngFor="let format of report.format" class="fas" [class]="getFormatIcon(format)" [title]="format | titlecase"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-schedule" *ngIf="report.isAutomated && report.schedule">
+            <div class="schedule-info">
+              <i class="fas fa-clock"></i>
+              <span>{{ report.schedule.frequency | titlecase }} at {{ report.schedule.time }}</span>
+            </div>
+          </div>
+
+          <div class="report-tags">
+            <span *ngFor="let tag of report.tags.slice(0, 3)" class="tag">{{ tag }}</span>
+            <span *ngIf="report.tags.length > 3" class="tag more">+{{ report.tags.length - 3 }}</span>
+          </div>
+        </div>
+
+        <div class="report-footer">
+          <button 
+            *ngIf="report.status === 'draft' || report.status === 'failed'" 
+            class="btn btn-primary btn-block" 
+            (click)="generateReport(report)"
+          >
+            <i class="fas fa-play"></i>
+            Generate Report
+          </button>
+          <button 
+            *ngIf="report.status === 'completed' && report.downloadUrl" 
+            class="btn btn-primary btn-block" 
+            (click)="downloadReport(report)"
+          >
+            <i class="fas fa-download"></i>
+            Download
+          </button>
+          <button 
+            *ngIf="report.status === 'generating'" 
+            class="btn btn-secondary btn-block" 
+            disabled
+          >
+            <i class="fas fa-spinner fa-spin"></i>
+            Generating...
+          </button>
+          <div class="report-secondary-actions">
+            <button *ngIf="!report.isAutomated" class="action-btn" (click)="openScheduleModal(report)" title="Schedule">
+              <i class="fas fa-calendar-plus"></i>
+            </button>
+            <button *ngIf="report.isAutomated" class="action-btn" (click)="openScheduleModal(report)" title="Edit Schedule">
+              <i class="fas fa-calendar-edit"></i>
+            </button>
+            <button class="action-btn" (click)="openReportModal(report, 'view')" title="View Details">
+              <i class="fas fa-info-circle"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div *ngIf="!loading && !error && filteredReports.length > 0 && viewMode === 'list'" class="reports-list">
+      <div class="list-header">
+        <div class="col-report">Report</div>
+        <div class="col-type">Type</div>
+        <div class="col-status">Status</div>
+        <div class="col-created">Created</div>
+        <div class="col-size">Size</div>
+        <div class="col-format">Format</div>
+        <div class="col-schedule">Schedule</div>
+        <div class="col-actions">Actions</div>
+      </div>
+      
+      <div *ngFor="let report of getPaginatedReports()" class="list-item">
+        <div class="col-report">
+          <div class="report-info">
+            <div class="report-icon-small" [style.background-color]="report.category.color + '20'" [style.color]="report.category.color">
+              <i class="fas" [class]="report.category.icon"></i>
+            </div>
+            <div class="report-details">
+              <div class="report-name">{{ report.title }}</div>
+              <div class="report-desc">{{ report.description | slice:0:60 }}{{ report.description.length > 60 ? '...' : '' }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-type">
+          <span class="type-text">{{ report.type | titlecase }}</span>
+        </div>
+        <div class="col-status">
+          <span class="badge status" [class]="getStatusClass(report.status)">{{ report.status | titlecase }}</span>
+        </div>
+        <div class="col-created">
+          <span class="date-text">{{ formatDate(report.createdDate) }}</span>
+        </div>
+        <div class="col-size">
+          <span class="size-text">{{ formatFileSize(report.size) }}</span>
+        </div>
+        <div class="col-format">
+          <div class="format-icons">
+            <i *ngFor="let format of report.format" class="fas" [class]="getFormatIcon(format)" [title]="format | titlecase"></i>
+          </div>
+        </div>
+        <div class="col-schedule">
+          <span *ngIf="report.isAutomated && report.schedule" class="schedule-text">
+            {{ report.schedule.frequency | titlecase }}
+          </span>
+          <span *ngIf="!report.isAutomated" class="schedule-text manual">Manual</span>
+        </div>
+        <div class="col-actions">
+          <button *ngIf="report.status === 'draft' || report.status === 'failed'" class="action-btn" (click)="generateReport(report)" title="Generate">
+            <i class="fas fa-play"></i>
+          </button>
+          <button *ngIf="report.status === 'completed' && report.downloadUrl" class="action-btn" (click)="downloadReport(report)" title="Download">
+            <i class="fas fa-download"></i>
+          </button>
+          <button class="action-btn" (click)="openReportModal(report, 'view')" title="View Details">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="action-btn" (click)="openReportModal(report, 'edit')" title="Edit">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="action-btn danger" (click)="deleteReport(report)" title="Delete">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && !error && filteredReports.length > 0" class="pagination-container">
+    <div class="pagination-info">
+      Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }} reports
+    </div>
+    <div class="pagination">
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      
+      <button 
+        *ngFor="let page of [].constructor(totalPages); let i = index" 
+        class="page-btn" 
+        [class.active]="currentPage === i + 1"
+        (click)="goToPage(i + 1)"
+      >
+        {{ i + 1 }}
+      </button>
+      
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div *ngIf="showReportModal" class="modal-overlay" (click)="closeReportModal()">
+  <div class="modal-content large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <span *ngIf="modalMode === 'view'">Report Details</span>
+        <span *ngIf="modalMode === 'create'">Create New Report</span>
+        <span *ngIf="modalMode === 'edit'">Edit Report</span>
+      </h2>
+      <button class="modal-close" (click)="closeReportModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- View Mode -->
+      <div *ngIf="modalMode === 'view' && selectedReport" class="report-details">
+        <div class="details-section">
+          <h3>Basic Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Title:</label>
+              <span>{{ selectedReport.title }}</span>
+            </div>
+            <div class="info-item">
+              <label>Type:</label>
+              <span>{{ selectedReport.type | titlecase }}</span>
+            </div>
+            <div class="info-item">
+              <label>Category:</label>
+              <span>{{ selectedReport.category.name }}</span>
+            </div>
+            <div class="info-item">
+              <label>Status:</label>
+              <span class="badge status" [class]="getStatusClass(selectedReport.status)">{{ selectedReport.status | titlecase }}</span>
+            </div>
+            <div class="info-item">
+              <label>Created:</label>
+              <span>{{ formatDate(selectedReport.createdDate) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Last Generated:</label>
+              <span>{{ formatDate(selectedReport.lastGenerated) }}</span>
+            </div>
+            <div class="info-item">
+              <label>File Size:</label>
+              <span>{{ formatFileSize(selectedReport.size) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Automated:</label>
+              <span>{{ selectedReport.isAutomated ? 'Yes' : 'No' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3>Description</h3>
+          <p>{{ selectedReport.description }}</p>
+        </div>
+
+        <div class="details-section">
+          <h3>Parameters</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Date Range:</label>
+              <span>{{ formatDate(selectedReport.parameters.dateRange.start) }} - {{ formatDate(selectedReport.parameters.dateRange.end) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Include Charts:</label>
+              <span>{{ selectedReport.parameters.includeCharts ? 'Yes' : 'No' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Include Details:</label>
+              <span>{{ selectedReport.parameters.includeDetails ? 'Yes' : 'No' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3>Output Formats</h3>
+          <div class="format-list">
+            <span *ngFor="let format of selectedReport.format" class="format-badge">
+              <i class="fas" [class]="getFormatIcon(format)"></i>
+              {{ format | titlecase }}
+            </span>
+          </div>
+        </div>
+
+        <div class="details-section" *ngIf="selectedReport.recipients.length > 0">
+          <h3>Recipients</h3>
+          <div class="recipients-list">
+            <span *ngFor="let recipient of selectedReport.recipients" class="recipient-tag">{{ recipient }}</span>
+          </div>
+        </div>
+
+        <div class="details-section" *ngIf="selectedReport.isAutomated && selectedReport.schedule">
+          <h3>Schedule</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Frequency:</label>
+              <span>{{ selectedReport.schedule.frequency | titlecase }}</span>
+            </div>
+            <div class="info-item">
+              <label>Time:</label>
+              <span>{{ selectedReport.schedule.time }} {{ selectedReport.schedule.timezone }}</span>
+            </div>
+            <div class="info-item">
+              <label>Next Run:</label>
+              <span>{{ formatDate(selectedReport.schedule.nextRun) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Status:</label>
+              <span class="badge" [class.active]="selectedReport.schedule.isActive" [class.inactive]="!selectedReport.schedule.isActive">
+                {{ selectedReport.schedule.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3>Tags</h3>
+          <div class="tags-list">
+            <span *ngFor="let tag of selectedReport.tags" class="tag">{{ tag }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create/Edit Mode -->
+      <div *ngIf="modalMode === 'create' || modalMode === 'edit'" class="report-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="reportTitle">Report Title *</label>
+            <input 
+              type="text" 
+              id="reportTitle"
+              class="form-control" 
+              [(ngModel)]="reportForm.title"
+              placeholder="Enter report title"
+              required
+            >
+          </div>
+          <div class="form-group">
+            <label for="reportType">Type *</label>
+            <select 
+              id="reportType"
+              class="form-control" 
+              [(ngModel)]="reportForm.type"
+              required
+            >
+              <option value="credit_analysis">Credit Analysis</option>
+              <option value="dispute_summary">Dispute Summary</option>
+              <option value="progress_tracking">Progress Tracking</option>
+              <option value="client_overview">Client Overview</option>
+              <option value="financial_summary">Financial Summary</option>
+              <option value="compliance_audit">Compliance Audit</option>
+              <option value="performance_metrics">Performance Metrics</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reportDescription">Description *</label>
+          <textarea 
+            id="reportDescription"
+            class="form-control" 
+            rows="3"
+            [(ngModel)]="reportForm.description"
+            placeholder="Enter report description"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dateStart">Start Date *</label>
+            <input 
+              type="date" 
+              id="dateStart"
+              class="form-control" 
+              [(ngModel)]="reportForm.parameters!.dateRange.start"
+              required
+            >
+          </div>
+          <div class="form-group">
+            <label for="dateEnd">End Date *</label>
+            <input 
+              type="date" 
+              id="dateEnd"
+              class="form-control" 
+              [(ngModel)]="reportForm.parameters!.dateRange.end"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Options</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="reportForm.parameters!.includeCharts"
+                >
+                Include Charts
+              </label>
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="reportForm.parameters!.includeDetails"
+                >
+                Include Details
+              </label>
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="reportForm.isAutomated"
+                >
+                Automated Report
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Output Formats</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" value="pdf" [checked]="reportForm.format?.includes(ReportFormat.PDF)">
+                PDF
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" value="excel" [checked]="reportForm.format?.includes(ReportFormat.EXCEL)">
+                Excel
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" value="csv" [checked]="reportForm.format?.includes(ReportFormat.CSV)">
+                CSV
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeReportModal()">
+        Cancel
+      </button>
+      <button *ngIf="modalMode === 'view' && selectedReport && (selectedReport.status === 'draft' || selectedReport.status === 'failed')" class="btn btn-primary" (click)="generateReport(selectedReport)">
+        <i class="fas fa-play"></i>
+        Generate Report
+      </button>
+      <button *ngIf="modalMode === 'view' && selectedReport && selectedReport.status === 'completed' && selectedReport.downloadUrl" class="btn btn-primary" (click)="downloadReport(selectedReport)">
+        <i class="fas fa-download"></i>
+        Download
+      </button>
+      <button *ngIf="modalMode === 'create' || modalMode === 'edit'" class="btn btn-primary" (click)="saveReport()">
+        <i class="fas fa-save"></i>
+        {{ modalMode === 'create' ? 'Create Report' : 'Save Changes' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Template Modal -->
+<div *ngIf="showTemplateModal" class="modal-overlay" (click)="closeTemplateModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Report Templates</h2>
+      <button class="modal-close" (click)="closeTemplateModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="templates-grid">
+        <div *ngFor="let template of templates" class="template-card" (click)="useTemplate(template)">
+          <div class="template-icon" [style.background-color]="template.category.color + '20'" [style.color]="template.category.color">
+            <i class="fas" [class]="template.category.icon"></i>
+          </div>
+          <div class="template-content">
+            <h4 class="template-title">{{ template.name }}</h4>
+            <p class="template-description">{{ template.description }}</p>
+            <div class="template-meta">
+              <span class="template-type">{{ template.type | titlecase }}</span>
+              <span class="template-category">{{ template.category.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeTemplateModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule Modal -->
+<div *ngIf="showScheduleModal" class="modal-overlay" (click)="closeScheduleModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Schedule Report</h2>
+      <button class="modal-close" (click)="closeScheduleModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="frequency">Frequency</label>
+        <select 
+          id="frequency"
+          class="form-control" 
+          [(ngModel)]="scheduleForm.frequency"
+        >
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="time">Time</label>
+          <input 
+            type="time" 
+            id="time"
+            class="form-control" 
+            [(ngModel)]="scheduleForm.time"
+          >
+        </div>
+        <div class="form-group">
+          <label for="timezone">Timezone</label>
+          <select 
+            id="timezone"
+            class="form-control" 
+            [(ngModel)]="scheduleForm.timezone"
+          >
+            <option value="America/Chicago">Central Time (CST)</option>
+            <option value="America/New_York">Eastern Time (EST)</option>
+            <option value="America/Los_Angeles">Pacific Time (PST)</option>
+            <option value="America/Denver">Mountain Time (MST)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input 
+            type="checkbox" 
+            [(ngModel)]="scheduleForm.isActive"
+          >
+          Active Schedule
+        </label>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeScheduleModal()">
+        Cancel
+      </button>
+      <button class="btn btn-primary" (click)="saveSchedule()">
+        <i class="fas fa-save"></i>
+        Save Schedule
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,426 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+  <div>
+    <h4 class="mb-3 mb-md-0">Education & Store</h4>
+    <p class="text-muted">Learn, grow, and access premium credit repair resources</p>
+  </div>
+  <div class="d-flex align-items-center flex-wrap text-nowrap">
+    <div class="dropdown me-3">
+      <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="feather icon-shopping-cart me-1"></i>
+        Cart ({{ cartItems.length }})
+      </button>
+      <div class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
+        <div class="dropdown-header">Shopping Cart</div>
+        <div *ngIf="cartItems.length === 0" class="dropdown-item-text text-center py-3">
+          <i class="feather icon-shopping-cart text-muted" style="font-size: 2rem;"></i>
+          <p class="text-muted mb-0 mt-2">Your cart is empty</p>
+        </div>
+        <div *ngFor="let item of cartItems" class="dropdown-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-0">{{ item.name }}</h6>
+              <small class="text-muted">${{ item.price }}</small>
+            </div>
+            <button class="btn btn-sm btn-outline-danger" (click)="removeFromCart(item.id)">
+              <i class="feather icon-x"></i>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="cartItems.length > 0" class="dropdown-divider"></div>
+        <div *ngIf="cartItems.length > 0" class="dropdown-item-text">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Total: ${{ cartTotal.toFixed(2) }}</strong>
+          </div>
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary btn-sm" (click)="checkout()">
+              <i class="feather icon-credit-card me-1"></i>
+              Checkout
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="clearCart()">
+              Clear Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Statistics Overview -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-md-3">
+            <div class="d-flex flex-column align-items-center">
+              <i class="feather icon-book-open text-primary" style="font-size: 2rem;"></i>
+              <h4 class="mt-2 mb-0">{{ stats.totalCourses }}</h4>
+              <p class="text-muted mb-0">Courses Available</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex flex-column align-items-center">
+              <i class="feather icon-shopping-bag text-success" style="font-size: 2rem;"></i>
+              <h4 class="mt-2 mb-0">{{ stats.totalProducts }}</h4>
+              <p class="text-muted mb-0">Products & Tools</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex flex-column align-items-center">
+              <i class="feather icon-users text-info" style="font-size: 2rem;"></i>
+              <h4 class="mt-2 mb-0">{{ stats.totalStudents.toLocaleString() }}</h4>
+              <p class="text-muted mb-0">Students Enrolled</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex flex-column align-items-center">
+              <i class="feather icon-star text-warning" style="font-size: 2rem;"></i>
+              <h4 class="mt-2 mb-0">{{ stats.avgRating }}</h4>
+              <p class="text-muted mb-0">Average Rating</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation Tabs -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs nav-tabs-line" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [class.active]="activeTab === 'courses'" 
+                    (click)="setActiveTab('courses')" type="button">
+              <i class="feather icon-play-circle me-2"></i>
+              Courses
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [class.active]="activeTab === 'store'" 
+                    (click)="setActiveTab('store')" type="button">
+              <i class="feather icon-shopping-bag me-2"></i>
+              Store
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [class.active]="activeTab === 'articles'" 
+                    (click)="setActiveTab('articles')" type="button">
+              <i class="feather icon-file-text me-2"></i>
+              Articles
+            </button>
+          </li>
+        </ul>
+        
+        <!-- Search and Filters -->
+        <div class="row mt-4 mb-3">
+          <div class="col-md-4">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search..." 
+                     [(ngModel)]="searchTerm" (ngModelChange)="filterContent()">
+              <span class="input-group-text">
+                <i class="feather icon-search"></i>
+              </span>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" [(ngModel)]="categoryFilter" (ngModelChange)="filterContent()">
+              <option value="all">All Categories</option>
+              <option *ngIf="activeTab === 'courses'" value="Credit Basics">Credit Basics</option>
+              <option *ngIf="activeTab === 'courses'" value="Dispute Strategies">Dispute Strategies</option>
+              <option *ngIf="activeTab === 'courses'" value="Business Credit">Business Credit</option>
+              <option *ngIf="activeTab === 'courses'" value="Score Optimization">Score Optimization</option>
+              <option *ngIf="activeTab === 'store'" value="books">Books</option>
+              <option *ngIf="activeTab === 'store'" value="templates">Templates</option>
+              <option *ngIf="activeTab === 'store'" value="software">Software</option>
+              <option *ngIf="activeTab === 'store'" value="consultation">Consultation</option>
+              <option *ngIf="activeTab === 'articles'" value="Credit Education">Credit Education</option>
+              <option *ngIf="activeTab === 'articles'" value="Tips & Strategies">Tips & Strategies</option>
+              <option *ngIf="activeTab === 'articles'" value="Credit Building">Credit Building</option>
+            </select>
+          </div>
+          <div class="col-md-2" *ngIf="activeTab === 'courses'">
+            <select class="form-select" [(ngModel)]="levelFilter" (ngModelChange)="filterContent()">
+              <option value="all">All Levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          <div class="col-md-2" *ngIf="activeTab === 'courses'">
+            <select class="form-select" [(ngModel)]="priceFilter" (ngModelChange)="filterContent()">
+              <option value="all">All Prices</option>
+              <option value="free">Free</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="tab-content">
+          <!-- Courses Tab -->
+          <div *ngIf="activeTab === 'courses'" class="tab-pane fade show active">
+            <div class="row">
+              <div class="col-12 col-md-6 col-lg-4 mb-4" *ngFor="let course of filteredCourses">
+                <div class="card course-card h-100">
+                  <div class="position-relative">
+                    <img [src]="course.thumbnail" class="card-img-top" alt="{{ course.title }}" 
+                         style="height: 200px; object-fit: cover;">
+                    <div class="position-absolute top-0 end-0 m-2">
+                      <span *ngIf="course.isPopular" class="badge bg-danger">Popular</span>
+                      <span *ngIf="course.isFree" class="badge bg-success ms-1">Free</span>
+                    </div>
+                    <div class="position-absolute bottom-0 start-0 m-2">
+                      <span [ngClass]="getLevelClass(course.level)">{{ course.level | titlecase }}</span>
+                    </div>
+                  </div>
+                  <div class="card-body d-flex flex-column">
+                    <div class="mb-2">
+                      <span [ngClass]="getCategoryClass(course.category)">{{ course.category }}</span>
+                    </div>
+                    <h5 class="card-title">{{ course.title }}</h5>
+                    <p class="card-text text-muted flex-grow-1">{{ course.description }}</p>
+                    <div class="course-meta mb-3">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">
+                          <i class="feather icon-user me-1"></i>
+                          {{ course.instructor }}
+                        </small>
+                        <small class="text-muted">
+                          <i class="feather icon-clock me-1"></i>
+                          {{ course.duration }}
+                        </small>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="rating">
+                          <span *ngFor="let star of getStarRating(course.rating)" 
+                                [class]="star" style="color: #ffc107; font-size: 0.8rem;"></span>
+                          <span class="ms-1 text-muted small">({{ course.rating }})</span>
+                        </div>
+                        <small class="text-muted">
+                          <i class="feather icon-users me-1"></i>
+                          {{ course.studentsEnrolled.toLocaleString() }} students
+                        </small>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                          <i class="feather icon-play-circle me-1"></i>
+                          {{ course.lessons }} lessons
+                        </small>
+                      </div>
+                    </div>
+                    <div class="course-price mb-3">
+                      <div *ngIf="course.isFree" class="h5 text-success mb-0">
+                        Free
+                      </div>
+                      <div *ngIf="!course.isFree" class="d-flex align-items-center">
+                        <span class="h5 text-primary mb-0">${{ course.price }}</span>
+                        <span *ngIf="course.originalPrice" class="text-muted text-decoration-line-through ms-2">
+                          ${{ course.originalPrice }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="course-actions">
+                      <button *ngIf="course.isFree" class="btn btn-success w-100" (click)="enrollInCourse(course)">
+                        <i class="feather icon-play me-1"></i>
+                        Enroll Free
+                      </button>
+                      <button *ngIf="!course.isFree && !isInCart(course.id)" 
+                              class="btn btn-primary w-100" (click)="addToCart(course)">
+                        <i class="feather icon-shopping-cart me-1"></i>
+                        Add to Cart
+                      </button>
+                      <button *ngIf="!course.isFree && isInCart(course.id)" 
+                              class="btn btn-outline-primary w-100" disabled>
+                        <i class="feather icon-check me-1"></i>
+                        In Cart
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Store Tab -->
+          <div *ngIf="activeTab === 'store'" class="tab-pane fade show active">
+            <div class="row">
+              <div class="col-12 col-md-6 col-lg-4 mb-4" *ngFor="let product of filteredProducts">
+                <div class="card product-card h-100">
+                  <div class="position-relative">
+                    <img [src]="product.image" class="card-img-top" alt="{{ product.name }}" 
+                         style="height: 200px; object-fit: cover;">
+                    <div class="position-absolute top-0 end-0 m-2">
+                      <span *ngIf="product.isBestseller" class="badge bg-warning">Bestseller</span>
+                      <span *ngIf="product.isDigital" class="badge bg-info ms-1">Digital</span>
+                    </div>
+                  </div>
+                  <div class="card-body d-flex flex-column">
+                    <div class="mb-2">
+                      <span [ngClass]="getCategoryClass(product.category)">{{ product.category | titlecase }}</span>
+                    </div>
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text text-muted flex-grow-1">{{ product.description }}</p>
+                    <div class="product-meta mb-3">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="rating">
+                          <span *ngFor="let star of getStarRating(product.rating)" 
+                                [class]="star" style="color: #ffc107; font-size: 0.8rem;"></span>
+                          <span class="ms-1 text-muted small">({{ product.reviews }} reviews)</span>
+                        </div>
+                      </div>
+                      <div class="features mb-2">
+                        <h6 class="small mb-1">Features:</h6>
+                        <ul class="list-unstyled mb-0">
+                          <li *ngFor="let feature of product.features.slice(0, 3)" class="small text-muted">
+                            <i class="feather icon-check text-success me-1"></i>
+                            {{ feature }}
+                          </li>
+                          <li *ngIf="product.features.length > 3" class="small text-muted">
+                            <i class="feather icon-plus me-1"></i>
+                            {{ product.features.length - 3 }} more features
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div class="product-price mb-3">
+                      <div class="d-flex align-items-center">
+                        <span class="h5 text-primary mb-0">${{ product.price }}</span>
+                        <span *ngIf="product.originalPrice" class="text-muted text-decoration-line-through ms-2">
+                          ${{ product.originalPrice }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="product-actions">
+                      <button *ngIf="!isInCart(product.id)" 
+                              class="btn btn-primary w-100" (click)="addToCart(product)">
+                        <i class="feather icon-shopping-cart me-1"></i>
+                        Add to Cart
+                      </button>
+                      <button *ngIf="isInCart(product.id)" 
+                              class="btn btn-outline-primary w-100" disabled>
+                        <i class="feather icon-check me-1"></i>
+                        In Cart
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Articles Tab -->
+          <div *ngIf="activeTab === 'articles'" class="tab-pane fade show active">
+            <div class="row">
+              <div class="col-12 col-md-6 col-lg-4 mb-4" *ngFor="let article of filteredArticles">
+                <div class="card article-card h-100">
+                  <div class="position-relative">
+                    <img [src]="article.image" class="card-img-top" alt="{{ article.title }}" 
+                         style="height: 200px; object-fit: cover;">
+                    <div class="position-absolute top-0 end-0 m-2">
+                      <span *ngIf="article.isPopular" class="badge bg-danger">Popular</span>
+                    </div>
+                  </div>
+                  <div class="card-body d-flex flex-column">
+                    <div class="mb-2">
+                      <span [ngClass]="getCategoryClass(article.category)">{{ article.category }}</span>
+                    </div>
+                    <h5 class="card-title">{{ article.title }}</h5>
+                    <p class="card-text text-muted flex-grow-1">{{ article.excerpt }}</p>
+                    <div class="article-meta mb-3">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">
+                          <i class="feather icon-user me-1"></i>
+                          {{ article.author }}
+                        </small>
+                        <small class="text-muted">
+                          <i class="feather icon-clock me-1"></i>
+                          {{ article.readTime }}
+                        </small>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                          <i class="feather icon-calendar me-1"></i>
+                          {{ article.publishDate | date:'MMM dd, yyyy' }}
+                        </small>
+                      </div>
+                      <div class="tags mt-2">
+                        <span *ngFor="let tag of article.tags" class="badge bg-light text-dark me-1 mb-1">
+                          #{{ tag }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="article-actions">
+                      <button class="btn btn-outline-primary w-100" (click)="readArticle(article)">
+                        <i class="feather icon-book-open me-1"></i>
+                        Read Article
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div *ngIf="(activeTab === 'courses' && filteredCourses.length === 0) || 
+                     (activeTab === 'store' && filteredProducts.length === 0) || 
+                     (activeTab === 'articles' && filteredArticles.length === 0)" 
+             class="text-center py-5">
+          <i class="feather icon-search text-muted" style="font-size: 3rem;"></i>
+          <h5 class="mt-3 text-muted">No results found</h5>
+          <p class="text-muted">Try adjusting your search criteria or filters</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Featured Section -->
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Featured Resources</h5>
+        <p class="text-muted mb-4">Hand-picked resources to accelerate your credit repair journey</p>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <div class="card border-primary">
+              <div class="card-body text-center">
+                <i class="feather icon-award text-primary" style="font-size: 2.5rem;"></i>
+                <h6 class="mt-3">Certification Program</h6>
+                <p class="text-muted small">Become a certified credit repair specialist</p>
+                <button class="btn btn-primary btn-sm">Learn More</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card border-success">
+              <div class="card-body text-center">
+                <i class="feather icon-users text-success" style="font-size: 2.5rem;"></i>
+                <h6 class="mt-3">Community Access</h6>
+                <p class="text-muted small">Join our exclusive credit repair community</p>
+                <button class="btn btn-success btn-sm">Join Now</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card border-info">
+              <div class="card-body text-center">
+                <i class="feather icon-headphones text-info" style="font-size: 2.5rem;"></i>
+                <h6 class="mt-3">1-on-1 Coaching</h6>
+                <p class="text-muted small">Personal guidance from credit experts</p>
+                <button class="btn btn-info btn-sm">Book Session</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

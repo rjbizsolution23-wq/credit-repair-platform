@@ -1,0 +1,642 @@
+<!-- Rick Jefferson Solutions - Admin Panel Dashboard -->
+<div class="admin-panel">
+  <!-- Header -->
+  <div class="admin-header">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h1 class="admin-title">
+            <i class="fas fa-shield-alt text-teal"></i>
+            Rick Jefferson Solutions
+            <span class="subtitle">Admin Control Center</span>
+          </h1>
+        </div>
+        <div class="col-md-6 text-right">
+          <div class="admin-actions">
+            <button class="btn btn-outline-teal mr-2" (click)="generateComplianceReport()">
+              <i class="fas fa-file-alt"></i> Compliance Report
+            </button>
+            <button class="btn btn-outline-navy" (click)="exportClientData()">
+              <i class="fas fa-download"></i> Export Data
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="admin-nav">
+    <div class="container-fluid">
+      <ul class="nav nav-tabs admin-tabs">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'dashboard'" (click)="switchTab('dashboard')">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'clients'" (click)="switchTab('clients')">
+            <i class="fas fa-users"></i> Clients
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'cros'" (click)="switchTab('cros')">
+            <i class="fas fa-user-tie"></i> CROs
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'templates'" (click)="switchTab('templates')">
+            <i class="fas fa-file-contract"></i> Templates
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'compliance'" (click)="switchTab('compliance')">
+            <i class="fas fa-balance-scale"></i> Compliance
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="admin-content">
+    <div class="container-fluid">
+      
+      <!-- Dashboard Tab -->
+      <div *ngIf="activeTab === 'dashboard'" class="tab-content">
+        <!-- Key Metrics -->
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="metric-card">
+              <div class="metric-icon bg-teal">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="metric-content">
+                <h3>{{ dashboardStats.totalClients }}</h3>
+                <p>Total Clients</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="metric-card">
+              <div class="metric-icon bg-navy">
+                <i class="fas fa-gavel"></i>
+              </div>
+              <div class="metric-content">
+                <h3>{{ dashboardStats.activeDisputes }}</h3>
+                <p>Active Disputes</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="metric-card">
+              <div class="metric-icon bg-success">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div class="metric-content">
+                <h3>{{ formatPercentage(dashboardStats.complianceScore) }}</h3>
+                <p>Compliance Score</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="metric-card">
+              <div class="metric-icon bg-warning">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <div class="metric-content">
+                <h3>{{ formatCurrency(dashboardStats.monthlyRevenue) }}</h3>
+                <p>Monthly Revenue</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+          <div class="col-lg-8">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h4>Revenue Trends</h4>
+                <p>Monthly revenue performance</p>
+              </div>
+              <div class="chart-content">
+                <!-- Revenue Chart Component -->
+                <canvas id="revenueChart" height="300"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h4>Dispute Status</h4>
+                <p>Current dispute breakdown</p>
+              </div>
+              <div class="chart-content">
+                <!-- Dispute Pie Chart -->
+                <canvas id="disputeChart" height="300"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="activity-card">
+              <div class="card-header">
+                <h4>Recent Client Activity</h4>
+              </div>
+              <div class="activity-list">
+                <div class="activity-item" *ngFor="let activity of auditTrail.slice(0, 5)">
+                  <div class="activity-icon">
+                    <i class="fas fa-user-circle"></i>
+                  </div>
+                  <div class="activity-content">
+                    <p><strong>{{ activity.clientName }}</strong> {{ activity.action }}</p>
+                    <small class="text-muted">{{ activity.timestamp | date:'short' }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="activity-card">
+              <div class="card-header">
+                <h4>Compliance Alerts</h4>
+              </div>
+              <div class="alert-list">
+                <div class="alert-item" *ngFor="let alert of complianceAlerts.slice(0, 5)" 
+                     [class]="'alert-' + alert.severity">
+                  <div class="alert-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                  </div>
+                  <div class="alert-content">
+                    <p><strong>{{ alert.title }}</strong></p>
+                    <small>{{ alert.description }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clients Tab -->
+      <div *ngIf="activeTab === 'clients'" class="tab-content">
+        <!-- Client Management Header -->
+        <div class="content-header">
+          <div class="row align-items-center mb-4">
+            <div class="col-md-6">
+              <h2>Client Management</h2>
+              <p class="text-muted">Manage all client accounts and assignments</p>
+            </div>
+            <div class="col-md-6 text-right">
+              <button class="btn btn-teal" (click)="createClient()">
+                <i class="fas fa-plus"></i> Add New Client
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Client Filters -->
+        <div class="filters-section mb-4">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Search Clients</label>
+                <input type="text" class="form-control" placeholder="Search by name or email" 
+                       [(ngModel)]="clientSearchTerm" (input)="filterClients()">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" [(ngModel)]="clientFilters.status" (change)="filterClients()">
+                  <option value="all">All Statuses</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Assigned CRO</label>
+                <select class="form-control" [(ngModel)]="clientFilters.cro" (change)="filterClients()">
+                  <option value="all">All CROs</option>
+                  <option *ngFor="let cro of cros" [value]="cro.id">{{ cro.firstName }} {{ cro.lastName }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group">
+                <label>Risk Level</label>
+                <select class="form-control" [(ngModel)]="clientFilters.riskLevel" (change)="filterClients()">
+                  <option value="all">All Risk Levels</option>
+                  <option value="low">Low Risk</option>
+                  <option value="medium">Medium Risk</option>
+                  <option value="high">High Risk</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clients Table -->
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th>Assigned CRO</th>
+                  <th>Risk Level</th>
+                  <th>Disputes</th>
+                  <th>Score Change</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let client of filteredClients">
+                  <td>
+                    <div class="client-info">
+                      <strong>{{ client.firstName }} {{ client.lastName }}</strong>
+                      <br>
+                      <small class="text-muted">ID: {{ client.id }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="contact-info">
+                      <div>{{ client.email }}</div>
+                      <small class="text-muted">{{ client.phone }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge" [class]="getStatusBadgeClass(client.status)">
+                      {{ client.status | titlecase }}
+                    </span>
+                  </td>
+                  <td>{{ client.assignedCroName || 'Unassigned' }}</td>
+                  <td>
+                    <span class="badge" [class]="getRiskBadgeClass(client.riskLevel)">
+                      {{ client.riskLevel | titlecase }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="dispute-stats">
+                      <span class="active">{{ client.activeDisputes || 0 }}</span> /
+                      <span class="total">{{ client.totalDisputes || 0 }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="score-change" [class.positive]="client.scoreChange > 0" 
+                          [class.negative]="client.scoreChange < 0">
+                      {{ client.scoreChange > 0 ? '+' : '' }}{{ client.scoreChange || 0 }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn btn-sm btn-outline-primary" (click)="viewClient(client)" 
+                              title="View Details">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-secondary" (click)="editClient(client)" 
+                              title="Edit Client">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="deleteClient(client.id)" 
+                              title="Delete Client">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CROs Tab -->
+      <div *ngIf="activeTab === 'cros'" class="tab-content">
+        <!-- CRO Management Header -->
+        <div class="content-header">
+          <div class="row align-items-center mb-4">
+            <div class="col-md-6">
+              <h2>CRO Management</h2>
+              <p class="text-muted">Manage Credit Repair Operators and performance</p>
+            </div>
+            <div class="col-md-6 text-right">
+              <button class="btn btn-teal" (click)="createCro()">
+                <i class="fas fa-plus"></i> Add New CRO
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CRO Performance Cards -->
+        <div class="row mb-4">
+          <div class="col-lg-4 col-md-6 mb-3" *ngFor="let cro of cros">
+            <div class="cro-card">
+              <div class="cro-header">
+                <div class="cro-avatar">
+                  <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="cro-info">
+                  <h5>{{ cro.firstName }} {{ cro.lastName }}</h5>
+                  <p class="text-muted">{{ cro.title || 'Credit Repair Operator' }}</p>
+                </div>
+                <div class="cro-status">
+                  <span class="badge" [class]="getStatusBadgeClass(cro.status)">
+                    {{ cro.status | titlecase }}
+                  </span>
+                </div>
+              </div>
+              <div class="cro-stats">
+                <div class="stat-item">
+                  <span class="stat-value">{{ cro.clientCount || 0 }}</span>
+                  <span class="stat-label">Clients</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ cro.disputeCount || 0 }}</span>
+                  <span class="stat-label">Disputes</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ formatPercentage(cro.successRate || 0) }}</span>
+                  <span class="stat-label">Success Rate</span>
+                </div>
+              </div>
+              <div class="cro-actions">
+                <button class="btn btn-sm btn-outline-primary" (click)="viewCro(cro)">
+                  <i class="fas fa-eye"></i> View
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="editCro(cro)">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Templates Tab -->
+      <div *ngIf="activeTab === 'templates'" class="tab-content">
+        <!-- Template Management Header -->
+        <div class="content-header">
+          <div class="row align-items-center mb-4">
+            <div class="col-md-6">
+              <h2>Letter Templates</h2>
+              <p class="text-muted">Metro 2® compliant dispute letter templates</p>
+            </div>
+            <div class="col-md-6 text-right">
+              <button class="btn btn-teal" (click)="showTemplateModal = true">
+                <i class="fas fa-plus"></i> Create Template
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Template Categories -->
+        <div class="template-categories">
+          <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4" *ngFor="let category of templateCategories">
+              <div class="category-card">
+                <div class="category-header">
+                  <h4>{{ category.name }}</h4>
+                  <span class="template-count">{{ category.templateCount }} templates</span>
+                </div>
+                <div class="template-list">
+                  <div class="template-item" *ngFor="let template of category.templates">
+                    <div class="template-info">
+                      <strong>{{ template.name }}</strong>
+                      <p class="text-muted">{{ template.description }}</p>
+                      <small class="fcra-section">{{ template.fcraSection }}</small>
+                    </div>
+                    <div class="template-actions">
+                      <button class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compliance Tab -->
+      <div *ngIf="activeTab === 'compliance'" class="tab-content">
+        <!-- Compliance Header -->
+        <div class="content-header">
+          <div class="row align-items-center mb-4">
+            <div class="col-md-6">
+              <h2>Compliance Monitoring</h2>
+              <p class="text-muted">FCRA, CROA, and Metro 2® compliance tracking</p>
+            </div>
+            <div class="col-md-6 text-right">
+              <button class="btn btn-teal" (click)="generateComplianceReport()">
+                <i class="fas fa-file-alt"></i> Generate Report
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compliance Score -->
+        <div class="row mb-4">
+          <div class="col-lg-8">
+            <div class="compliance-score-card">
+              <div class="score-header">
+                <h3>Overall Compliance Score</h3>
+                <div class="score-value">
+                  <span class="score-number">{{ formatPercentage(dashboardStats.complianceScore) }}</span>
+                  <span class="score-status success">Excellent</span>
+                </div>
+              </div>
+              <div class="score-breakdown">
+                <div class="breakdown-item">
+                  <span class="label">FCRA Compliance</span>
+                  <div class="progress">
+                    <div class="progress-bar bg-success" style="width: 98%"></div>
+                  </div>
+                  <span class="value">98%</span>
+                </div>
+                <div class="breakdown-item">
+                  <span class="label">Metro 2® Standards</span>
+                  <div class="progress">
+                    <div class="progress-bar bg-success" style="width: 95%"></div>
+                  </div>
+                  <span class="value">95%</span>
+                </div>
+                <div class="breakdown-item">
+                  <span class="label">CROA Requirements</span>
+                  <div class="progress">
+                    <div class="progress-bar bg-success" style="width: 97%"></div>
+                  </div>
+                  <span class="value">97%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="compliance-alerts-summary">
+              <h4>Active Alerts</h4>
+              <div class="alert-summary">
+                <div class="alert-type high">
+                  <span class="count">{{ complianceAlerts.filter(a => a.severity === 'high').length }}</span>
+                  <span class="label">High Priority</span>
+                </div>
+                <div class="alert-type medium">
+                  <span class="count">{{ complianceAlerts.filter(a => a.severity === 'medium').length }}</span>
+                  <span class="label">Medium Priority</span>
+                </div>
+                <div class="alert-type low">
+                  <span class="count">{{ complianceAlerts.filter(a => a.severity === 'low').length }}</span>
+                  <span class="label">Low Priority</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Trail -->
+        <div class="audit-trail-card">
+          <div class="card-header">
+            <h4>Audit Trail</h4>
+            <p class="text-muted">Complete record of all compliance-related activities</p>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Client</th>
+                  <th>Compliance Impact</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let audit of auditTrail">
+                  <td>{{ audit.timestamp | date:'short' }}</td>
+                  <td>{{ audit.userName }}</td>
+                  <td>{{ audit.action }}</td>
+                  <td>{{ audit.clientName }}</td>
+                  <td>
+                    <span class="compliance-impact" [class]="audit.complianceImpact">
+                      {{ audit.complianceImpact | titlecase }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [class]="getStatusBadgeClass(audit.status)">
+                      {{ audit.status | titlecase }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Client Modal -->
+<div class="modal fade" [class.show]="showClientModal" [style.display]="showClientModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          {{ selectedClient?.id ? 'Edit Client' : 'Create New Client' }}
+        </h4>
+        <button type="button" class="close" (click)="closeModal()">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" *ngIf="selectedClient">
+        <form>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>First Name *</label>
+                <input type="text" class="form-control" [(ngModel)]="selectedClient.firstName" name="firstName">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Last Name *</label>
+                <input type="text" class="form-control" [(ngModel)]="selectedClient.lastName" name="lastName">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Email *</label>
+                <input type="email" class="form-control" [(ngModel)]="selectedClient.email" name="email">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" class="form-control" [(ngModel)]="selectedClient.phone" name="phone">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" [(ngModel)]="selectedClient.status" name="status">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Assigned CRO</label>
+                <select class="form-control" [(ngModel)]="selectedClient.assignedCro" name="assignedCro">
+                  <option value="">Select CRO</option>
+                  <option *ngFor="let cro of cros" [value]="cro.id">
+                    {{ cro.firstName }} {{ cro.lastName }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Risk Level</label>
+                <select class="form-control" [(ngModel)]="selectedClient.riskLevel" name="riskLevel">
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="button" class="btn btn-teal" (click)="saveClient()">Save Client</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" *ngIf="loading">
+  <div class="spinner-border text-teal" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>

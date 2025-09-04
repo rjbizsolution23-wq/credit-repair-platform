@@ -1,0 +1,290 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header-content">
+    <div class="page-title">
+      <h1>Credit Bureaus Overview</h1>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Dashboard</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Bureaus</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="page-actions">
+      <button type="button" class="btn btn-outline-secondary" (click)="onRefresh()" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+        Refresh
+      </button>
+      <button type="button" class="btn btn-primary" (click)="onCreateDispute()">
+        <i class="fas fa-plus"></i>
+        New Dispute
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="loading-text">Loading bureau data...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+  <i class="fas fa-exclamation-triangle"></i>
+  {{ error }}
+  <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="onRefresh()">
+    <i class="fas fa-redo"></i>
+    Retry
+  </button>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading && !error" class="bureaus-overview">
+  <!-- Statistics Cards -->
+  <div class="stats-section">
+    <div class="row g-3">
+      <div class="col-xl-3 col-lg-6 col-md-6" *ngFor="let card of statCards">
+        <div class="stat-card" [class]="'stat-card-' + card.color" [routerLink]="card.route" [style.cursor]="card.route ? 'pointer' : 'default'">
+          <div class="stat-card-body">
+            <div class="stat-card-content">
+              <div class="stat-card-info">
+                <h3 class="stat-card-value">{{ card.value | number }}</h3>
+                <p class="stat-card-title">{{ card.title }}</p>
+                <div class="stat-card-change" [class]="'change-' + card.changeType">
+                  <i class="fas" [class.fa-arrow-up]="card.changeType === 'increase'" [class.fa-arrow-down]="card.changeType === 'decrease'"></i>
+                  {{ card.change }}% from last month
+                </div>
+              </div>
+              <div class="stat-card-icon">
+                <i [class]="card.icon"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-section">
+    <div class="row g-4">
+      <!-- Disputes by Bureau Chart -->
+      <div class="col-lg-4">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h5 class="card-title">Disputes by Bureau</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container" *ngIf="disputesByBureauChart">
+              <!-- Chart component would go here -->
+              <canvas id="disputesByBureauChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item" *ngFor="let bureau of analytics?.disputesByBureau">
+                <span class="legend-color" [style.background-color]="getBureauChartColor(bureau.bureau)"></span>
+                <span class="legend-label">{{ getCreditBureauLabel(bureau.bureau) }}</span>
+                <span class="legend-value">{{ bureau.total }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disputes by Type Chart -->
+      <div class="col-lg-4">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h5 class="card-title">Disputes by Type</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container" *ngIf="disputesByTypeChart">
+              <!-- Chart component would go here -->
+              <canvas id="disputesByTypeChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Rate Trends Chart -->
+      <div class="col-lg-4">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h5 class="card-title">Success Rate Trends</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container" *ngIf="successRateChart">
+              <!-- Chart component would go here -->
+              <canvas id="successRateChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Sections -->
+  <div class="content-sections">
+    <div class="row g-4">
+      <!-- Overdue Disputes -->
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title text-danger">
+              <i class="fas fa-exclamation-triangle"></i>
+              Overdue Disputes
+            </h5>
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="onViewAllDisputes()">
+              View All
+            </button>
+          </div>
+          <div class="card-body">
+            <div *ngIf="overdueDisputes.length === 0" class="empty-state">
+              <i class="fas fa-check-circle text-success"></i>
+              <p>No overdue disputes</p>
+            </div>
+            <div *ngIf="overdueDisputes.length > 0" class="dispute-list">
+              <div class="dispute-item" *ngFor="let dispute of overdueDisputes" (click)="onNavigateToDispute(dispute)">
+                <div class="dispute-info">
+                  <h6 class="dispute-title">{{ dispute.title }}</h6>
+                  <p class="dispute-details">
+                    <span class="badge" [class]="'badge-' + getCreditBureauColor(dispute.bureau)">{{ getCreditBureauLabel(dispute.bureau) }}</span>
+                    <span class="dispute-age">{{ calculateDisputeAge(dispute.createdAt) }} days old</span>
+                  </p>
+                </div>
+                <div class="dispute-status">
+                  <span class="badge" [class]="'badge-' + getDisputeStatusColor(dispute.status)">{{ getDisputeStatusLabel(dispute.status) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Urgent Responses -->
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title text-warning">
+              <i class="fas fa-bell"></i>
+              Responses Requiring Action
+            </h5>
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="onViewAllResponses()">
+              View All
+            </button>
+          </div>
+          <div class="card-body">
+            <div *ngIf="urgentResponses.length === 0" class="empty-state">
+              <i class="fas fa-check-circle text-success"></i>
+              <p>No responses requiring action</p>
+            </div>
+            <div *ngIf="urgentResponses.length > 0" class="response-list">
+              <div class="response-item" *ngFor="let response of urgentResponses" (click)="onNavigateToResponse(response)">
+                <div class="response-info">
+                  <h6 class="response-title">{{ response.type.replace('_', ' ') | titlecase }}</h6>
+                  <p class="response-details">
+                    <span class="badge" [class]="'badge-' + getCreditBureauColor(response.bureau)">{{ getCreditBureauLabel(response.bureau) }}</span>
+                    <span class="response-date">{{ formatDate(response.receivedAt) }}</span>
+                  </p>
+                </div>
+                <div class="response-changes">
+                  <span class="badge badge-info">{{ response.changes.length }} changes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="activity-section">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title">
+          <i class="fas fa-history"></i>
+          Recent Activity
+        </h5>
+        <div class="activity-filters">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="onViewAllDisputes()">
+            All Disputes
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="onViewAllCommunications()">
+            All Communications
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="onViewAllResponses()">
+            All Responses
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div *ngIf="recentActivity.length === 0" class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <p>No recent activity</p>
+        </div>
+        <div *ngIf="recentActivity.length > 0" class="activity-timeline">
+          <div class="timeline-item" *ngFor="let activity of recentActivity" (click)="onNavigateToActivity(activity)">
+            <div class="timeline-marker" [class]="'timeline-marker-' + getActivityColor(activity.type)">
+              <i [class]="getActivityIcon(activity.type)"></i>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <h6 class="timeline-title">{{ activity.title }}</h6>
+                <span class="timeline-time">{{ formatDateTime(activity.timestamp) }}</span>
+              </div>
+              <p class="timeline-description">{{ activity.description }}</p>
+              <div class="timeline-status">
+                <span class="badge" [class]="'badge-' + activity.statusColor">{{ activity.status }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions-section">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">
+          <i class="fas fa-bolt"></i>
+          Quick Actions
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-lg-3 col-md-6">
+            <button type="button" class="btn btn-outline-primary w-100" (click)="onCreateDispute()">
+              <i class="fas fa-plus"></i>
+              Create Dispute
+            </button>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <button type="button" class="btn btn-outline-info w-100" routerLink="/bureaus/communications/compose">
+              <i class="fas fa-envelope"></i>
+              Send Communication
+            </button>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <button type="button" class="btn btn-outline-success w-100" routerLink="/bureaus/contacts">
+              <i class="fas fa-address-book"></i>
+              Manage Contacts
+            </button>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <button type="button" class="btn btn-outline-secondary w-100" (click)="onViewAnalytics()">
+              <i class="fas fa-chart-bar"></i>
+              View Analytics
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

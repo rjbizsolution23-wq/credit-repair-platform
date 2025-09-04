@@ -1,0 +1,540 @@
+// Variables
+$primary-color: #007bff;
+$secondary-color: #6c757d;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$light-gray: #f8f9fa;
+$dark-gray: #343a40;
+$border-radius: 8px;
+$box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+$transition: all 0.3s ease;
+
+.not-found-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+
+  .not-found-content {
+    background: white;
+    border-radius: $border-radius * 2;
+    padding: 3rem;
+    box-shadow: $box-shadow;
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    animation: slideInUp 0.6s ease-out;
+  }
+}
+
+// Error Header
+.error-header {
+  margin-bottom: 2rem;
+
+  .error-icon {
+    font-size: 4rem;
+    color: $warning-color;
+    margin-bottom: 1rem;
+    animation: bounce 2s infinite;
+
+    i {
+      filter: drop-shadow(0 4px 8px rgba(255, 193, 7, 0.3));
+    }
+  }
+
+  .error-code {
+    font-size: 6rem;
+    font-weight: 900;
+    color: $primary-color;
+    margin: 0;
+    line-height: 1;
+    text-shadow: 2px 2px 4px rgba(0, 123, 255, 0.2);
+  }
+
+  .error-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: $dark-gray;
+    margin: 0.5rem 0 0 0;
+  }
+}
+
+// Error Message
+.error-message {
+  margin-bottom: 2.5rem;
+
+  .primary-message {
+    font-size: 1.1rem;
+    color: $secondary-color;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .secondary-message {
+    font-size: 0.9rem;
+    color: lighten($secondary-color, 10%);
+    margin: 0;
+
+    code {
+      background: $light-gray;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      color: $danger-color;
+      font-weight: 500;
+    }
+  }
+}
+
+// Action Buttons
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: $border-radius;
+    font-weight: 500;
+    text-decoration: none;
+    transition: $transition;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 0.9rem;
+    }
+
+    &.btn-primary {
+      background: $primary-color;
+      color: white;
+      border-color: $primary-color;
+
+      &:hover {
+        background: darken($primary-color, 10%);
+        border-color: darken($primary-color, 10%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+      }
+    }
+
+    &.btn-outline-secondary {
+      background: transparent;
+      color: $secondary-color;
+      border-color: $secondary-color;
+
+      &:hover {
+        background: $secondary-color;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(108, 117, 125, 0.3);
+      }
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
+  }
+}
+
+// Suggested Routes
+.suggested-routes {
+  margin-bottom: 2.5rem;
+
+  h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: $dark-gray;
+    margin-bottom: 1.5rem;
+  }
+
+  .routes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .route-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: $light-gray;
+    border-radius: $border-radius;
+    text-decoration: none;
+    color: $dark-gray;
+    transition: $transition;
+    cursor: pointer;
+    border: 2px solid transparent;
+
+    &:hover {
+      background: lighten($primary-color, 45%);
+      border-color: $primary-color;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 123, 255, 0.15);
+      color: $primary-color;
+    }
+
+    .route-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: $primary-color;
+    }
+
+    .route-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
+  }
+}
+
+// Help Section
+.help-section {
+  border-top: 1px solid lighten($secondary-color, 30%);
+  padding-top: 2rem;
+
+  h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $dark-gray;
+    margin-bottom: 1rem;
+  }
+
+  .help-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .help-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid lighten($secondary-color, 20%);
+    border-radius: $border-radius;
+    color: $secondary-color;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: $transition;
+    cursor: pointer;
+
+    i {
+      font-size: 0.8rem;
+    }
+
+    &:hover {
+      background: $secondary-color;
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.25);
+    }
+  }
+}
+
+// Background Decoration
+.background-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+
+  .decoration-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: float 6s ease-in-out infinite;
+
+    &.circle-1 {
+      width: 200px;
+      height: 200px;
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    &.circle-2 {
+      width: 150px;
+      height: 150px;
+      top: 60%;
+      right: 15%;
+      animation-delay: 2s;
+    }
+
+    &.circle-3 {
+      width: 100px;
+      height: 100px;
+      bottom: 20%;
+      left: 20%;
+      animation-delay: 4s;
+    }
+  }
+}
+
+// Animations
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .not-found-container {
+    padding: 1rem;
+
+    .not-found-content {
+      padding: 2rem 1.5rem;
+    }
+  }
+
+  .error-header {
+    .error-code {
+      font-size: 4rem;
+    }
+
+    .error-title {
+      font-size: 1.5rem;
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+
+    .btn {
+      width: 100%;
+      max-width: 200px;
+    }
+  }
+
+  .suggested-routes {
+    .routes-grid {
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .route-card {
+      padding: 0.75rem 0.5rem;
+
+      .route-icon {
+        font-size: 1.2rem;
+      }
+
+      .route-label {
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  .help-actions {
+    flex-direction: column;
+    align-items: center;
+
+    .help-btn {
+      width: 100%;
+      max-width: 200px;
+      justify-content: center;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .error-header {
+    .error-icon {
+      font-size: 3rem;
+    }
+
+    .error-code {
+      font-size: 3rem;
+    }
+
+    .error-title {
+      font-size: 1.2rem;
+    }
+  }
+
+  .suggested-routes {
+    .routes-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+// Dark Theme Support
+@media (prefers-color-scheme: dark) {
+  .not-found-container {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+
+    .not-found-content {
+      background: #2c3e50;
+      color: #ecf0f1;
+    }
+  }
+
+  .error-header {
+    .error-title {
+      color: #ecf0f1;
+    }
+  }
+
+  .error-message {
+    .primary-message {
+      color: #bdc3c7;
+    }
+
+    .secondary-message {
+      color: #95a5a6;
+
+      code {
+        background: #34495e;
+        color: #e74c3c;
+      }
+    }
+  }
+
+  .suggested-routes {
+    h3 {
+      color: #ecf0f1;
+    }
+
+    .route-card {
+      background: #34495e;
+      color: #ecf0f1;
+
+      &:hover {
+        background: #3498db;
+        color: white;
+      }
+    }
+  }
+
+  .help-section {
+    border-top-color: #34495e;
+
+    h4 {
+      color: #ecf0f1;
+    }
+
+    .help-btn {
+      border-color: #7f8c8d;
+      color: #bdc3c7;
+
+      &:hover {
+        background: #7f8c8d;
+        color: white;
+      }
+    }
+  }
+}
+
+// High Contrast Mode
+@media (prefers-contrast: high) {
+  .not-found-container {
+    background: #000;
+
+    .not-found-content {
+      background: #fff;
+      border: 3px solid #000;
+    }
+  }
+
+  .action-buttons .btn {
+    border-width: 3px;
+  }
+
+  .suggested-routes .route-card {
+    border-width: 2px;
+    border-color: #000;
+  }
+}
+
+// Reduced Motion
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .decoration-circle {
+    animation: none;
+  }
+}
+
+// Print Styles
+@media print {
+  .not-found-container {
+    background: white !important;
+    min-height: auto;
+
+    .not-found-content {
+      box-shadow: none;
+      border: 1px solid #000;
+    }
+  }
+
+  .background-decoration {
+    display: none;
+  }
+
+  .action-buttons,
+  .help-section {
+    display: none;
+  }
+}

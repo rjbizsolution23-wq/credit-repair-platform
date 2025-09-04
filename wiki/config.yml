@@ -1,0 +1,476 @@
+#######################################################################
+# Wiki.js - CONFIGURATION                                            #
+#######################################################################
+# Full explanation + examples in the documentation:
+# https://docs.requarks.io/install
+
+# ---------------------------------------------------------------------
+# Port the server should listen to
+# ---------------------------------------------------------------------
+
+port: 3000
+
+# ---------------------------------------------------------------------
+# Database
+# ---------------------------------------------------------------------
+# Supported Database Engines:
+# - postgres = PostgreSQL 9.5 or later
+# - mysql = MySQL 8.0 or later (MySQL 5.7.8 partially supported, refer to docs)
+# - mariadb = MariaDB 10.2.7 or later
+# - sqlite = SQLite 3.9 or later
+
+db:
+  type: sqlite
+  
+  # SQLite only:
+  storage: db.sqlite
+
+#######################################################################
+# ADVANCED OPTIONS                                                    #
+#######################################################################
+
+# ---------------------------------------------------------------------
+# SSL/TLS Settings
+# ---------------------------------------------------------------------
+# Consider using a reverse proxy (e.g. nginx) if you require more
+# advanced options than those provided below.
+
+ssl:
+  enabled: false
+  port: 3443
+
+# ---------------------------------------------------------------------
+# Database Pool Options
+# ---------------------------------------------------------------------
+# Refer to https://knexjs.org/#Installation-pooling for all possible options
+
+pool:
+  # min: 2
+  # max: 10
+
+# ---------------------------------------------------------------------
+# IP address the server should listen to
+# ---------------------------------------------------------------------
+# Leave 0.0.0.0 for all interfaces
+
+bindIP: 0.0.0.0
+
+# ---------------------------------------------------------------------
+# Log Level
+# ---------------------------------------------------------------------
+# Possible values: error, warn, info, verbose, debug, silly
+
+logLevel: info
+
+# ---------------------------------------------------------------------
+# Log Format
+# ---------------------------------------------------------------------
+# Possible values: default, json
+
+logFormat: default
+
+# ---------------------------------------------------------------------
+# Offline Mode
+# ---------------------------------------------------------------------
+# If your server cannot access the internet. Set to true and manually
+# download the offline files for sideloading.
+
+offline: false
+
+# ---------------------------------------------------------------------
+# High-Availability
+# ---------------------------------------------------------------------
+# Set to true if you have multiple concurrent instances running on the
+# same database (e.g. Kubernetes pods / load balanced instances).
+# Leave false otherwise. You MUST be using PostgreSQL to use this feature.
+
+ha: false
+
+# ---------------------------------------------------------------------
+# Data Path
+# ---------------------------------------------------------------------
+# Absolute path where Wiki.js can write temporary files.
+
+dataPath: ./data
+
+# ---------------------------------------------------------------------
+# Body Parser Limit
+# ---------------------------------------------------------------------
+# Maximum upload size for file uploads.
+
+bodyParserLimit: 5mb
+
+# ---------------------------------------------------------------------
+# GraphQL Endpoint
+# ---------------------------------------------------------------------
+# Do not change unless you know what you're doing!
+
+graphEndpoint: /graphql
+
+# ---------------------------------------------------------------------
+# Side-loading
+# ---------------------------------------------------------------------
+# If your server cannot access the internet, you can manually download
+# the offline files and place them in the path below:
+
+sideload:
+  #
+
+# ---------------------------------------------------------------------
+# Telemetry
+# ---------------------------------------------------------------------
+# Help Wiki.js developers improve this app with anonymized telemetry.
+# This is optional and can be disabled anytime.
+
+telemetry:
+  isEnabled: false
+  clientId: anonymous
+
+# ---------------------------------------------------------------------
+# Trust Proxy
+# ---------------------------------------------------------------------
+# Enable if Wiki.js is behind a reverse-proxy (nginx, apache, cloudflare, etc)
+# Set to 'true' if the reverse-proxy is on the same machine.
+# Set to ['192.168.1.100', '192.168.1.101'] if the reverse-proxy is on a different machine.
+
+trustProxy: false
+
+# ---------------------------------------------------------------------
+# Upload Limits
+# ---------------------------------------------------------------------
+# If you're using a reverse-proxy in front of Wiki.js, you must also
+# change your reverse-proxy upload limits!
+
+uploadSizeLimit: 5242880
+
+# ---------------------------------------------------------------------
+# Theming
+# ---------------------------------------------------------------------
+# Customize the look and feel
+
+theming:
+  theme: default
+  darkMode: false
+  iconset: mdi
+  injectCSS: ''
+  injectHead: ''
+  injectBody: ''
+
+# ---------------------------------------------------------------------
+# SEO
+# ---------------------------------------------------------------------
+# Global SEO settings
+
+seo:
+  description: 'Rick Jefferson Solutions Knowledge Base - Comprehensive SOPs and Employee Resources'
+  robots: ['index', 'follow']
+  analyticsService: ''
+  analyticsId: ''
+
+# ---------------------------------------------------------------------
+# Features
+# ---------------------------------------------------------------------
+# Enable / Disable specific features
+
+features:
+  featurePageRatings: true
+  featurePageComments: true
+  featurePersonalWikis: false
+
+# ---------------------------------------------------------------------
+# Security
+# ---------------------------------------------------------------------
+
+security:
+  # Security headers (enabled by default)
+  securityIframe: sameorigin
+  securityReferrerPolicy: same-origin
+  securityTrustProxy: false
+  securityHSTS: false
+  securityHSTSMaxAge: 300
+  securityCSP: false
+  securityCSPDirectives: ''
+
+# ---------------------------------------------------------------------
+# Extensions
+# ---------------------------------------------------------------------
+
+extensions: []
+
+# ---------------------------------------------------------------------
+# Scheduler
+# ---------------------------------------------------------------------
+
+scheduler:
+  enable: true
+
+# ---------------------------------------------------------------------
+# Mail
+# ---------------------------------------------------------------------
+# Leave empty to disable mail service.
+# See https://docs.requarks.io/mail for configuration instructions.
+
+mail:
+  senderName: 'Rick Jefferson Solutions Wiki'
+  senderEmail: 'wiki@rickjeffersonsolutions.com'
+  host: ''
+  port: 587
+  secure: false
+  verifySSL: false
+  user: ''
+  pass: ''
+  useDKIM: false
+  dkimDomainName: ''
+  dkimKeySelector: ''
+  dkimPrivateKey: ''
+
+# ---------------------------------------------------------------------
+# Search Engine
+# ---------------------------------------------------------------------
+# Refer to https://docs.requarks.io/install/requirements#search-engine
+# for instructions on how to setup your search engine.
+
+searchEngine:
+  type: db
+
+# ---------------------------------------------------------------------
+# Session Secret
+# ---------------------------------------------------------------------
+# Use a long and unique random string (256-bit keys are perfect!).
+# Generate one at https://www.allkeysgenerator.com/Random/Security-Encryption-Key-Generator.aspx
+# You can also use the output of node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+sessionSecret: 'rick-jefferson-solutions-wiki-secret-key-2025'
+
+# ---------------------------------------------------------------------
+# IP Whitelist
+# ---------------------------------------------------------------------
+# List of IP addresses (with CIDR notation) that should bypass all security checks.
+# This is useful when using Wiki.js behind a reverse proxy.
+# WARNING: Only use this if you know what you're doing!
+
+ipWhitelist: []
+
+# ---------------------------------------------------------------------
+# Localization
+# ---------------------------------------------------------------------
+
+locale: 'en'
+langAutoDetect: true
+langNamespacing: false
+langNamespaces: []
+
+# ---------------------------------------------------------------------
+# Logo
+# ---------------------------------------------------------------------
+# Displayed on all pages
+
+logo:
+  hasLogo: true
+  logoIsSquare: false
+  logoUrl: '/logo.png'
+
+# ---------------------------------------------------------------------
+# Site Info
+# ---------------------------------------------------------------------
+
+company: 'Rick Jefferson Solutions'
+title: 'Rick Jefferson Solutions Knowledge Base'
+description: 'Comprehensive knowledge base for SOPs, employee resources, and business operations'
+keywords: 'credit repair, SOPs, employee handbook, business operations, knowledge base'
+author: 'Rick Jefferson Solutions'
+
+# ---------------------------------------------------------------------
+# Host
+# ---------------------------------------------------------------------
+
+host: http://localhost
+
+# ---------------------------------------------------------------------
+# Public Registration
+# ---------------------------------------------------------------------
+
+public: false
+
+# ---------------------------------------------------------------------
+# Site URL
+# ---------------------------------------------------------------------
+# Define the full public URL to your wiki, used in emails.
+# IMPORTANT: Do not include a trailing slash!
+
+url: http://localhost:3000
+
+# ---------------------------------------------------------------------
+# Content License
+# ---------------------------------------------------------------------
+# Define under which license content is published.
+# Defaults to All Rights Reserved if left empty.
+
+contentLicense: 'All Rights Reserved - Rick Jefferson Solutions'
+
+# ---------------------------------------------------------------------
+# Footer Copyright
+# ---------------------------------------------------------------------
+
+footerOverride: '© 2025 Rick Jefferson Solutions. All rights reserved.'
+
+# ---------------------------------------------------------------------
+# Edit Shortcuts
+# ---------------------------------------------------------------------
+# Enable edit shortcuts on non-home pages
+
+editShortcuts: true
+
+# ---------------------------------------------------------------------
+# Git Integration
+# ---------------------------------------------------------------------
+# Automatically sync content with a git repository
+
+git:
+  url: ''
+  branch: main
+  auth:
+    type: basic
+    username: ''
+    password: ''
+    privateKey: ''
+    sslVerify: true
+  signature:
+    name: 'Rick Jefferson Solutions Wiki'
+    email: 'wiki@rickjeffersonsolutions.com'
+  workingDirectory: './'
+  gitBinary: git
+
+# ---------------------------------------------------------------------
+# Backup
+# ---------------------------------------------------------------------
+
+backup:
+  targets: []
+
+# ---------------------------------------------------------------------
+# Rendering
+# ---------------------------------------------------------------------
+
+rendering:
+  renderer: markdown
+  config: {}
+
+# ---------------------------------------------------------------------
+# Upload
+# ---------------------------------------------------------------------
+
+upload:
+  maxFileSize: 5242880
+  maxFiles: 10
+  scanSVG: true
+  forceDownload: false
+
+# ---------------------------------------------------------------------
+# User Avatar
+# ---------------------------------------------------------------------
+
+userAvatar:
+  userInitials: false
+  gravatar: true
+
+# ---------------------------------------------------------------------
+# Security
+# ---------------------------------------------------------------------
+
+securityOpenRedirect: false
+securityIframe: 'sameorigin'
+securityReferrerPolicy: 'same-origin'
+securityTrustProxy: false
+securitySRI: false
+securityHSTS: false
+securityHSTSMaxAge: 300
+securityCSP: false
+securityCSPDirectives: ''
+
+# ---------------------------------------------------------------------
+# Theming
+# ---------------------------------------------------------------------
+
+theme: 'default'
+darkMode: false
+iconset: 'mdi'
+injectCSS: |
+  /* Navy and Teal Theme for Rick Jefferson Solutions */
+  :root {
+    --navy: #1a365d;
+    --teal: #319795;
+    --light-teal: #4fd1c7;
+    --dark-navy: #0f2027;
+  }
+  
+  /* Header/Toolbar */
+  .v-toolbar {
+    background-color: var(--navy) !important;
+  }
+  .v-toolbar__title {
+    color: white !important;
+    font-weight: 600;
+  }
+  
+  /* Navigation Drawer */
+  .theme--light.v-navigation-drawer {
+    background-color: #f7fafc !important;
+    border-right: 2px solid var(--teal) !important;
+  }
+  
+  /* Primary Buttons */
+  .v-btn--contained.theme--light.v-size--default.primary {
+    background-color: var(--teal) !important;
+    color: white !important;
+  }
+  .v-btn--contained.theme--light.v-size--default.primary:hover {
+    background-color: var(--light-teal) !important;
+  }
+  
+  /* Secondary Buttons */
+  .v-btn--outlined.theme--light.v-size--default.primary {
+    border-color: var(--navy) !important;
+    color: var(--navy) !important;
+  }
+  
+  /* Links */
+  a {
+    color: var(--teal) !important;
+  }
+  a:hover {
+    color: var(--navy) !important;
+  }
+  
+  /* Page Title */
+  .page-title {
+    color: var(--navy) !important;
+  }
+  
+  /* Sidebar Navigation Items */
+  .v-list-item--active {
+    background-color: rgba(49, 151, 149, 0.1) !important;
+    border-right: 3px solid var(--teal) !important;
+  }
+  .v-list-item--active .v-list-item__title {
+    color: var(--navy) !important;
+    font-weight: 600;
+  }
+  
+  /* Search Bar */
+  .v-text-field--filled > .v-input__control > .v-input__slot {
+    background-color: rgba(49, 151, 149, 0.05) !important;
+  }
+  
+  /* Cards and Content Areas */
+  .v-card {
+    border-left: 4px solid var(--teal) !important;
+  }
+  
+  /* Footer */
+  .v-footer {
+    background-color: var(--dark-navy) !important;
+    color: white !important;
+  }
+injectHead: ''
+injectBody: ''

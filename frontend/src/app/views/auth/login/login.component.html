@@ -1,0 +1,165 @@
+<div class="login-container">
+  <div class="login-card">
+    <!-- Header -->
+    <div class="login-header">
+      <div class="logo">
+        <i class="fas fa-shield-alt"></i>
+        <h1>Credit Repair Platform</h1>
+      </div>
+      <h2>Welcome Back</h2>
+      <p>Sign in to your account to continue</p>
+    </div>
+
+    <!-- Error Alert -->
+    <div class="alert alert-danger" *ngIf="error" role="alert">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{ error }}</span>
+      <button type="button" class="btn-close" (click)="clearError()" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" novalidate>
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email" class="form-label">
+          <i class="fas fa-envelope"></i>
+          Email Address
+        </label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [class.is-invalid]="hasError('email')"
+          placeholder="Enter your email"
+          autocomplete="email"
+          [disabled]="loading"
+        >
+        <div class="invalid-feedback" *ngIf="hasError('email')">
+          {{ getErrorMessage('email') }}
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password" class="form-label">
+          <i class="fas fa-lock"></i>
+          Password
+        </label>
+        <div class="password-input-group">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [class.is-invalid]="hasError('password')"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            [disabled]="loading"
+          >
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [disabled]="loading"
+            aria-label="Toggle password visibility"
+          >
+            <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+        <div class="invalid-feedback" *ngIf="hasError('password')">
+          {{ getErrorMessage('password') }}
+        </div>
+      </div>
+
+      <!-- Remember Me & Forgot Password -->
+      <div class="form-options">
+        <div class="form-check">
+          <input
+            type="checkbox"
+            id="rememberMe"
+            formControlName="rememberMe"
+            class="form-check-input"
+            [disabled]="loading"
+          >
+          <label for="rememberMe" class="form-check-label">
+            Remember me
+          </label>
+        </div>
+        <button
+          type="button"
+          class="forgot-password-link"
+          (click)="goToForgotPassword()"
+          [disabled]="loading"
+        >
+          Forgot password?
+        </button>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn btn-primary btn-login"
+        [disabled]="loading || loginForm.invalid"
+      >
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <i *ngIf="!loading" class="fas fa-sign-in-alt me-2"></i>
+        {{ loading ? 'Signing in...' : 'Sign In' }}
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="divider">
+      <span>or</span>
+    </div>
+
+    <!-- Social Login -->
+    <div class="social-login">
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-social"
+        (click)="loginWithGoogle()"
+        [disabled]="loading"
+      >
+        <i class="fab fa-google"></i>
+        Continue with Google
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-social"
+        (click)="loginWithMicrosoft()"
+        [disabled]="loading"
+      >
+        <i class="fab fa-microsoft"></i>
+        Continue with Microsoft
+      </button>
+    </div>
+
+    <!-- Register Link -->
+    <div class="register-link">
+      <p>
+        Don't have an account?
+        <button
+          type="button"
+          class="link-button"
+          (click)="goToRegister()"
+          [disabled]="loading"
+        >
+          Create one here
+        </button>
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="login-footer">
+    <p>&copy; 2024 RJ BUSINESS SOLUTIONS - Rick Jefferson Credit Solutions. All rights reserved. Made by RJ BUSINESS SOLUTIONS.</p>
+    <div class="footer-links">
+      <a href="#" class="footer-link">Privacy Policy</a>
+      <a href="#" class="footer-link">Terms of Service</a>
+      <a href="#" class="footer-link">Support</a>
+    </div>
+  </div>
+</div>

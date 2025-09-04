@@ -1,0 +1,359 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="header-content">
+    <div class="header-left">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/dashboard">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a routerLink="/disputes">Disputes</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">History</li>
+        </ol>
+      </nav>
+      <h1 class="page-title">
+        <i class="fas fa-history"></i>
+        Dispute History
+      </h1>
+      <p class="page-description">Track all dispute activities and changes over time</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        type="button" 
+        class="btn btn-outline-secondary"
+        (click)="toggleFilters()"
+        [class.active]="showFilters">
+        <i class="fas fa-filter"></i>
+        Filters
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-outline-primary"
+        (click)="exportHistory()"
+        [disabled]="loading || filteredEntries.length === 0">
+        <i class="fas fa-download"></i>
+        Export
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-primary"
+        (click)="refresh()">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+        Refresh
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="loading-text">Loading dispute history...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+  <i class="fas fa-exclamation-triangle"></i>
+  {{ error }}
+  <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="refresh()">
+    Try Again
+  </button>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading && !error" class="main-content">
+  <!-- Filters Panel -->
+  <div class="filters-panel" [class.show]="showFilters">
+    <div class="filters-header">
+      <h5 class="filters-title">
+        <i class="fas fa-filter"></i>
+        Filter History
+      </h5>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearFilters()">
+        <i class="fas fa-times"></i>
+        Clear All
+      </button>
+    </div>
+    
+    <div class="filters-content">
+      <div class="row g-3">
+        <!-- Search -->
+        <div class="col-md-6">
+          <label for="search" class="form-label">Search</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input
+              type="text"
+              id="search"
+              class="form-control"
+              placeholder="Search disputes, clients, or descriptions..."
+              [value]="filters.searchTerm"
+              (input)="onSearch($any($event.target).value)">
+          </div>
+        </div>
+        
+        <!-- Date Range -->
+        <div class="col-md-6">
+          <label for="dateRange" class="form-label">Date Range</label>
+          <select
+            id="dateRange"
+            class="form-select"
+            [(ngModel)]="filters.dateRange"
+            (change)="onFilterChange()">
+            <option *ngFor="let option of dateRangeOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Status -->
+        <div class="col-md-3">
+          <label for="status" class="form-label">Status</label>
+          <select
+            id="status"
+            class="form-select"
+            [(ngModel)]="filters.status"
+            (change)="onFilterChange()">
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Priority -->
+        <div class="col-md-3">
+          <label for="priority" class="form-label">Priority</label>
+          <select
+            id="priority"
+            class="form-select"
+            [(ngModel)]="filters.priority"
+            (change)="onFilterChange()">
+            <option *ngFor="let option of priorityOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Action -->
+        <div class="col-md-3">
+          <label for="action" class="form-label">Action</label>
+          <select
+            id="action"
+            class="form-select"
+            [(ngModel)]="filters.action"
+            (change)="onFilterChange()">
+            <option *ngFor="let option of actionOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- User -->
+        <div class="col-md-3">
+          <label for="user" class="form-label">User</label>
+          <select
+            id="user"
+            class="form-select"
+            [(ngModel)]="filters.user"
+            (change)="onFilterChange()">
+            <option *ngFor="let option of userOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Results Summary -->
+  <div class="results-summary">
+    <div class="summary-left">
+      <span class="results-count">
+        Showing {{ filteredEntries.length }} of {{ totalItems }} entries
+      </span>
+      <div class="selection-actions" *ngIf="selectedEntries.length > 0">
+        <span class="selected-count">{{ selectedEntries.length }} selected</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="deselectAll()">
+          Clear Selection
+        </button>
+      </div>
+    </div>
+    <div class="summary-right">
+      <div class="bulk-actions">
+        <button 
+          type="button" 
+          class="btn btn-sm btn-outline-primary"
+          (click)="selectAll()"
+          [disabled]="filteredEntries.length === 0">
+          Select All
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- History Timeline -->
+  <div class="history-timeline" *ngIf="filteredEntries.length > 0">
+    <div class="timeline-container">
+      <div 
+        class="timeline-entry"
+        *ngFor="let entry of filteredEntries; trackBy: trackByEntryId"
+        [class.selected]="isSelected(entry.id)">
+        
+        <!-- Selection Checkbox -->
+        <div class="entry-selection">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [checked]="isSelected(entry.id)"
+            (change)="toggleSelection(entry.id)">
+        </div>
+        
+        <!-- Timeline Marker -->
+        <div class="timeline-marker">
+          <div class="marker-icon" [ngClass]="getActionClass(entry.action)">
+            <i class="fas" [ngClass]="getActionIcon(entry.action)"></i>
+          </div>
+          <div class="marker-line"></div>
+        </div>
+        
+        <!-- Entry Content -->
+        <div class="entry-content">
+          <div class="entry-header">
+            <div class="entry-title">
+              <h6 class="title-text">{{ entry.action | titlecase }}</h6>
+              <div class="entry-badges">
+                <span class="badge" [ngClass]="'badge-' + entry.action">{{ entry.action | titlecase }}</span>
+                <span *ngIf="entry.disputeStatus" class="badge badge-status">
+                  {{ entry.disputeStatus | titlecase }}
+                </span>
+                <span *ngIf="entry.disputePriority" class="badge badge-priority" 
+                      [ngClass]="'badge-priority-' + entry.disputePriority">
+                  {{ entry.disputePriority | titlecase }}
+                </span>
+              </div>
+            </div>
+            <div class="entry-meta">
+              <span class="entry-time" [title]="formatDateTime(entry.createdAt)">
+                {{ getRelativeTime(entry.createdAt) }}
+              </span>
+              <span class="entry-user" *ngIf="entry.userName">
+                by {{ entry.userName }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="entry-body">
+            <p class="entry-description">{{ entry.description }}</p>
+            
+            <!-- Dispute Info -->
+            <div class="dispute-info" *ngIf="entry.disputeReferenceNumber || entry.clientName">
+              <div class="info-item" *ngIf="entry.disputeReferenceNumber">
+                <i class="fas fa-file-alt"></i>
+                <span>Dispute: {{ entry.disputeReferenceNumber }}</span>
+              </div>
+              <div class="info-item" *ngIf="entry.clientName">
+                <i class="fas fa-user"></i>
+                <span>Client: {{ entry.clientName }}</span>
+              </div>
+            </div>
+            
+            <!-- Changes Details -->
+            <div class="changes-details" *ngIf="entry.changes && entry.changes.length > 0">
+              <h6 class="changes-title">Changes:</h6>
+              <ul class="changes-list">
+                <li *ngFor="let change of entry.changes" class="change-item">
+                  <strong>{{ change.field }}:</strong>
+                  <span class="old-value" *ngIf="change.oldValue">{{ change.oldValue }}</span>
+                  <i class="fas fa-arrow-right" *ngIf="change.oldValue && change.newValue"></i>
+                  <span class="new-value" *ngIf="change.newValue">{{ change.newValue }}</span>
+                </li>
+              </ul>
+            </div>
+            
+            <!-- Additional Data -->
+            <div class="additional-data" *ngIf="entry.additionalData">
+              <div class="data-item" *ngFor="let item of entry.additionalData | keyvalue">
+                <strong>{{ item.key | titlecase }}:</strong> {{ item.value }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="entry-actions">
+            <button 
+              type="button" 
+              class="btn btn-sm btn-outline-primary"
+              *ngIf="entry.disputeId"
+              (click)="viewDispute(entry.disputeId)">
+              <i class="fas fa-eye"></i>
+              View Dispute
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="filteredEntries.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-history"></i>
+    </div>
+    <h3 class="empty-title">No History Found</h3>
+    <p class="empty-description">
+      <span *ngIf="filters.searchTerm || filters.dateRange !== 'all' || filters.status !== 'all' || filters.priority !== 'all' || filters.action !== 'all' || filters.user !== 'all'">
+        No dispute history matches your current filters.
+      </span>
+      <span *ngIf="!filters.searchTerm && filters.dateRange === 'all' && filters.status === 'all' && filters.priority === 'all' && filters.action === 'all' && filters.user === 'all'">
+        No dispute history available yet.
+      </span>
+    </p>
+    <button 
+      type="button" 
+      class="btn btn-primary"
+      *ngIf="filters.searchTerm || filters.dateRange !== 'all' || filters.status !== 'all' || filters.priority !== 'all' || filters.action !== 'all' || filters.user !== 'all'"
+      (click)="clearFilters()">
+      <i class="fas fa-times"></i>
+      Clear Filters
+    </button>
+  </div>
+  
+  <!-- Pagination -->
+  <nav class="pagination-nav" *ngIf="totalPages > 1" aria-label="History pagination">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="previousPage()" [disabled]="currentPage === 1">
+          <i class="fas fa-chevron-left"></i>
+          Previous
+        </button>
+      </li>
+      
+      <li class="page-item" 
+          *ngFor="let page of [].constructor(totalPages); let i = index"
+          [class.active]="currentPage === i + 1"
+          [class.d-none]="totalPages > 7 && Math.abs(currentPage - (i + 1)) > 2 && (i + 1) !== 1 && (i + 1) !== totalPages">
+        <button class="page-link" (click)="goToPage(i + 1)">
+          {{ i + 1 }}
+        </button>
+      </li>
+      
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          Next
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </li>
+    </ul>
+    
+    <div class="pagination-info">
+      Page {{ currentPage }} of {{ totalPages }} ({{ totalItems }} total entries)
+    </div>
+  </nav>
+</div>

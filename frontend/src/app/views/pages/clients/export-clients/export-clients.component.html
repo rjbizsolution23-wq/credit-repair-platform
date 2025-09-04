@@ -1,0 +1,432 @@
+<div class="export-clients-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button 
+          type="button" 
+          class="btn btn-link back-btn" 
+          routerLink="/clients"
+          [attr.aria-label]="'Back to clients'"
+        >
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-text">
+          <h1 class="page-title">Export Clients</h1>
+          <p class="page-subtitle">Export client data in various formats</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="onReset()"
+        >
+          <i class="fas fa-undo"></i>
+          Reset
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          (click)="onCancel()"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading export options...</p>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div class="error-container" *ngIf="error">
+    <div class="alert alert-danger">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{ error }}</span>
+      <button 
+        type="button" 
+        class="btn btn-sm btn-outline-danger"
+        (click)="error = null"
+      >
+        <i class="fas fa-times"></i>
+        Dismiss
+      </button>
+    </div>
+  </div>
+
+  <!-- Export Configuration -->
+  <div class="export-content" *ngIf="!isLoading">
+    <form [formGroup]="exportForm" (ngSubmit)="onExport()">
+      <div class="row">
+        <!-- Left Column: Configuration -->
+        <div class="col-lg-8">
+          <!-- Export Format Section -->
+          <div class="config-section">
+            <h3>Export Format</h3>
+            <p class="text-muted">Choose the format for your exported data.</p>
+            
+            <div class="format-options">
+              <div 
+                class="format-option"
+                *ngFor="let format of availableFormats"
+                [class.selected]="exportForm.get('format')?.value === format.value"
+                (click)="exportForm.patchValue({format: format.value})"
+              >
+                <div class="format-icon">
+                  <i [class]="format.icon"></i>
+                </div>
+                <div class="format-info">
+                  <h4>{{ format.label }}</h4>
+                  <p>{{ format.description }}</p>
+                </div>
+                <div class="format-radio">
+                  <input 
+                    type="radio" 
+                    [value]="format.value"
+                    formControlName="format"
+                    [id]="'format-' + format.value"
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Export Options Section -->
+          <div class="config-section">
+            <h3>Export Options</h3>
+            <p class="text-muted">Configure how your data should be exported.</p>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="dateFormat" class="form-label">Date Format</label>
+                  <select id="dateFormat" class="form-select" formControlName="dateFormat">
+                    <option value="MM/dd/yyyy">MM/DD/YYYY (US)</option>
+                    <option value="dd/MM/yyyy">DD/MM/YYYY (EU)</option>
+                    <option value="yyyy-MM-dd">YYYY-MM-DD (ISO)</option>
+                    <option value="MMM dd, yyyy">MMM DD, YYYY</option>
+                  </select>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="encoding" class="form-label">File Encoding</label>
+                  <select id="encoding" class="form-select" formControlName="encoding">
+                    <option value="utf-8">UTF-8 (Recommended)</option>
+                    <option value="iso-8859-1">ISO-8859-1</option>
+                    <option value="windows-1252">Windows-1252</option>
+                  </select>
+                </div>
+                
+                <div class="mb-3" *ngIf="isDelimiterVisible()">
+                  <label for="delimiter" class="form-label">CSV Delimiter</label>
+                  <select id="delimiter" class="form-select" formControlName="delimiter">
+                    <option value=",">Comma (,)</option>
+                    <option value=";">Semicolon (;)</option>
+                    <option value="\t">Tab</option>
+                    <option value="|">Pipe (|)</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="form-check mb-3">
+                  <input 
+                    type="checkbox" 
+                    id="includeHeaders"
+                    class="form-check-input"
+                    formControlName="includeHeaders"
+                  >
+                  <label class="form-check-label" for="includeHeaders">
+                    <strong>Include Headers</strong>
+                    <small class="text-muted d-block">Add column headers to the export</small>
+                  </label>
+                </div>
+                
+                <div class="form-check mb-3">
+                  <input 
+                    type="checkbox" 
+                    id="includeInactive"
+                    class="form-check-input"
+                    formControlName="includeInactive"
+                  >
+                  <label class="form-check-label" for="includeInactive">
+                    <strong>Include Inactive Clients</strong>
+                    <small class="text-muted d-block">Export clients with inactive status</small>
+                  </label>
+                </div>
+                
+                <div class="form-check mb-3">
+                  <input 
+                    type="checkbox" 
+                    id="includeDeleted"
+                    class="form-check-input"
+                    formControlName="includeDeleted"
+                  >
+                  <label class="form-check-label" for="includeDeleted">
+                    <strong>Include Deleted Clients</strong>
+                    <small class="text-muted d-block">Export soft-deleted clients</small>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Field Selection Section -->
+          <div class="config-section">
+            <h3>Field Selection</h3>
+            <p class="text-muted">Choose which client fields to include in the export.</p>
+            
+            <!-- Field Selection Controls -->
+            <div class="field-controls">
+              <button 
+                type="button" 
+                class="btn btn-outline-primary btn-sm"
+                (click)="selectAllFields()"
+              >
+                <i class="fas fa-check-square"></i>
+                Select All
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-outline-secondary btn-sm"
+                (click)="deselectAllFields()"
+              >
+                <i class="fas fa-square"></i>
+                Deselect All
+              </button>
+              <span class="selected-count">
+                {{ selectedFields }} of {{ availableFields.length }} fields selected
+              </span>
+            </div>
+            
+            <!-- Field Categories -->
+            <div class="field-categories">
+              <div 
+                class="field-category"
+                *ngFor="let category of fieldCategories"
+              >
+                <div class="category-header">
+                  <div class="form-check">
+                    <input 
+                      type="checkbox" 
+                      [id]="'category-' + category"
+                      class="form-check-input"
+                      [checked]="getCategorySelectionState(category) === 'all'"
+                      [indeterminate]="getCategorySelectionState(category) === 'some'"
+                      (change)="onCategorySelectionChange(category, $any($event.target).checked)"
+                    >
+                    <label class="form-check-label" [for]="'category-' + category">
+                      <strong>{{ category }}</strong>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="category-fields">
+                  <div 
+                    class="field-item"
+                    *ngFor="let field of getFieldsByCategory(category)"
+                  >
+                    <div class="form-check">
+                      <input 
+                        type="checkbox" 
+                        [id]="'field-' + field.key"
+                        class="form-check-input"
+                        [checked]="field.selected"
+                        (change)="onFieldSelectionChange(field)"
+                      >
+                      <label class="form-check-label" [for]="'field-' + field.key">
+                        {{ field.label }}
+                        <small class="text-muted d-block">{{ field.key }}</small>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filters Section -->
+          <div class="config-section">
+            <h3>Filters</h3>
+            <p class="text-muted">Apply filters to limit which clients are exported.</p>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <!-- Search Filter -->
+                <div class="mb-3">
+                  <label for="searchTerm" class="form-label">Search Term</label>
+                  <input 
+                    type="text" 
+                    id="searchTerm"
+                    class="form-control"
+                    formControlName="searchTerm"
+                    placeholder="Search by name, email, or phone"
+                    (input)="onFilterChange()"
+                  >
+                </div>
+                
+                <!-- Date Range Filter -->
+                <div class="mb-3">
+                  <label class="form-label">Date Range (Created)</label>
+                  <div class="row">
+                    <div class="col-6">
+                      <input 
+                        type="date" 
+                        class="form-control"
+                        formControlName="dateRangeStart"
+                        placeholder="Start Date"
+                        (change)="onFilterChange()"
+                      >
+                    </div>
+                    <div class="col-6">
+                      <input 
+                        type="date" 
+                        class="form-control"
+                        formControlName="dateRangeEnd"
+                        placeholder="End Date"
+                        (change)="onFilterChange()"
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <!-- Status Filter -->
+                <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <div class="filter-tags">
+                    <button 
+                      type="button"
+                      class="btn btn-sm filter-tag"
+                      *ngFor="let status of availableStatuses"
+                      [class.active]="isStatusSelected(status)"
+                      (click)="onStatusToggle(status)"
+                    >
+                      {{ status }}
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Tags Filter -->
+                <div class="mb-3" *ngIf="availableTags.length > 0">
+                  <label class="form-label">Tags</label>
+                  <div class="filter-tags">
+                    <button 
+                      type="button"
+                      class="btn btn-sm filter-tag"
+                      *ngFor="let tag of availableTags"
+                      [class.active]="isTagSelected(tag)"
+                      (click)="onTagToggle(tag)"
+                    >
+                      {{ tag }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Summary -->
+        <div class="col-lg-4">
+          <div class="export-summary">
+            <h3>Export Summary</h3>
+            
+            <!-- Statistics -->
+            <div class="summary-stats">
+              <div class="stat-item">
+                <div class="stat-icon">
+                  <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ totalClients }}</h4>
+                  <p>Total Clients</p>
+                </div>
+              </div>
+              
+              <div class="stat-item">
+                <div class="stat-icon">
+                  <i class="fas fa-filter"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ filteredClients }}</h4>
+                  <p>Filtered Clients</p>
+                </div>
+              </div>
+              
+              <div class="stat-item">
+                <div class="stat-icon">
+                  <i class="fas fa-columns"></i>
+                </div>
+                <div class="stat-info">
+                  <h4>{{ selectedFields }}</h4>
+                  <p>Selected Fields</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Selected Format Info -->
+            <div class="format-summary" *ngIf="getSelectedFormat()">
+              <h4>Export Format</h4>
+              <div class="format-info">
+                <div class="format-icon">
+                  <i [class]="getSelectedFormat()?.icon"></i>
+                </div>
+                <div class="format-details">
+                  <strong>{{ getSelectedFormat()?.label }}</strong>
+                  <p>{{ getSelectedFormat()?.description }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Export Button -->
+            <div class="export-action">
+              <button 
+                type="submit" 
+                class="btn btn-primary btn-lg w-100"
+                [disabled]="exportForm.invalid || selectedFields === 0 || isExporting"
+              >
+                <i class="fas fa-spinner fa-spin" *ngIf="isExporting"></i>
+                <i class="fas fa-download" *ngIf="!isExporting"></i>
+                {{ isExporting ? 'Exporting...' : 'Export Clients' }}
+              </button>
+              
+              <div class="export-info" *ngIf="selectedFields === 0">
+                <small class="text-warning">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  Please select at least one field to export.
+                </small>
+              </div>
+              
+              <div class="export-info" *ngIf="filteredClients === 0 && selectedFields > 0">
+                <small class="text-warning">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  No clients match the current filters.
+                </small>
+              </div>
+            </div>
+            
+            <!-- Export Tips -->
+            <div class="export-tips">
+              <h5>Export Tips</h5>
+              <ul>
+                <li>CSV format is best for Excel compatibility</li>
+                <li>PDF format is ideal for reports and printing</li>
+                <li>JSON format is perfect for developers</li>
+                <li>Large exports may take a few moments to process</li>
+                <li>Sensitive fields like SSN require special permissions</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

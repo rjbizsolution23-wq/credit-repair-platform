@@ -1,0 +1,599 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="header-content">
+    <div class="header-left">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/dashboard">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a routerLink="/disputes">Disputes</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Templates</li>
+        </ol>
+      </nav>
+      <h1 class="page-title">
+        <i class="fas fa-file-alt"></i>
+        Dispute Templates
+      </h1>
+      <p class="page-description">Manage letter templates for automated dispute generation</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        type="button" 
+        class="btn btn-outline-secondary"
+        (click)="importTemplates()">
+        <i class="fas fa-upload"></i>
+        Import
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-outline-primary"
+        (click)="exportTemplates()"
+        [disabled]="loading || filteredTemplates.length === 0">
+        <i class="fas fa-download"></i>
+        Export
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-primary"
+        (click)="createTemplate()">
+        <i class="fas fa-plus"></i>
+        New Template
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="loading-text">Loading templates...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+  <i class="fas fa-exclamation-triangle"></i>
+  {{ error }}
+  <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="refresh()">
+    Try Again
+  </button>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading && !error" class="main-content">
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="row g-3">
+      <!-- Search -->
+      <div class="col-md-4">
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="fas fa-search"></i>
+          </span>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search templates..."
+            [value]="filters.searchTerm"
+            (input)="onSearch($any($event.target).value)">
+        </div>
+      </div>
+      
+      <!-- Category Filter -->
+      <div class="col-md-2">
+        <select
+          class="form-select"
+          [(ngModel)]="filters.category"
+          (change)="onFilterChange()">
+          <option *ngFor="let option of categoryOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      
+      <!-- Type Filter -->
+      <div class="col-md-2">
+        <select
+          class="form-select"
+          [(ngModel)]="filters.type"
+          (change)="onFilterChange()">
+          <option *ngFor="let option of typeOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      
+      <!-- Status Filter -->
+      <div class="col-md-2">
+        <select
+          class="form-select"
+          [(ngModel)]="filters.status"
+          (change)="onFilterChange()">
+          <option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      
+      <!-- Clear Filters -->
+      <div class="col-md-2">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary w-100"
+          (click)="clearFilters()"
+          [disabled]="filters.category === 'all' && filters.type === 'all' && filters.status === 'all' && !filters.searchTerm">
+          <i class="fas fa-times"></i>
+          Clear
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Results Summary -->
+  <div class="results-summary">
+    <span class="results-count">
+      Showing {{ filteredTemplates.length }} of {{ templates.length }} templates
+    </span>
+  </div>
+  
+  <!-- Templates Grid -->
+  <div class="templates-grid" *ngIf="filteredTemplates.length > 0">
+    <div class="row g-4">
+      <div 
+        class="col-lg-4 col-md-6"
+        *ngFor="let template of filteredTemplates; trackBy: trackByTemplateId">
+        <div class="template-card">
+          <!-- Card Header -->
+          <div class="card-header">
+            <div class="header-left">
+              <div class="template-icon">
+                <i class="fas fa-file-text"></i>
+              </div>
+              <div class="template-info">
+                <h5 class="template-name">{{ template.name }}</h5>
+              </div>
+            </div>
+            <div class="header-actions">
+              <div class="dropdown">
+                <button 
+                  class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                  type="button"
+                  [id]="'templateActions' + template.id"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu" [attr.aria-labelledby]="'templateActions' + template.id">
+                  <li>
+                    <button class="dropdown-item" (click)="previewTemplate(template)">
+                      <i class="fas fa-eye"></i> Preview
+                    </button>
+                  </li>
+                  <li>
+                    <button class="dropdown-item" (click)="editTemplate(template)">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                  </li>
+                  <li>
+                    <button class="dropdown-item" (click)="duplicateTemplate(template)">
+                      <i class="fas fa-copy"></i> Duplicate
+                    </button>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <button 
+                      class="dropdown-item"
+                      (click)="toggleTemplateStatus(template)">
+                      <i class="fas" [ngClass]="template.is_active ? 'fa-pause' : 'fa-play'"></i>
+                      {{ template.is_active ? 'Deactivate' : 'Activate' }}
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      class="dropdown-item text-danger"
+                      (click)="confirmDelete(template)">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card Body -->
+          <div class="card-body">
+            <div class="template-meta">
+              <div class="meta-item">
+                <span class="meta-label">Type:</span>
+                <span class="meta-value">{{ template.type | titlecase }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Status:</span>
+                <span class="badge" [ngClass]="template.is_active ? 'badge-success' : 'badge-secondary'">
+                  {{ template.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+
+            </div>
+            
+
+            
+            <div class="template-subject">
+              <strong>Subject:</strong> {{ template.subject }}
+            </div>
+            
+
+            
+            <div class="template-stats">
+              <div class="stat-item">
+                <i class="fas fa-calendar"></i>
+                <span>{{ formatDate(template.created_date) }}</span>
+              </div>
+
+            </div>
+          </div>
+          
+          <!-- Card Footer -->
+          <div class="card-footer">
+            <div class="action-buttons">
+              <button 
+                type="button" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="previewTemplate(template)">
+                <i class="fas fa-eye"></i>
+                Preview
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-sm btn-primary"
+                (click)="editTemplate(template)">
+                <i class="fas fa-edit"></i>
+                Edit
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="filteredTemplates.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-file-alt"></i>
+    </div>
+    <h3 class="empty-title">No Templates Found</h3>
+    <p class="empty-description">
+      <span *ngIf="filters.searchTerm || filters.category !== 'all' || filters.type !== 'all' || filters.status !== 'all'">
+        No templates match your current filters.
+      </span>
+      <span *ngIf="!filters.searchTerm && filters.category === 'all' && filters.type === 'all' && filters.status === 'all'">
+        No dispute templates available yet. Create your first template to get started.
+      </span>
+    </p>
+    <div class="empty-actions">
+      <button 
+        type="button" 
+        class="btn btn-primary"
+        *ngIf="!filters.searchTerm && filters.category === 'all' && filters.type === 'all' && filters.status === 'all'"
+        (click)="createTemplate()">
+        <i class="fas fa-plus"></i>
+        Create Template
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-outline-primary"
+        *ngIf="filters.searchTerm || filters.category !== 'all' || filters.type !== 'all' || filters.status !== 'all'"
+        (click)="clearFilters()">
+        <i class="fas fa-times"></i>
+        Clear Filters
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Template Modal -->
+<div class="modal fade" [class.show]="showCreateModal || showEditModal" [style.display]="showCreateModal || showEditModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-file-alt"></i>
+          {{ selectedTemplate ? 'Edit Template' : 'Create Template' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <form [formGroup]="templateForm" (ngSubmit)="saveTemplate()">
+        <div class="modal-body">
+          <div class="row g-3">
+            <!-- Basic Information -->
+            <div class="col-md-6">
+              <label for="templateName" class="form-label">Template Name *</label>
+              <input
+                type="text"
+                id="templateName"
+                class="form-control"
+                formControlName="name"
+                placeholder="Enter template name">
+              <div class="invalid-feedback" *ngIf="templateForm.get('name')?.invalid && templateForm.get('name')?.touched">
+                Template name is required
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <label for="templateCategory" class="form-label">Category *</label>
+              <select id="templateCategory" class="form-select" formControlName="category">
+                <option value="">Select category</option>
+                <option *ngFor="let option of categoryOptions.slice(1)" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+              <div class="invalid-feedback" *ngIf="templateForm.get('category')?.invalid && templateForm.get('category')?.touched">
+                Category is required
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <label for="templateType" class="form-label">Dispute Type *</label>
+              <select id="templateType" class="form-select" formControlName="type">
+                <option value="">Select dispute type</option>
+                <option *ngFor="let option of typeOptions.slice(1)" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+              <div class="invalid-feedback" *ngIf="templateForm.get('type')?.invalid && templateForm.get('type')?.touched">
+                Dispute type is required
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="templateActive"
+                  formControlName="isActive">
+                <label class="form-check-label" for="templateActive">
+                  Active Template
+                </label>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <label for="templateDescription" class="form-label">Description</label>
+              <textarea
+                id="templateDescription"
+                class="form-control"
+                rows="2"
+                formControlName="description"
+                placeholder="Enter template description"></textarea>
+            </div>
+            
+            <div class="col-12">
+              <label for="templateSubject" class="form-label">Subject Line *</label>
+              <input
+                type="text"
+                id="templateSubject"
+                class="form-control"
+                formControlName="subject"
+                placeholder="Enter email/letter subject">
+              <div class="invalid-feedback" *ngIf="templateForm.get('subject')?.invalid && templateForm.get('subject')?.touched">
+                Subject line is required
+              </div>
+            </div>
+          </div>
+          
+          <!-- Template Content -->
+          <div class="template-editor">
+            <div class="row">
+              <div class="col-md-8">
+                <label for="templateContent" class="form-label">Template Content *</label>
+                <textarea
+                  id="templateContent"
+                  class="form-control template-textarea"
+                  rows="15"
+                  formControlName="content"
+                  placeholder="Enter your template content here..."></textarea>
+                <div class="invalid-feedback" *ngIf="templateForm.get('content')?.invalid && templateForm.get('content')?.touched">
+                  Template content is required (minimum 50 characters)
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Available Variables</label>
+                <div class="variables-panel">
+                  <div class="variables-search">
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      placeholder="Search variables..."
+                      #variableSearch>
+                  </div>
+                  <div class="variables-list">
+                    <div 
+                      class="variable-item"
+                      *ngFor="let variable of availableVariables"
+                      (click)="insertVariable(variable.key)">
+                      <div class="variable-key">{{ variable.key }}</div>
+                      <div class="variable-description">{{ variable.description }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tags -->
+          <div class="row mt-3">
+            <div class="col-12">
+              <label class="form-label">Tags</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter tags separated by commas"
+                (blur)="onTagsChange($event)">
+              <small class="form-text text-muted">Separate multiple tags with commas</small>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModals()">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="templateForm.invalid">
+            <i class="fas fa-save"></i>
+            {{ selectedTemplate ? 'Update' : 'Create' }} Template
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" [class.show]="showPreviewModal" [style.display]="showPreviewModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-eye"></i>
+          Template Preview
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedTemplate">
+        <div class="preview-header">
+          <h6>{{ selectedTemplate.name }}</h6>
+        </div>
+        
+        <div class="preview-subject">
+          <strong>Subject:</strong> {{ selectedTemplate.subject }}
+        </div>
+        
+        <div class="preview-content">
+          <div class="content-preview" [innerHTML]="generatePreview(selectedTemplate)"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModals()">
+          Close
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          *ngIf="selectedTemplate"
+          (click)="editTemplate(selectedTemplate); closeModals()">
+          <i class="fas fa-edit"></i>
+          Edit Template
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" [class.show]="showDeleteModal" [style.display]="showDeleteModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-exclamation-triangle text-danger"></i>
+          Confirm Delete
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedTemplate">
+        <p>Are you sure you want to delete the template <strong>"{{ selectedTemplate.name }}"</strong>?</p>
+        <p class="text-muted">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModals()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="deleteTemplate()">
+          <i class="fas fa-trash"></i>
+          Delete Template
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal fade" [class.show]="showImportModal" [style.display]="showImportModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-upload"></i>
+          Import Templates
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <form [formGroup]="importForm" (ngSubmit)="processImport()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="importFile" class="form-label">Select File</label>
+            <input
+              type="file"
+              id="importFile"
+              class="form-control"
+              accept=".json,.csv"
+              (change)="onFileSelected($event)">
+            <small class="form-text text-muted">Supported formats: JSON, CSV</small>
+          </div>
+          
+          <div class="form-check mb-3">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="overwriteExisting"
+              formControlName="overwriteExisting">
+            <label class="form-check-label" for="overwriteExisting">
+              Overwrite existing templates with same name
+            </label>
+          </div>
+          
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="validateTemplates"
+              formControlName="validateTemplates">
+            <label class="form-check-label" for="validateTemplates">
+              Validate templates before import
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModals()">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="importForm.invalid">
+            <i class="fas fa-upload"></i>
+            Import Templates
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div 
+  class="modal-backdrop fade"
+  [class.show]="showCreateModal || showEditModal || showDeleteModal || showPreviewModal || showImportModal"
+  *ngIf="showCreateModal || showEditModal || showDeleteModal || showPreviewModal || showImportModal"
+  (click)="closeModals()"></div>

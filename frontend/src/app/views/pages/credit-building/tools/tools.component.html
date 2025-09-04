@@ -1,0 +1,654 @@
+<div class="tools-container">
+  <!-- Header -->
+  <div class="tools-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Credit Building Tools</h1>
+        <p class="page-subtitle">Powerful tools to accelerate your credit improvement journey</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline" (click)="clearFilters()">
+          <i class="fas fa-filter"></i>
+          Clear Filters
+        </button>
+        <button class="btn btn-primary" (click)="openToolModal(undefined, 'create')">
+          <i class="fas fa-plus"></i>
+          Add Tool
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <i class="fas fa-tools"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.totalTools }}</div>
+        <div class="stat-label">Total Tools</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon active">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.activeTools }}</div>
+        <div class="stat-label">Active Tools</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon free">
+        <i class="fas fa-gift"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.freeTools }}</div>
+        <div class="stat-label">Free Tools</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon rating">
+        <i class="fas fa-star"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.averageRating | number:'1.1-1' }}</div>
+        <div class="stat-label">Avg Rating</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label for="search">Search Tools</label>
+        <input 
+          type="text" 
+          id="search"
+          class="form-control" 
+          placeholder="Search by name, description, or tags..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+        >
+      </div>
+      <div class="filter-group">
+        <label for="category">Category</label>
+        <select 
+          id="category"
+          class="form-control" 
+          [(ngModel)]="selectedCategory"
+          (change)="onFilterChange()"
+        >
+          <option value="">All Categories</option>
+          <option *ngFor="let category of categories" [value]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="type">Type</label>
+        <select 
+          id="type"
+          class="form-control" 
+          [(ngModel)]="selectedType"
+          (change)="onFilterChange()"
+        >
+          <option value="">All Types</option>
+          <option value="calculator">Calculator</option>
+          <option value="analyzer">Analyzer</option>
+          <option value="generator">Generator</option>
+          <option value="tracker">Tracker</option>
+          <option value="simulator">Simulator</option>
+          <option value="validator">Validator</option>
+          <option value="optimizer">Optimizer</option>
+          <option value="reporter">Reporter</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="status">Status</label>
+        <select 
+          id="status"
+          class="form-control" 
+          [(ngModel)]="selectedStatus"
+          (change)="onFilterChange()"
+        >
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="deprecated">Deprecated</option>
+          <option value="beta">Beta</option>
+          <option value="coming_soon">Coming Soon</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="pricing">Pricing</label>
+        <select 
+          id="pricing"
+          class="form-control" 
+          [(ngModel)]="selectedPricing"
+          (change)="onFilterChange()"
+        >
+          <option value="">All Pricing</option>
+          <option value="free">Free</option>
+          <option value="paid">Paid</option>
+          <option value="freemium">Freemium</option>
+          <option value="subscription">Subscription</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="view-controls">
+      <div class="view-modes">
+        <button 
+          class="view-mode-btn" 
+          [class.active]="viewMode === 'grid'"
+          (click)="viewMode = 'grid'"
+        >
+          <i class="fas fa-th"></i>
+          Grid
+        </button>
+        <button 
+          class="view-mode-btn" 
+          [class.active]="viewMode === 'list'"
+          (click)="viewMode = 'list'"
+        >
+          <i class="fas fa-list"></i>
+          List
+        </button>
+      </div>
+      <div class="sort-controls">
+        <label for="sort">Sort by:</label>
+        <select 
+          id="sort"
+          class="form-control" 
+          [(ngModel)]="sortBy"
+          (change)="onFilterChange()"
+        >
+          <option value="name">Name</option>
+          <option value="category">Category</option>
+          <option value="rating">Rating</option>
+          <option value="usageCount">Usage Count</option>
+          <option value="lastUpdated">Last Updated</option>
+        </select>
+        <button 
+          class="btn btn-outline" 
+          (click)="onSortChange(sortBy)"
+        >
+          <i class="fas" [class.fa-sort-up]="sortOrder === 'asc'" [class.fa-sort-down]="sortOrder === 'desc'"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tools Content -->
+  <div class="tools-content">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading tools...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3 class="error-title">Error Loading Tools</h3>
+      <p class="error-description">{{ error }}</p>
+      <button class="btn btn-primary" (click)="loadTools()">
+        <i class="fas fa-redo"></i>
+        Retry
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && filteredTools.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-tools"></i>
+      </div>
+      <h3 class="empty-title">No Tools Found</h3>
+      <p class="empty-description">
+        No tools match your current filters. Try adjusting your search criteria or clear all filters.
+      </p>
+      <button class="btn btn-primary" (click)="clearFilters()">
+        <i class="fas fa-filter"></i>
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Grid View -->
+    <div *ngIf="!loading && !error && filteredTools.length > 0 && viewMode === 'grid'" class="tools-grid">
+      <div *ngFor="let tool of getPaginatedTools()" class="tool-card">
+        <div class="tool-header">
+          <div class="tool-icon" [style.background-color]="tool.category.color + '20'" [style.color]="tool.category.color">
+            <i class="fas" [class]="tool.icon"></i>
+          </div>
+          <div class="tool-status">
+            <span class="badge status" [class]="getStatusClass(tool.status)">{{ tool.status | titlecase }}</span>
+          </div>
+          <div class="tool-actions">
+            <button class="action-btn" (click)="openToolModal(tool, 'view')" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="action-btn" (click)="openToolModal(tool, 'edit')" title="Edit Tool">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn danger" (click)="deleteTool(tool)" title="Delete Tool">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="tool-content">
+          <h3 class="tool-title">{{ tool.name }}</h3>
+          <p class="tool-description">{{ tool.description }}</p>
+          
+          <div class="tool-meta">
+            <div class="meta-item">
+              <span class="meta-label">Category:</span>
+              <span class="meta-value">{{ tool.category.name }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Type:</span>
+              <span class="meta-value">{{ tool.type | titlecase }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Pricing:</span>
+              <span class="meta-value">{{ getPricingLabel(tool.pricing) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Usage:</span>
+              <span class="meta-value">{{ tool.usageCount }} times</span>
+            </div>
+          </div>
+
+          <div class="tool-rating">
+            <div class="rating-stars">
+              <i *ngFor="let star of getRatingStars(tool.rating)" class="fas" [class]="star"></i>
+            </div>
+            <span class="rating-value">{{ tool.rating | number:'1.1-1' }}</span>
+          </div>
+
+          <div class="tool-tags">
+            <span *ngFor="let tag of tool.tags.slice(0, 3)" class="tag">{{ tag }}</span>
+            <span *ngIf="tool.tags.length > 3" class="tag more">+{{ tool.tags.length - 3 }}</span>
+          </div>
+        </div>
+
+        <div class="tool-footer">
+          <button class="btn btn-primary btn-block" (click)="useTool(tool)">
+            <i class="fas fa-play"></i>
+            Use Tool
+          </button>
+          <div class="tool-secondary-actions">
+            <button class="action-btn" (click)="favoriteTool(tool)" title="Add to Favorites">
+              <i class="fas fa-heart"></i>
+            </button>
+            <button class="action-btn" (click)="shareTool(tool)" title="Share Tool">
+              <i class="fas fa-share"></i>
+            </button>
+            <button class="action-btn" (click)="openReviewModal(tool)" title="Write Review">
+              <i class="fas fa-comment"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div *ngIf="!loading && !error && filteredTools.length > 0 && viewMode === 'list'" class="tools-list">
+      <div class="list-header">
+        <div class="col-tool">Tool</div>
+        <div class="col-category">Category</div>
+        <div class="col-type">Type</div>
+        <div class="col-status">Status</div>
+        <div class="col-rating">Rating</div>
+        <div class="col-usage">Usage</div>
+        <div class="col-pricing">Pricing</div>
+        <div class="col-actions">Actions</div>
+      </div>
+      
+      <div *ngFor="let tool of getPaginatedTools()" class="list-item">
+        <div class="col-tool">
+          <div class="tool-info">
+            <div class="tool-icon-small" [style.background-color]="tool.category.color + '20'" [style.color]="tool.category.color">
+              <i class="fas" [class]="tool.icon"></i>
+            </div>
+            <div class="tool-details">
+              <div class="tool-name">{{ tool.name }}</div>
+              <div class="tool-desc">{{ tool.description | slice:0:60 }}{{ tool.description.length > 60 ? '...' : '' }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-category">
+          <span class="category-badge" [style.background-color]="tool.category.color + '20'" [style.color]="tool.category.color">
+            {{ tool.category.name }}
+          </span>
+        </div>
+        <div class="col-type">
+          <span class="type-text">{{ tool.type | titlecase }}</span>
+        </div>
+        <div class="col-status">
+          <span class="badge status" [class]="getStatusClass(tool.status)">{{ tool.status | titlecase }}</span>
+        </div>
+        <div class="col-rating">
+          <div class="rating-container">
+            <div class="rating-stars small">
+              <i *ngFor="let star of getRatingStars(tool.rating)" class="fas" [class]="star"></i>
+            </div>
+            <span class="rating-text">{{ tool.rating | number:'1.1-1' }}</span>
+          </div>
+        </div>
+        <div class="col-usage">
+          <span class="usage-count">{{ tool.usageCount }}</span>
+        </div>
+        <div class="col-pricing">
+          <span class="pricing-text">{{ getPricingLabel(tool.pricing) }}</span>
+        </div>
+        <div class="col-actions">
+          <button class="action-btn" (click)="useTool(tool)" title="Use Tool">
+            <i class="fas fa-play"></i>
+          </button>
+          <button class="action-btn" (click)="openToolModal(tool, 'view')" title="View Details">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="action-btn" (click)="openToolModal(tool, 'edit')" title="Edit Tool">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="action-btn danger" (click)="deleteTool(tool)" title="Delete Tool">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && !error && filteredTools.length > 0" class="pagination-container">
+    <div class="pagination-info">
+      Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }} tools
+    </div>
+    <div class="pagination">
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      
+      <button 
+        *ngFor="let page of [].constructor(totalPages); let i = index" 
+        class="page-btn" 
+        [class.active]="currentPage === i + 1"
+        (click)="goToPage(i + 1)"
+      >
+        {{ i + 1 }}
+      </button>
+      
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Tool Modal -->
+<div *ngIf="showToolModal" class="modal-overlay" (click)="closeToolModal()">
+  <div class="modal-content large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <span *ngIf="modalMode === 'view'">Tool Details</span>
+        <span *ngIf="modalMode === 'create'">Add New Tool</span>
+        <span *ngIf="modalMode === 'edit'">Edit Tool</span>
+      </h2>
+      <button class="modal-close" (click)="closeToolModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- View Mode -->
+      <div *ngIf="modalMode === 'view' && selectedTool" class="tool-details">
+        <div class="details-section">
+          <h3>Basic Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Name:</label>
+              <span>{{ selectedTool.name }}</span>
+            </div>
+            <div class="info-item">
+              <label>Category:</label>
+              <span>{{ selectedTool.category.name }}</span>
+            </div>
+            <div class="info-item">
+              <label>Type:</label>
+              <span>{{ selectedTool.type | titlecase }}</span>
+            </div>
+            <div class="info-item">
+              <label>Status:</label>
+              <span class="badge status" [class]="getStatusClass(selectedTool.status)">{{ selectedTool.status | titlecase }}</span>
+            </div>
+            <div class="info-item">
+              <label>Rating:</label>
+              <span>{{ selectedTool.rating | number:'1.1-1' }} / 5.0</span>
+            </div>
+            <div class="info-item">
+              <label>Usage Count:</label>
+              <span>{{ selectedTool.usageCount }} times</span>
+            </div>
+            <div class="info-item">
+              <label>Pricing:</label>
+              <span>{{ getPricingLabel(selectedTool.pricing) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Support Level:</label>
+              <span>{{ selectedTool.supportLevel | titlecase }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3>Description</h3>
+          <p>{{ selectedTool.description }}</p>
+        </div>
+
+        <div class="details-section">
+          <h3>Features</h3>
+          <ul class="features-list">
+            <li *ngFor="let feature of selectedTool.features">{{ feature }}</li>
+          </ul>
+        </div>
+
+        <div class="details-section">
+          <h3>Integrations</h3>
+          <div class="integrations-list">
+            <span *ngFor="let integration of selectedTool.integrations" class="integration-tag">{{ integration }}</span>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h3>Tags</h3>
+          <div class="tags-list">
+            <span *ngFor="let tag of selectedTool.tags" class="tag">{{ tag }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create/Edit Mode -->
+      <div *ngIf="modalMode === 'create' || modalMode === 'edit'" class="tool-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="toolName">Tool Name *</label>
+            <input 
+              type="text" 
+              id="toolName"
+              class="form-control" 
+              [(ngModel)]="toolForm.name"
+              placeholder="Enter tool name"
+              required
+            >
+          </div>
+          <div class="form-group">
+            <label for="toolCategory">Category *</label>
+            <select 
+              id="toolCategory"
+              class="form-control" 
+              [(ngModel)]="toolForm.category"
+              required
+            >
+              <option *ngFor="let category of categories" [ngValue]="category">
+                {{ category.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="toolDescription">Description *</label>
+          <textarea 
+            id="toolDescription"
+            class="form-control" 
+            rows="3"
+            [(ngModel)]="toolForm.description"
+            placeholder="Enter tool description"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="toolType">Type *</label>
+            <select 
+              id="toolType"
+              class="form-control" 
+              [(ngModel)]="toolForm.type"
+              required
+            >
+              <option value="calculator">Calculator</option>
+              <option value="analyzer">Analyzer</option>
+              <option value="generator">Generator</option>
+              <option value="tracker">Tracker</option>
+              <option value="simulator">Simulator</option>
+              <option value="validator">Validator</option>
+              <option value="optimizer">Optimizer</option>
+              <option value="reporter">Reporter</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="toolStatus">Status *</label>
+            <select 
+              id="toolStatus"
+              class="form-control" 
+              [(ngModel)]="toolForm.status"
+              required
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="deprecated">Deprecated</option>
+              <option value="beta">Beta</option>
+              <option value="coming_soon">Coming Soon</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="toolIcon">Icon Class</label>
+            <input 
+              type="text" 
+              id="toolIcon"
+              class="form-control" 
+              [(ngModel)]="toolForm.icon"
+              placeholder="fa-calculator"
+            >
+          </div>
+          <div class="form-group">
+            <label for="supportLevel">Support Level</label>
+            <select 
+              id="supportLevel"
+              class="form-control" 
+              [(ngModel)]="toolForm.supportLevel"
+            >
+              <option value="basic">Basic</option>
+              <option value="standard">Standard</option>
+              <option value="premium">Premium</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeToolModal()">
+        Cancel
+      </button>
+      <button *ngIf="modalMode === 'view' && selectedTool" class="btn btn-primary" (click)="useTool(selectedTool)">
+        <i class="fas fa-play"></i>
+        Use Tool
+      </button>
+      <button *ngIf="modalMode === 'create' || modalMode === 'edit'" class="btn btn-primary" (click)="saveTool()">
+        <i class="fas fa-save"></i>
+        {{ modalMode === 'create' ? 'Create Tool' : 'Save Changes' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div *ngIf="showReviewModal" class="modal-overlay" (click)="closeReviewModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Write Review</h2>
+      <button class="modal-close" (click)="closeReviewModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Rating</label>
+        <div class="rating-input">
+          <button 
+            *ngFor="let star of [1,2,3,4,5]" 
+            class="star-btn" 
+            [class.active]="star <= reviewForm.rating"
+            (click)="reviewForm.rating = star"
+          >
+            <i class="fas fa-star"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="reviewComment">Comment</label>
+        <textarea 
+          id="reviewComment"
+          class="form-control" 
+          rows="4"
+          [(ngModel)]="reviewForm.comment"
+          placeholder="Share your experience with this tool..."
+        ></textarea>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeReviewModal()">
+        Cancel
+      </button>
+      <button class="btn btn-primary">
+        <i class="fas fa-paper-plane"></i>
+        Submit Review
+      </button>
+    </div>
+  </div>
+</div>

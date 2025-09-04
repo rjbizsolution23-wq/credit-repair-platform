@@ -1,0 +1,47 @@
+{
+  "summary": {
+    "total_tests": 6,
+    "passed": 5,
+    "failed": 1,
+    "success_rate": 83.33333333333334,
+    "timestamp": "2025-08-25T23:57:06.714193"
+  },
+  "test_results": [
+    {
+      "test_name": "Authentication Setup",
+      "passed": true,
+      "details": "Successfully authenticated",
+      "timestamp": "2025-08-25T23:57:04.166331"
+    },
+    {
+      "test_name": "Test Client Creation",
+      "passed": true,
+      "details": "Created client ID: 052dcd3a-58a1-49eb-a2ef-b7f452bb9b33",
+      "timestamp": "2025-08-25T23:57:04.671451"
+    },
+    {
+      "test_name": "Dispute Creation",
+      "passed": true,
+      "details": "Created dispute ID: 4b559153-fb8e-4836-8895-9e7b5b0f7c36, Success probability: 0%",
+      "timestamp": "2025-08-25T23:57:05.178230"
+    },
+    {
+      "test_name": "Letter Generation (Mock)",
+      "passed": true,
+      "details": "Generated letter ID: letter_335de49a-eb6a-4352-8298-8c1adcdf8b0d, Word count: 47",
+      "timestamp": "2025-08-25T23:57:05.679100"
+    },
+    {
+      "test_name": "Letter Retrieval (Mock)",
+      "passed": true,
+      "details": "Retrieved 1 letters",
+      "timestamp": "2025-08-25T23:57:06.180063"
+    },
+    {
+      "test_name": "USPS Mailing",
+      "passed": false,
+      "details": "Unexpected status: 422",
+      "timestamp": "2025-08-25T23:57:06.712818"
+    }
+  ]
+}

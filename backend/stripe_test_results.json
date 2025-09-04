@@ -1,0 +1,59 @@
+{
+  "summary": {
+    "total": 7,
+    "passed": 6,
+    "failed": 1,
+    "success_rate": 85.71428571428571
+  },
+  "results": [
+    {
+      "test": "Stripe Health Check",
+      "success": false,
+      "details": "",
+      "error": "Health check failed: 404",
+      "timestamp": "2025-08-25T23:31:19.534990"
+    },
+    {
+      "test": "Payment Endpoints Availability",
+      "success": true,
+      "details": "Available endpoints: /api/v1/stripe/customers, /api/v1/stripe/subscriptions, /api/v1/stripe/payment-intent, /api/v1/stripe/webhook, /api/v1/stripe/plans",
+      "error": "",
+      "timestamp": "2025-08-25T23:31:19.547988"
+    },
+    {
+      "test": "Webhook Endpoint Accessibility",
+      "success": true,
+      "details": "Webhook endpoint responding (status: 422)",
+      "error": "",
+      "timestamp": "2025-08-25T23:31:19.592763"
+    },
+    {
+      "test": "Stripe Configuration",
+      "success": true,
+      "details": "Stripe responding (status: 400)",
+      "error": "",
+      "timestamp": "2025-08-25T23:31:20.308552"
+    },
+    {
+      "test": "Payment Plans Endpoint",
+      "success": true,
+      "details": "Found 0 payment plans available",
+      "error": "",
+      "timestamp": "2025-08-25T23:31:20.313552"
+    },
+    {
+      "test": "Billing Endpoints",
+      "success": true,
+      "details": "Billing endpoints accessible (status: 400)",
+      "error": "",
+      "timestamp": "2025-08-25T23:31:20.364299"
+    },
+    {
+      "test": "Rate Limiting",
+      "success": true,
+      "details": "Rate limiting active - response codes: [400]",
+      "error": "",
+      "timestamp": "2025-08-25T23:31:21.087878"
+    }
+  ]
+}

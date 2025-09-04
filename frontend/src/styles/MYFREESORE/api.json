@@ -1,0 +1,293 @@
+
+Public
+ENVIRONMENT
+No Environment
+LAYOUT
+Double Column
+LANGUAGE
+cURL - cURL
+MFSN API v2 - Enrollment API
+Introduction
+POST
+Login
+POST
+Start Enrollment
+POST
+ID Verification
+POST
+Update Credit Card
+POST
+Update Security Questions
+GET
+Api Logout
+MFSN API v2 - Enrollment API
+POST
+Update Credit Card
+https://api.myfreescorenow.com/api/auth/enroll/updatecard
+Update Card Enrollment
+The Update Card Enrollment endpoint is used to update the credit card details for a customer's enrollment.
+
+Request Body Parameters
+trackingToken (mandatory) - The tracking token for the enrollment update.
+
+customerToken (mandatory) - The customer token for the enrollment update.
+
+creditCard (mandatory) - The new credit card number.
+
+name (mandatory) - The name on the credit card.
+
+cvv (mandatory) - The CVV number of the new credit card.
+
+cardMonth (mandatory) - The expiration month of the new credit card.
+
+cardYear (mandatory) - The expiration year of the new credit card.
+
+isConfirmedTerms (mandatory) - Indicates whether the terms and conditions are confirmed.
+
+billAddress (mandatory) - The billing address for the credit card.
+
+billzip (mandatory) - The billing ZIP code.
+
+billcity (mandatory) - The billing city.
+
+billstate (mandatory) - The billing state.
+
+Response
+The response is in the form of a JSON schema with the following fields:
+
+success - Indicates if the update was successful.
+
+data - An object containing additional information about the update, including any offers and security questions.
+
+View More
+json
+{
+  "success": true,
+  "data": {
+    "step": "",
+    "next-step": "",
+    "message": "",
+    "tracking_token": "",
+    "customer_token": "",
+    "password": "",
+    "offers": {
+      "offer_days": 0,
+      "offer_price": "",
+      "offer_has_fee": "",
+      "hide_affiliates": 0,
+      "free_3": ""
+    },
+    "security_questions": [
+      {
+        "updateDate": "",
+        "securityQuestionId": 0,
+        "question": ""
+      }
+    ]
+  }
+}
+AUTHORIZATION
+Bearer Token
+Token
+{{authToken}}
+
+Body
+raw (json)
+View More
+json
+{
+    "trackingToken":"{{trackingToken}}", // mandatory 
+    "customerToken":"{{customerToken}}", // mandatory 
+    "creditCard":"4805584882061437", // mandatory 
+    "name":"Donald", // mandatory 
+    "cvv":"123", // mandatory 
+    "cardMonth":"07", // mandatory 
+    "cardYear":"2025", // mandatory 
+    "isConfirmedTerms":"true", // mandatory 
+    "billAddress":"6939 W GEORGE ST", // mandatory 
+    "billzip":"98011", // mandatory 
+    "billcity":"Bothell", // mandatory 
+    "billstate":"WA" // mandatory 
+}
+Example Request
+Update Card Response
+View More
+curl
+curl --location 'https://api.myfreescorenow.com/api/auth/enroll/updatecard' \
+--data '{
+    "trackingToken":"{{trackingToken}}",
+    "customerToken":"{{customerToken}}",
+    "creditCard":"4599542298931650",
+    "name":"Donald",
+    "cvv":"123",
+    "cardMonth":"07",
+    "cardYear":"2025",
+    "isConfirmedTerms":"true",
+    "billAddress":"6939 W GEORGE ST",
+    "billzip":"98011",
+    "billcity":"Bothell",
+    "billstate":"WA"
+}'
+200 OK
+Example Response
+Body
+Headers (10)
+View More
+json
+{
+  "success": true,
+  "data": {
+    "step": "Update Credit Card",
+    "next-step": "Update Security Questions",
+    "message": "Card Details updated",
+    "tracking_token": "1ec6d862-bd55-46fd-9327-80f4aa8cb064",
+    "customer_token": "9d92c117-5c46-412e-9168-de987f598006",
+    "password": "0000000001krEvvkGZrBjPMRTNOzZktIMWcn12yncltV6J9ziwBXs=",
+    "offers": {
+      "offer_days": 7,
+      "offer_price": "$29.95",
+      "offer_has_fee": "$1.00",
+      "hide_affiliates": 1,
+      "free_3": "Yes"
+    },
+    "security_questions": [
+      {
+        "updateDate": "2012-06-22T15:29:38.000+00:00",
+        "securityQuestionId": 1,
+        "question": "What was your high school mascot?"
+      },
+      {
+        "updateDate": "2012-06-22T15:29:38.000+00:00",
+        "securityQuestionId": 2,
+        "question": "What was your first grade teacher's last name?"
+      },
+      {
+        "updateDate": "2012-06-22T15:29:38.000+00:00",
+        "securityQuestionId": 3,
+        "question": "What was the make and model of your first car?"
+      },
+      {
+        "updateDate": "2012-06-22T15:29:38.000+00:00",
+        "securityQuestionId": 4,
+        "question": "What is your mother's middle name?"
+      },
+      {
+        "updateDate": "2012-06-22T15:29:38.000+00:00",
+        "securityQuestionId": 5,
+        "question": "What is your father's middle name?"
+      },
+      {
+        "updateDate": "2012-06-22T15:29:38.000+00:00",
+        "securityQuestionId": 6,
+        "question": "What city were you born in?"
+      },
+      {
+        "updateDate": "2012-06-22T15:29:39.000+00:00",
+        "securityQuestionId": 7,
+        "question": "What is your grandmother's first name (on your mother's side)?"
+      },
+      {
+        "updateDate": "2012-06-22T15:29:39.000+00:00",
+        "securityQuestionId": 8,
+        "question": "What is your grandfather's first name (on your father's side)?"
+      }
+    ]
+  }
+}
+POST
+Update Security Questions
+https://api.myfreescorenow.com/api/auth/enroll/securityquestions
+API Request Description
+This API endpoint allows the user to enroll security questions by providing the email, password, security question ID, and security question answer.
+
+email (mandatory): The email of the user.
+
+password (mandatory): The password of the user.
+
+securityQuestionId (mandatory): The ID of the security question.
+
+securityQuestionAnswer (mandatory): The answer to the security question.
+
+API Response (JSON Schema)
+View More
+json
+{
+    "type": "object",
+    "properties": {
+        "success": {
+            "type": "boolean"
+        },
+        "data": {
+            "type": "object",
+            "properties": {
+                "step": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
+AUTHORIZATION
+Bearer Token
+Token
+<token>
+
+Body
+raw (json)
+json
+{
+    "email":"{{email}}", // mandatory 
+    "password":"{{password}}", // mandatory 
+    "securityQuestionId":"2", // mandatory 
+    "securityQuestionAnswer":"ABC" // mandatory 
+}
+Example Request
+Security Questions Response
+curl
+curl --location 'https://api.myfreescorenow.com/api/auth/enroll/securityquestions' \
+--data '{
+    "email":"{{email}}",
+    "password":"{{password}}",
+    "securityQuestionId":"2",
+    "securityQuestionAnswer":"ABC"
+}'
+200 OK
+Example Response
+Body
+Headers (10)
+json
+{
+  "success": true,
+  "data": {
+    "step": "Update Security Questions",
+    "message": "Enrollment process has been completed successfully",
+    "username": "usertest4@yopmail.com",
+    "password": "mfsn12345"
+  }
+}
+GET
+Api Logout
+https://api.myfreescorenow.com/api/auth/logout
+AUTHORIZATION
+Bearer Token
+Token
+<token>
+
+Example Request
+Api Logout
+curl
+curl --location 'https://api.myfreescorenow.com/api/auth/logout'
+Example Response
+Body
+Headers (0)
+No response body
+This request doesn't return any response body

@@ -1,0 +1,233 @@
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header">
+      <h4 class="card-title mb-1">Frequently Asked Questions</h4>
+      <p class="text-muted mb-0">Find answers to common questions about credit repair and our services</p>
+    </div>
+    
+    <div class="card-body">
+      <!-- Search and Filter Section -->
+      <div class="search-filter-section">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="search-box">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="fas fa-search"></i>
+                </span>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Search FAQs..."
+                  [(ngModel)]="searchTerm">
+                <button 
+                  class="btn btn-outline-secondary" 
+                  type="button"
+                  *ngIf="searchTerm"
+                  (click)="clearSearch()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="category-filter">
+              <select 
+                class="form-select" 
+                [(ngModel)]="selectedCategory"
+                (ngModelChange)="selectCategory($event)">
+                <option *ngFor="let category of categories" [value]="category.id">
+                  {{ category.icon }} {{ category.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Category Pills -->
+      <div class="category-pills">
+        <div class="d-flex flex-wrap gap-2">
+          <button 
+            *ngFor="let category of categories"
+            class="btn btn-outline-primary category-pill"
+            [class.active]="selectedCategory === category.id"
+            (click)="selectCategory(category.id)">
+            <span class="category-icon">{{ category.icon }}</span>
+            {{ category.name }}
+          </button>
+        </div>
+      </div>
+      
+      <!-- Results Summary -->
+      <div class="results-summary" *ngIf="searchTerm || selectedCategory !== 'all'">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i>
+          Showing {{ filteredFaqs.length }} result(s)
+          <span *ngIf="searchTerm"> for "{{ searchTerm }}"</span>
+          <span *ngIf="selectedCategory !== 'all'"> in {{ getCategoryById(selectedCategory)?.name }}</span>
+        </div>
+      </div>
+      
+      <!-- FAQ List -->
+      <div class="faq-list">
+        <div *ngIf="filteredFaqs.length === 0" class="no-results">
+          <div class="text-center py-5">
+            <div class="empty-state-icon">🔍</div>
+            <h5>No FAQs Found</h5>
+            <p class="text-muted">Try adjusting your search terms or category filter.</p>
+            <button class="btn btn-primary" (click)="clearSearch(); selectCategory('all')">
+              Show All FAQs
+            </button>
+          </div>
+        </div>
+        
+        <div class="faq-accordion">
+          <div 
+            *ngFor="let faq of filteredFaqs; let i = index" 
+            class="faq-item"
+            [class.expanded]="faq.expanded">
+            
+            <div class="faq-question" (click)="toggleFaq(faq)">
+              <div class="question-content">
+                <div class="question-text">
+                  <h6>{{ faq.question }}</h6>
+                  <div class="question-meta">
+                    <span class="category-badge">
+                      {{ getCategoryById(faq.category)?.icon }} {{ getCategoryById(faq.category)?.name }}
+                    </span>
+                    <div class="tags">
+                      <span *ngFor="let tag of faq.tags" class="tag">#{{ tag }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="expand-icon">
+                  <i class="fas" [class.fa-chevron-down]="!faq.expanded" [class.fa-chevron-up]="faq.expanded"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="faq-answer" [class.show]="faq.expanded">
+              <div class="answer-content">
+                <p>{{ faq.answer }}</p>
+                
+                <!-- Additional helpful information based on category -->
+                <div class="additional-info" [ngSwitch]="faq.category">
+                  <div *ngSwitchCase="'legal'" class="legal-disclaimer">
+                    <div class="alert alert-warning">
+                      <i class="fas fa-exclamation-triangle"></i>
+                      <strong>Legal Disclaimer:</strong> This information is for educational purposes only and does not constitute legal advice. Consult with a qualified attorney for specific legal questions.
+                    </div>
+                  </div>
+                  
+                  <div *ngSwitchCase="'results'" class="results-disclaimer">
+                    <div class="alert alert-info">
+                      <i class="fas fa-info-circle"></i>
+                      <strong>Important:</strong> Results vary by individual circumstances. No outcome is guaranteed. Accurate information cannot be removed from credit reports.
+                    </div>
+                  </div>
+                  
+                  <div *ngSwitchCase="'billing'" class="contact-info">
+                    <div class="alert alert-success">
+                      <i class="fas fa-phone"></i>
+                      <strong>Need Help?</strong> Contact our billing department at 877-763-8587 or email info&#64;rickjeffersonsolutions.com
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Related Actions -->
+                <div class="related-actions" *ngIf="faq.category === 'getting-started'">
+                  <h6>Next Steps:</h6>
+                  <div class="action-buttons">
+                    <button class="btn btn-primary btn-sm">
+                      <i class="fas fa-calendar"></i> Schedule Consultation
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm">
+                      <i class="fas fa-upload"></i> Upload Credit Reports
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Contact Section -->
+      <div class="contact-section">
+        <div class="card border-primary">
+          <div class="card-body text-center">
+            <h5 class="card-title">Still Have Questions?</h5>
+            <p class="card-text">Our credit repair experts are here to help you succeed with personalized guidance.</p>
+            
+            <div class="contact-grid">
+              <div class="contact-item">
+                <div class="contact-icon">
+                  <i class="fas fa-phone"></i>
+                </div>
+                <div class="contact-details">
+                  <strong>Phone</strong>
+                  <p>877-763-8587</p>
+                </div>
+              </div>
+              
+              <div class="contact-item">
+                <div class="contact-icon">
+                  <i class="fas fa-envelope"></i>
+                </div>
+                <div class="contact-details">
+                  <strong>Email</strong>
+                  <p>info&#64;rickjeffersonsolutions.com</p>
+                </div>
+              </div>
+              
+              <div class="contact-item">
+                <div class="contact-icon">
+                  <i class="fas fa-sms"></i>
+                </div>
+                <div class="contact-details">
+                  <strong>SMS</strong>
+                  <p>Text "credit repair" to 945-308-8003</p>
+                </div>
+              </div>
+              
+              <div class="contact-item">
+                <div class="contact-icon">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="contact-details">
+                  <strong>Hours</strong>
+                  <p>Mon-Fri, 9-5 CST</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="cta-buttons">
+              <button class="btn btn-primary btn-lg">
+                <i class="fas fa-calendar-plus"></i> Schedule Free Consultation
+              </button>
+              <button class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-comments"></i> Live Chat Support
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Popular Topics -->
+      <div class="popular-topics">
+        <h5>Popular Topics</h5>
+        <div class="topic-grid">
+          <div class="topic-card" *ngFor="let category of categories.slice(1)">
+            <div class="topic-icon">{{ category.icon }}</div>
+            <h6>{{ category.name }}</h6>
+            <p>{{ getFaqCountByCategory(category.id) }} questions</p>
+            <button class="btn btn-sm btn-outline-primary" (click)="selectCategory(category.id)">
+              View Questions
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

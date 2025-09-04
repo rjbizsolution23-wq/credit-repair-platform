@@ -1,0 +1,461 @@
+<div class="all-letters-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">
+          <i feather="mail" class="title-icon"></i>
+          All Letters
+        </h1>
+        <p class="page-description">Manage and track all generated letters</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          type="button" 
+          class="btn btn-outline-primary"
+          (click)="exportLetters('csv')"
+          [disabled]="loading">
+          <i feather="download" class="btn-icon"></i>
+          Export
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          routerLink="/letters/create">
+          <i feather="plus" class="btn-icon"></i>
+          Create Letter
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <i feather="mail"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.total | number }}</div>
+        <div class="stat-label">Total Letters</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon sent">
+        <i feather="send"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.sent | number }}</div>
+        <div class="stat-label">Sent</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon delivered">
+        <i feather="check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.delivered | number }}</div>
+        <div class="stat-label">Delivered</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon responses">
+        <i feather="message-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.responses | number }}</div>
+        <div class="stat-label">Responses</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <form [formGroup]="filterForm" class="filters-form">
+      <!-- Basic Filters -->
+      <div class="basic-filters">
+        <div class="filter-group">
+          <label class="filter-label">Search</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i feather="search"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search letters..."
+              formControlName="search">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Client</label>
+          <select class="form-select" formControlName="clientId">
+            <option value="">All Clients</option>
+            <option *ngFor="let client of clients" [value]="client.id">
+              {{ client.firstName }} {{ client.lastName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Category</label>
+          <select class="form-select" formControlName="category">
+            <option value="">All Categories</option>
+            <option *ngFor="let category of [LetterCategory.DISPUTE, LetterCategory.VALIDATION, LetterCategory.GOODWILL, LetterCategory.CEASE_DESIST, LetterCategory.METHOD_OF_VERIFICATION, LetterCategory.INTENT_TO_SUE, LetterCategory.FOLLOW_UP, LetterCategory.COMPLAINT, LetterCategory.SETTLEMENT, LetterCategory.PAYMENT_PLAN]" [value]="category">
+              {{ getCategoryLabel(category) }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Status</label>
+          <select class="form-select" formControlName="status">
+            <option value="">All Statuses</option>
+            <option *ngFor="let status of [LetterStatus.DRAFT, LetterStatus.PENDING_REVIEW, LetterStatus.APPROVED, LetterStatus.SCHEDULED, LetterStatus.SENT, LetterStatus.DELIVERED, LetterStatus.FAILED, LetterStatus.RESPONSE_RECEIVED, LetterStatus.COMPLETED, LetterStatus.CANCELLED]" [value]="status">
+              {{ status | titlecase }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-actions">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary"
+            (click)="toggleAdvancedFilters()">
+            <i feather="filter" class="btn-icon"></i>
+            {{ showAdvancedFilters ? 'Hide' : 'Show' }} Filters
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-danger"
+            (click)="clearFilters()">
+            <i feather="x" class="btn-icon"></i>
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Advanced Filters -->
+      <div class="advanced-filters" [class.show]="showAdvancedFilters">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label">Recipient Type</label>
+            <select class="form-select" formControlName="recipientType">
+              <option value="">All Recipients</option>
+              <option *ngFor="let type of [RecipientType.CREDIT_BUREAU, RecipientType.CREDITOR, RecipientType.COLLECTION_AGENCY, RecipientType.DATA_FURNISHER, RecipientType.ATTORNEY_GENERAL, RecipientType.CFPB, RecipientType.FTC, RecipientType.COURT]" [value]="type">
+                {{ type | titlecase }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Delivery Method</label>
+            <select class="form-select" formControlName="deliveryMethod">
+              <option value="">All Methods</option>
+              <option *ngFor="let method of [DeliveryMethod.EMAIL, DeliveryMethod.USPS_FIRST_CLASS, DeliveryMethod.USPS_CERTIFIED, DeliveryMethod.USPS_PRIORITY, DeliveryMethod.FEDEX, DeliveryMethod.UPS, DeliveryMethod.HAND_DELIVERY, DeliveryMethod.FAX]" [value]="method">
+                {{ method | titlecase }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Response Received</label>
+            <select class="form-select" formControlName="responseReceived">
+              <option value="">All</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label">Date From</label>
+            <input 
+              type="date" 
+              class="form-control" 
+              formControlName="dateFrom">
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Date To</label>
+            <input 
+              type="date" 
+              class="form-control" 
+              formControlName="dateTo">
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Bulk Actions -->
+  <div class="bulk-actions" *ngIf="selectedLetters.size > 0">
+    <div class="bulk-info">
+      <span class="selected-count">{{ selectedLetters.size }} letter(s) selected</span>
+    </div>
+    <div class="bulk-buttons">
+      <button 
+        type="button" 
+        class="btn btn-outline-primary"
+        (click)="bulkSend()"
+        [disabled]="loading">
+        <i feather="send" class="btn-icon"></i>
+        Send Selected
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-outline-danger"
+        (click)="bulkDelete()"
+        [disabled]="loading">
+        <i feather="trash-2" class="btn-icon"></i>
+        Delete Selected
+      </button>
+    </div>
+  </div>
+
+  <!-- Letters Table -->
+  <div class="table-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p>Loading letters...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && letters.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i feather="mail"></i>
+      </div>
+      <h3>No Letters Found</h3>
+      <p>No letters match your current filters. Try adjusting your search criteria or create a new letter.</p>
+      <button 
+        type="button" 
+        class="btn btn-primary"
+        routerLink="/letters/create">
+        <i feather="plus" class="btn-icon"></i>
+        Create First Letter
+      </button>
+    </div>
+
+    <!-- Letters Table -->
+    <div *ngIf="!loading && letters.length > 0" class="table-responsive">
+      <table class="table letters-table">
+        <thead>
+          <tr>
+            <th class="select-column">
+              <div class="form-check">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input"
+                  [checked]="selectAll"
+                  (change)="toggleSelectAll()">
+              </div>
+            </th>
+            <th 
+              class="sortable"
+              (click)="onSort('createdAt')">
+              Date
+              <i [attr.data-feather]="getSortIcon('createdAt')" class="sort-icon"></i>
+            </th>
+            <th 
+              class="sortable"
+              (click)="onSort('clientId')">
+              Client
+              <i [attr.data-feather]="getSortIcon('clientId')" class="sort-icon"></i>
+            </th>
+            <th 
+              class="sortable"
+              (click)="onSort('category')">
+              Category
+              <i [attr.data-feather]="getSortIcon('category')" class="sort-icon"></i>
+            </th>
+            <th>Recipient</th>
+            <th 
+              class="sortable"
+              (click)="onSort('status')">
+              Status
+              <i [attr.data-feather]="getSortIcon('status')" class="sort-icon"></i>
+            </th>
+            <th>Delivery</th>
+            <th>Response</th>
+            <th class="actions-column">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let letter of letters; trackBy: trackByLetterId" class="letter-row">
+            <td class="select-column">
+              <div class="form-check">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input"
+                  [checked]="isSelected(letter.id)"
+                  (change)="toggleSelectLetter(letter.id)">
+              </div>
+            </td>
+            <td class="date-column">
+              <div class="date-info">
+                <div class="date">{{ formatDate(letter.createdAt) }}</div>
+                <div class="time-ago">{{ getDaysAgo(letter.createdAt) }} days ago</div>
+              </div>
+            </td>
+            <td class="client-column">
+              <div class="client-info">
+                <div class="client-name">{{ getClientName(letter.clientId) }}</div>
+                <div class="client-id">ID: {{ letter.clientId.substring(0, 8) }}...</div>
+              </div>
+            </td>
+            <td class="category-column">
+              <span class="badge category-badge" [attr.data-category]="getCategoryFromTemplateId(letter.templateId)" *ngIf="getCategoryFromTemplateId(letter.templateId)">
+                {{ getCategoryLabel(getCategoryFromTemplateId(letter.templateId)!) }}
+              </span>
+              <span class="text-muted" *ngIf="!getCategoryFromTemplateId(letter.templateId)">Unknown</span>
+            </td>
+            <td class="recipient-column">
+              <div class="recipient-info">
+                <div class="recipient-name">{{ letter.recipientId }}</div>
+                <div class="recipient-type">
+                  <i [attr.data-feather]="getRecipientTypeIcon(letter.recipientType)" class="type-icon"></i>
+                  {{ letter.recipientType | titlecase }}
+                </div>
+              </div>
+            </td>
+            <td class="status-column">
+              <span 
+                class="badge status-badge"
+                [style.background-color]="getStatusColor(letter.status)">
+                <i [attr.data-feather]="getStatusIcon(letter.status)" class="status-icon"></i>
+                {{ letter.status | titlecase }}
+              </span>
+            </td>
+            <td class="delivery-column">
+              <div class="delivery-info">
+                <div class="delivery-method">
+                  <i [attr.data-feather]="getDeliveryMethodIcon(letter.deliveryMethod)" class="method-icon"></i>
+                  {{ letter.deliveryMethod | titlecase }}
+                </div>
+                <div class="delivery-date" *ngIf="letter.sentDate">
+                  Sent: {{ formatDate(letter.sentDate) }}
+                </div>
+              </div>
+            </td>
+            <td class="response-column">
+              <div class="response-info">
+                <span 
+                  class="badge"
+                  [class.badge-success]="letter.responseReceived"
+                  [class.badge-secondary]="!letter.responseReceived">
+                  {{ letter.responseReceived ? 'Received' : 'Pending' }}
+                </span>
+                <div class="response-date" *ngIf="letter.responseDate">
+                  {{ formatDate(letter.responseDate) }}
+                </div>
+              </div>
+            </td>
+            <td class="actions-column">
+              <div class="action-buttons">
+                <div class="btn-group" ngbDropdown>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-primary btn-sm"
+                    ngbDropdownToggle>
+                    <i data-feather="more-horizontal"></i>
+                  </button>
+                  <div class="dropdown-menu" ngbDropdownMenu>
+                    <a 
+                      class="dropdown-item"
+                      [routerLink]="['/letters', letter.id]">
+                      <i data-feather="eye" class="dropdown-icon"></i>
+                      View
+                    </a>
+                    <a 
+                      class="dropdown-item"
+                      [routerLink]="['/letters', letter.id, 'edit']"
+                      *ngIf="canEditLetter(letter)">
+                      <i data-feather="edit" class="dropdown-icon"></i>
+                      Edit
+                    </a>
+                    <button 
+                      class="dropdown-item"
+                      (click)="downloadLetter(letter.id, 'pdf')"
+                      type="button">
+                      <i data-feather="download" class="dropdown-icon"></i>
+                      Download PDF
+                    </button>
+                    <button 
+                      class="dropdown-item"
+                      (click)="downloadLetter(letter.id, 'docx')"
+                      type="button">
+                      <i data-feather="file-text" class="dropdown-icon"></i>
+                      Download DOCX
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button 
+                      class="dropdown-item"
+                      (click)="sendLetter(letter.id)"
+                      *ngIf="canSendLetter(letter)"
+                      type="button">
+                      <i data-feather="send" class="dropdown-icon"></i>
+                      Send Now
+                    </button>
+                    <button 
+                      class="dropdown-item"
+                      (click)="cancelLetter(letter.id)"
+                      *ngIf="canCancelLetter(letter)"
+                      type="button">
+                      <i data-feather="x-circle" class="dropdown-icon"></i>
+                      Cancel
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button 
+                      class="dropdown-item text-danger"
+                      (click)="deleteLetter(letter.id)"
+                      type="button">
+                      <i data-feather="trash-2" class="dropdown-icon"></i>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="!loading && letters.length > 0">
+      <div class="pagination-info">
+        <span>Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to {{ Math.min(currentPage * itemsPerPage, totalItems) }} of {{ totalItems }} letters</span>
+      </div>
+      
+      <div class="pagination-controls">
+        <div class="items-per-page">
+          <label>Items per page:</label>
+          <select 
+            class="form-select form-select-sm"
+            [value]="itemsPerPage"
+            (change)="onItemsPerPageChange($event)">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        
+        <ngb-pagination 
+          [(page)]="currentPage"
+          [pageSize]="itemsPerPage"
+          [collectionSize]="totalItems"
+          [maxSize]="5"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="onPageChange($event)">
+        </ngb-pagination>
+      </div>
+    </div>
+  </div>
+</div>

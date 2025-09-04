@@ -1,0 +1,681 @@
+<div class="letter-templates-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a routerLink="/letters">Letters</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Templates</li>
+          </ol>
+        </nav>
+        <h1 class="page-title">
+          <i feather="file-text" class="title-icon"></i>
+          Letter Templates
+        </h1>
+        <p class="page-description">Manage and customize your letter templates</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="onToggleFilters()">
+          <i feather="filter" class="btn-icon"></i>
+          Filters
+        </button>
+        <div class="dropdown">
+          <button 
+            class="btn btn-outline-secondary dropdown-toggle" 
+            type="button" 
+            data-bs-toggle="dropdown">
+            <i feather="download" class="btn-icon"></i>
+            Export
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="#" (click)="onExportTemplates()">
+                <i feather="download" class="dropdown-icon"></i>
+                Export Selected
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" (click)="onExportTemplates()">
+                <i feather="file-text" class="dropdown-icon"></i>
+                Export All
+              </a>
+            </li>
+          </ul>
+        </div>
+        <label class="btn btn-outline-secondary" for="import-file">
+          <i feather="upload" class="btn-icon"></i>
+          Import
+        </label>
+        <input 
+          type="file" 
+          id="import-file" 
+          accept=".json" 
+          style="display: none;"
+          (change)="onImportTemplates($event)">
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="onCreateTemplate()">
+          <i feather="plus" class="btn-icon"></i>
+          New Template
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <i feather="file-text"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Total Templates</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon active">
+        <i feather="check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.active }}</div>
+        <div class="stat-label">Active Templates</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon compliance">
+        <i feather="shield"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.compliance }}</div>
+        <div class="stat-label">Compliant</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon usage">
+        <i feather="trending-up"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ formatUsageCount(stats.usage) }}</div>
+        <div class="stat-label">Total Usage</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel" [class.show]="showFilters">
+    <form [formGroup]="filterForm" class="filters-form">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label class="filter-label">Search</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i feather="search"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search templates..."
+              formControlName="search">
+          </div>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Category</label>
+          <select class="form-select" formControlName="category">
+            <option value="">All Categories</option>
+            <option *ngFor="let category of [LetterCategory.DISPUTE, LetterCategory.VALIDATION, LetterCategory.GOODWILL, LetterCategory.CEASE_DESIST, LetterCategory.METHOD_OF_VERIFICATION, LetterCategory.INTENT_TO_SUE, LetterCategory.FOLLOW_UP, LetterCategory.COMPLAINT, LetterCategory.SETTLEMENT, LetterCategory.PAYMENT_PLAN]" [value]="category">
+              {{ getCategoryLabel(category) }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Type</label>
+          <select class="form-select" formControlName="type">
+            <option value="">All Types</option>
+            <option *ngFor="let type of [LetterType.INITIAL, LetterType.FOLLOW_UP, LetterType.FINAL_NOTICE, LetterType.LEGAL_NOTICE, LetterType.SETTLEMENT_OFFER, LetterType.COMPLAINT_FILING]" [value]="type">
+              {{ getTypeLabel(type) }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Compliance</label>
+          <select class="form-select" formControlName="compliance">
+            <option value="">All Status</option>
+            <option *ngFor="let status of [ComplianceStatus.COMPLIANT, ComplianceStatus.NEEDS_REVIEW, ComplianceStatus.NON_COMPLIANT, ComplianceStatus.PENDING_APPROVAL]" [value]="status">
+              {{ status }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Status</label>
+          <select class="form-select" formControlName="isActive">
+            <option [ngValue]="null">All Status</option>
+            <option [ngValue]="true">Active</option>
+            <option [ngValue]="false">Inactive</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary"
+            (click)="onClearFilters()">
+            <i feather="x" class="btn-icon"></i>
+            Clear
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Bulk Actions -->
+  <div class="bulk-actions" [class.show]="showBulkActions">
+    <div class="bulk-info">
+      <span class="selected-count">{{ selectedTemplates.length }} template(s) selected</span>
+    </div>
+    <div class="bulk-buttons">
+      <button 
+        type="button" 
+        class="btn btn-sm btn-outline-success"
+        (click)="onBulkActivate()">
+        <i feather="check" class="btn-icon"></i>
+        Activate
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-sm btn-outline-warning"
+        (click)="onBulkDeactivate()">
+        <i feather="pause" class="btn-icon"></i>
+        Deactivate
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-sm btn-outline-danger"
+        (click)="onBulkDelete()">
+        <i feather="trash-2" class="btn-icon"></i>
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <!-- Templates Table -->
+  <div class="templates-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p>Loading templates...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+      <div class="error-icon">
+        <i feather="alert-circle"></i>
+      </div>
+      <h3>Error Loading Templates</h3>
+      <p>{{ error }}</p>
+      <button class="btn btn-primary" (click)="loadTemplates()">
+        <i feather="refresh-cw" class="btn-icon"></i>
+        Retry
+      </button>
+    </div>
+
+    <!-- Templates Table -->
+    <div *ngIf="!loading && !error" class="table-container">
+      <table class="table templates-table">
+        <thead>
+          <tr>
+            <th class="checkbox-col">
+              <input 
+                type="checkbox" 
+                class="form-check-input"
+                [checked]="isAllTemplatesSelected()"
+                [indeterminate]="isSomeTemplatesSelected()"
+                (change)="onSelectAllTemplates($event)">
+            </th>
+            <th class="sortable" (click)="onSort('name')">
+              Template Name
+              <i feather="chevron-up" *ngIf="sortField === 'name' && sortDirection === 'asc'"></i>
+              <i feather="chevron-down" *ngIf="sortField === 'name' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('category')">
+              Category
+              <i feather="chevron-up" *ngIf="sortField === 'category' && sortDirection === 'asc'"></i>
+              <i feather="chevron-down" *ngIf="sortField === 'category' && sortDirection === 'desc'"></i>
+            </th>
+            <th>Type</th>
+            <th>Compliance</th>
+            <th class="sortable" (click)="onSort('usageCount')">
+              Usage
+              <i feather="chevron-up" *ngIf="sortField === 'usageCount' && sortDirection === 'asc'"></i>
+              <i feather="chevron-down" *ngIf="sortField === 'usageCount' && sortDirection === 'desc'"></i>
+            </th>
+            <th>Status</th>
+            <th class="sortable" (click)="onSort('updatedAt')">
+              Last Updated
+              <i feather="chevron-up" *ngIf="sortField === 'updatedAt' && sortDirection === 'asc'"></i>
+              <i feather="chevron-down" *ngIf="sortField === 'updatedAt' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let template of filteredTemplates; trackBy: trackByTemplateId" class="template-row">
+            <td class="checkbox-col">
+              <input 
+                type="checkbox" 
+                class="form-check-input"
+                [checked]="isTemplateSelected(template.id)"
+                (change)="onSelectTemplate(template.id, $event)">
+            </td>
+            <td class="template-name-col">
+              <div class="template-info">
+                <div class="template-name" (click)="onViewTemplate(template)">
+                  {{ template.name }}
+                </div>
+                <div class="template-description">
+                  {{ template.description | slice:0:100 }}{{ template.description && template.description.length > 100 ? '...' : '' }}
+                </div>
+                <div class="template-tags" *ngIf="template.tags && template.tags.length > 0">
+                  <span *ngFor="let tag of template.tags.slice(0, 3)" class="tag">
+                    {{ tag }}
+                  </span>
+                  <span *ngIf="template.tags.length > 3" class="tag-more">
+                    +{{ template.tags.length - 3 }} more
+                  </span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge category-badge" [attr.data-category]="template.category">
+                {{ getCategoryLabel(template.category) }}
+              </span>
+            </td>
+            <td>
+              <span class="badge type-badge" [attr.data-type]="template.type">
+                {{ template.type }}
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-success">
+                <i feather="shield" class="badge-icon"></i>
+                Compliant
+              </span>
+            </td>
+            <td>
+              <div class="usage-info">
+                <span class="usage-count">{{ formatUsageCount(template.usageCount || 0) }}</span>
+                <div class="usage-trend">
+                  <i feather="trending-up" class="trend-icon"></i>
+                  Active Template
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="status-toggle">
+                <div class="form-check form-switch">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    [checked]="template.isActive"
+                    (change)="onToggleTemplateStatus(template)">
+                  <label class="form-check-label">
+                    {{ template.isActive ? 'Active' : 'Inactive' }}
+                  </label>
+                </div>
+              </div>
+            </td>
+            <td class="date-col">
+              <div class="date-info">
+                <div class="date">{{ formatDate(template.updatedAt) }}</div>
+                <div class="time">{{ template.updatedAt | date:'shortTime' }}</div>
+              </div>
+            </td>
+            <td class="actions-col">
+              <div class="dropdown">
+                <button 
+                  class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                  type="button" 
+                  data-bs-toggle="dropdown">
+                  <i feather="more-horizontal"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="#" (click)="onViewTemplate(template)">
+                      <i feather="eye" class="dropdown-icon"></i>
+                      View
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#" (click)="onEditTemplate(template)">
+                      <i feather="edit" class="dropdown-icon"></i>
+                      Edit
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#" (click)="onDuplicateTemplate(template)">
+                      <i feather="copy" class="dropdown-icon"></i>
+                      Duplicate
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#" (click)="onManageVariables(template)">
+                      <i feather="settings" class="dropdown-icon"></i>
+                      Variables
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item text-danger" href="#" (click)="onDeleteTemplate(template)">
+                      <i feather="trash-2" class="dropdown-icon"></i>
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredTemplates.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <i feather="file-text"></i>
+        </div>
+        <h3>No Templates Found</h3>
+        <p *ngIf="filters.search || filters.category || filters.type">
+          No templates match your current filters. Try adjusting your search criteria.
+        </p>
+        <p *ngIf="!filters.search && !filters.category && !filters.type">
+          You haven't created any letter templates yet. Create your first template to get started.
+        </p>
+        <div class="empty-actions">
+          <button 
+            *ngIf="filters.search || filters.category || filters.type"
+            class="btn btn-outline-primary"
+            (click)="onClearFilters()">
+            Clear Filters
+          </button>
+          <button 
+            class="btn btn-primary"
+            (click)="onCreateTemplate()">
+            <i feather="plus" class="btn-icon"></i>
+            Create Template
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav *ngIf="totalPages > 1" class="pagination-nav">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalItems) }} of {{ totalItems }} templates
+      </div>
+      <div class="pagination-controls">
+        <div class="page-size-selector">
+          <label>Show:</label>
+          <select class="form-select form-select-sm" [value]="pageSize" (change)="onPageSizeChange($event)">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        <ul class="pagination pagination-sm">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" href="#" (click)="onPageChange(currentPage - 1)">
+              <i feather="chevron-left"></i>
+            </a>
+          </li>
+          <li 
+            *ngFor="let page of [].constructor(totalPages); let i = index"
+            class="page-item"
+            [class.active]="currentPage === i + 1"
+            [class.d-none]="totalPages > 7 && Math.abs(currentPage - (i + 1)) > 2 && (i + 1) !== 1 && (i + 1) !== totalPages">
+            <a class="page-link" href="#" (click)="onPageChange(i + 1)">
+              {{ i + 1 }}
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" href="#" (click)="onPageChange(currentPage + 1)">
+              <i feather="chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- Create/Edit Template Modal -->
+<div class="modal fade" [class.show]="showCreateModal || showEditModal" [style.display]="(showCreateModal || showEditModal) ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i feather="file-text" class="me-2"></i>
+          {{ editingTemplate ? 'Edit Template' : 'Create New Template' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <form [formGroup]="templateForm" (ngSubmit)="onSubmitTemplate()">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label required">Template Name</label>
+              <input 
+                type="text" 
+                class="form-control"
+                formControlName="name"
+                placeholder="Enter template name"
+                [class.is-invalid]="isFieldInvalid('name')">
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('name')">
+                {{ getFieldError('name') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required">Category</label>
+              <select 
+                class="form-select"
+                formControlName="category"
+                [class.is-invalid]="isFieldInvalid('category')">
+                <option value="">Select category...</option>
+                <option *ngFor="let category of [LetterCategory.DISPUTE, LetterCategory.VALIDATION, LetterCategory.GOODWILL, LetterCategory.CEASE_DESIST, LetterCategory.METHOD_OF_VERIFICATION, LetterCategory.INTENT_TO_SUE, LetterCategory.FOLLOW_UP, LetterCategory.ESCALATION, LetterCategory.SETTLEMENT, LetterCategory.COMPLAINT]" [value]="category">
+                  {{ getCategoryLabel(category) }}
+                </option>
+              </select>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('category')">
+                {{ getFieldError('category') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required">Type</label>
+              <select 
+                class="form-select"
+                formControlName="type"
+                [class.is-invalid]="isFieldInvalid('type')">
+                <option value="">Select type...</option>
+                <option *ngFor="let type of [LetterType.INITIAL, LetterType.FOLLOW_UP, LetterType.FINAL_NOTICE, LetterType.LEGAL_NOTICE, LetterType.SETTLEMENT_OFFER, LetterType.COMPLAINT_FILING]" [value]="type">
+                  {{ type }}
+                </option>
+              </select>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('type')">
+                {{ getFieldError('type') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required">Subject</label>
+              <input 
+                type="text" 
+                class="form-control"
+                formControlName="subject"
+                placeholder="Enter letter subject"
+                [class.is-invalid]="isFieldInvalid('subject')">
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('subject')">
+                {{ getFieldError('subject') }}
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label required">Description</label>
+              <textarea 
+                class="form-control"
+                rows="3"
+                formControlName="description"
+                placeholder="Describe the purpose and use case for this template"
+                [class.is-invalid]="isFieldInvalid('description')">
+              </textarea>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('description')">
+                {{ getFieldError('description') }}
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label required">Content</label>
+              <textarea 
+                class="form-control"
+                rows="10"
+                formControlName="content"
+                placeholder="Enter the letter content. Use double curly braces for dynamic content."
+                [class.is-invalid]="isFieldInvalid('content')">
+              </textarea>
+              <div class="form-text">
+                Use double curly braces for variables: {{ '{' }}{{ '{' }}client_name{{ '}' }}{{ '}' }}, {{ '{' }}{{ '{' }}account_number{{ '}' }}{{ '}' }}, etc.
+              </div>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('content')">
+                {{ getFieldError('content') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tags</label>
+              <input 
+                type="text" 
+                class="form-control"
+                formControlName="tags"
+                placeholder="Enter tags separated by commas">
+              <div class="form-text">
+                Separate multiple tags with commas
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Estimated Time</label>
+              <input 
+                type="text" 
+                class="form-control"
+                formControlName="estimatedTime"
+                placeholder="e.g., 5-10 minutes">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Effectiveness (%)</label>
+              <input 
+                type="number" 
+                class="form-control"
+                formControlName="effectiveness"
+                min="0"
+                max="100"
+                placeholder="0-100">
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Legal References</label>
+              <textarea 
+                class="form-control"
+                rows="3"
+                formControlName="legalReferences"
+                placeholder="Enter legal references, one per line">
+              </textarea>
+              <div class="form-text">
+                Enter each legal reference on a separate line
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label">Compliance Notes</label>
+              <textarea 
+                class="form-control"
+                rows="3"
+                formControlName="complianceNotes"
+                placeholder="Enter any compliance notes or requirements">
+              </textarea>
+            </div>
+
+            <div class="form-group">
+              <div class="form-check">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input"
+                  formControlName="isActive">
+                <label class="form-check-label">
+                  Active Template
+                </label>
+                <div class="form-text">
+                  Active templates are available for letter generation
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModals()">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="!templateForm.valid">
+            <i feather="save" class="btn-icon"></i>
+            {{ editingTemplate ? 'Update' : 'Create' }} Template
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showCreateModal || showEditModal" *ngIf="showCreateModal || showEditModal"></div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" [class.show]="showDeleteModal" [style.display]="showDeleteModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i feather="trash-2" class="me-2 text-danger"></i>
+          Delete Template
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <i feather="alert-triangle" class="me-2"></i>
+          This action cannot be undone.
+        </div>
+        <p>Are you sure you want to delete the template <strong>"{{ editingTemplate?.name }}"</strong>?</p>
+        <p class="text-muted">This will permanently remove the template and all its associated data.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModals()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="onConfirmDelete()">
+          <i feather="trash-2" class="btn-icon"></i>
+          Delete Template
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showDeleteModal" *ngIf="showDeleteModal"></div>

@@ -1,0 +1,359 @@
+{
+  "crawler_settings": {
+    "output_directory": "credit_repair_corpus",
+    "max_concurrent_requests": 10,
+    "request_delay": 1.0,
+    "timeout": 30,
+    "retry_attempts": 3,
+    "chunk_size": 1000,
+    "max_documents_per_source": 1000,
+    "enable_chunking": true,
+    "enable_embeddings": false,
+    "respect_robots_txt": true
+  },
+  "data_sources": {
+    "government_apis": {
+      "cfpb_complaints": {
+        "url": "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/",
+        "type": "api",
+        "params": {
+          "product": "Credit reporting, credit repair services, or other personal consumer reports",
+          "size": 1000,
+          "format": "json"
+        },
+        "category": "consumer_complaints",
+        "priority": "high"
+      },
+      "cfpb_newsroom_rss": {
+        "url": "https://www.consumerfinance.gov/feeds/newsroom.xml",
+        "type": "rss",
+        "category": "regulatory_news",
+        "priority": "high"
+      },
+      "ftc_press_rss": {
+        "url": "https://www.ftc.gov/feeds/press-release.xml",
+        "type": "rss",
+        "category": "regulatory_news",
+        "priority": "high"
+      },
+      "federal_register_cfpb": {
+        "url": "https://www.federalregister.gov/documents/search?conditions%5Bagencies%5D%5B%5D=consumer-financial-protection-bureau&format=rss",
+        "type": "rss",
+        "category": "regulatory_news",
+        "priority": "high"
+      },
+      "congress_bills_rss": {
+        "url": "https://www.congress.gov/rss",
+        "type": "rss",
+        "category": "legislation",
+        "priority": "medium"
+      },
+      "federal_reserve_g19": {
+        "url": "https://www.federalreserve.gov/releases/g19.htm",
+        "type": "web",
+        "category": "economic_data",
+        "priority": "medium"
+      }
+    },
+    "legal_databases": {
+      "uscode_fcra": {
+        "url": "https://uscode.house.gov/view.xhtml?path=/prelim@title15/chapter41/subchapterIII&edition=prelim",
+        "type": "web",
+        "category": "federal_law",
+        "priority": "critical",
+        "law_type": "FCRA"
+      },
+      "uscode_fdcpa": {
+        "url": "https://uscode.house.gov/view.xhtml?path=/prelim@title15/chapter41/subchapterV&edition=prelim",
+        "type": "web",
+        "category": "federal_law",
+        "priority": "critical",
+        "law_type": "FDCPA"
+      },
+      "uscode_tila": {
+        "url": "https://uscode.house.gov/view.xhtml?path=/prelim@title15/chapter41&edition=prelim",
+        "type": "web",
+        "category": "federal_law",
+        "priority": "critical",
+        "law_type": "TILA"
+      },
+      "uscode_ecoa": {
+        "url": "https://uscode.house.gov/view.xhtml?path=/prelim@title15/chapter41/subchapterIV&edition=prelim",
+        "type": "web",
+        "category": "federal_law",
+        "priority": "critical",
+        "law_type": "ECOA"
+      },
+      "uscode_glba": {
+        "url": "https://uscode.house.gov/view.xhtml?req=(title:15 section:6801 edition:prelim)",
+        "type": "web",
+        "category": "federal_law",
+        "priority": "critical",
+        "law_type": "GLBA"
+      },
+      "cornell_ucc": {
+        "url": "https://www.law.cornell.edu/ucc",
+        "type": "web",
+        "category": "commercial_law",
+        "priority": "high",
+        "law_type": "UCC"
+      },
+      "justia_credit_law": {
+        "url": "https://law.justia.com/credit-cards/",
+        "type": "web",
+        "category": "case_law",
+        "priority": "medium"
+      }
+    },
+    "repositories": {
+      "github_credit_repair": {
+        "search_queries": [
+          "credit+repair+dispute+letters",
+          "metro2+credit+reporting",
+          "fcra+fdcpa+compliance",
+          "credit+bureau+automation",
+          "consumer+protection+law",
+          "credit+dispute+templates",
+          "debt+validation+letters",
+          "credit+report+parser"
+        ],
+        "api_url": "https://api.github.com/search/repositories",
+        "type": "api",
+        "category": "open_source",
+        "priority": "high",
+        "max_repos_per_query": 50
+      },
+      "kaggle_datasets": {
+        "search_terms": [
+          "credit repair",
+          "credit score",
+          "consumer complaints",
+          "debt collection",
+          "financial compliance",
+          "metro2",
+          "credit reporting"
+        ],
+        "base_url": "https://www.kaggle.com/datasets",
+        "type": "web",
+        "category": "datasets",
+        "priority": "high"
+      },
+      "huggingface_datasets": {
+        "search_terms": [
+          "credit",
+          "legal",
+          "financial",
+          "consumer protection",
+          "compliance"
+        ],
+        "base_url": "https://huggingface.co/datasets",
+        "type": "web",
+        "category": "ml_datasets",
+        "priority": "high"
+      },
+      "google_dataset_search": {
+        "search_terms": [
+          "credit repair",
+          "consumer finance",
+          "debt collection",
+          "credit reporting",
+          "financial regulation"
+        ],
+        "base_url": "https://datasetsearch.research.google.com",
+        "type": "web",
+        "category": "research_datasets",
+        "priority": "medium"
+      }
+    },
+    "regulatory_sources": {
+      "cfpb_enforcement": {
+        "url": "https://www.consumerfinance.gov/enforcement/actions/",
+        "type": "web",
+        "category": "enforcement_actions",
+        "priority": "high"
+      },
+      "nclc_blog": {
+        "url": "https://library.nclc.org/blog",
+        "type": "web",
+        "category": "legal_analysis",
+        "priority": "high"
+      },
+      "govtrack_credit": {
+        "url": "https://www.govtrack.us/congress/bills/subjects/credit/6148",
+        "type": "web",
+        "category": "legislation",
+        "priority": "medium"
+      },
+      "billtrack50": {
+        "url": "https://www.billtrack50.com/",
+        "search_terms": ["credit repair", "consumer protection", "debt collection"],
+        "type": "web",
+        "category": "state_legislation",
+        "priority": "medium"
+      },
+      "openstates": {
+        "api_url": "https://openstates.org/api/v1/",
+        "search_terms": ["credit", "consumer protection", "debt"],
+        "type": "api",
+        "category": "state_legislation",
+        "priority": "medium"
+      }
+    },
+    "industry_sources": {
+      "cdia_metro2": {
+        "url": "https://www.cdiaonline.org/metro2/",
+        "type": "web",
+        "category": "industry_standards",
+        "priority": "critical"
+      },
+      "experian_developer": {
+        "url": "https://developer.experian.com/",
+        "type": "web",
+        "category": "api_documentation",
+        "priority": "high"
+      },
+      "equifax_developer": {
+        "url": "https://developer.equifax.com/",
+        "type": "web",
+        "category": "api_documentation",
+        "priority": "high"
+      },
+      "transunion_developer": {
+        "url": "https://developer.transunion.com/",
+        "type": "web",
+        "category": "api_documentation",
+        "priority": "high"
+      }
+    },
+    "academic_sources": {
+      "google_scholar": {
+        "search_terms": [
+          "credit reporting law",
+          "metro2 compliance",
+          "consumer protection",
+          "debt collection practices",
+          "credit repair effectiveness"
+        ],
+        "base_url": "https://scholar.google.com/scholar",
+        "type": "web",
+        "category": "academic_research",
+        "priority": "medium"
+      },
+      "ssrn_papers": {
+        "search_terms": [
+          "credit reporting law",
+          "consumer finance",
+          "debt collection"
+        ],
+        "base_url": "https://www.ssrn.com",
+        "type": "web",
+        "category": "academic_papers",
+        "priority": "medium"
+      },
+      "nber_data": {
+        "url": "https://www.nber.org/research/data",
+        "type": "web",
+        "category": "economic_research",
+        "priority": "low"
+      }
+    },
+    "court_sources": {
+      "pacer": {
+        "url": "https://pacer.uscourts.gov/",
+        "search_terms": ["credit reporting", "debt collection", "consumer protection"],
+        "type": "web",
+        "category": "court_filings",
+        "priority": "high"
+      },
+      "courtlistener": {
+        "api_url": "https://www.courtlistener.com/api/",
+        "search_terms": ["FCRA", "FDCPA", "credit reporting"],
+        "type": "api",
+        "category": "case_law",
+        "priority": "high"
+      }
+    },
+    "consumer_resources": {
+      "cfpb_sample_letters": {
+        "url": "https://www.consumerfinance.gov/ask-cfpb/sample-letter-disputing-errors-in-a-credit-report-en-314/",
+        "type": "web",
+        "category": "dispute_templates",
+        "priority": "critical"
+      },
+      "ftc_credit_guide": {
+        "url": "https://consumer.ftc.gov/articles/credit-repair-how-fix-bad-credit",
+        "type": "web",
+        "category": "consumer_guides",
+        "priority": "high"
+      },
+      "consumer_reports_credit": {
+        "url": "https://www.consumerreports.org/personal-finance/credit-score-reports/",
+        "type": "web",
+        "category": "consumer_analysis",
+        "priority": "medium"
+      }
+    }
+  },
+  "content_filters": {
+    "min_content_length": 100,
+    "max_content_length": 1000000,
+    "exclude_patterns": [
+      "404 Not Found",
+      "Access Denied",
+      "Page Not Found",
+      "Error 403",
+      "Forbidden"
+    ],
+    "include_keywords": [
+      "credit repair",
+      "credit reporting",
+      "debt collection",
+      "consumer protection",
+      "FCRA",
+      "FDCPA",
+      "TILA",
+      "ECOA",
+      "GLBA",
+      "metro2",
+      "dispute letter",
+      "validation letter",
+      "credit bureau",
+      "credit score",
+      "consumer complaint"
+    ]
+  },
+  "output_formats": {
+    "json": true,
+    "markdown": true,
+    "jsonl_chunks": true,
+    "csv_export": true,
+    "sqlite_db": true,
+    "embeddings": false,
+    "vector_db": false
+  },
+  "processing_options": {
+    "extract_metadata": true,
+    "generate_summaries": false,
+    "detect_language": true,
+    "remove_duplicates": true,
+    "similarity_threshold": 0.85,
+    "clean_html": true,
+    "extract_links": true,
+    "preserve_structure": true
+  },
+  "compliance_settings": {
+    "respect_robots_txt": true,
+    "rate_limiting": true,
+    "user_agent": "CreditCorpusCrawler/1.0 (Educational Research)",
+    "max_requests_per_minute": 60,
+    "politeness_delay": 1.0,
+    "respect_crawl_delay": true
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "credit_corpus_crawler.log",
+    "max_size_mb": 100,
+    "backup_count": 5,
+    "console_output": true
+  }
+}

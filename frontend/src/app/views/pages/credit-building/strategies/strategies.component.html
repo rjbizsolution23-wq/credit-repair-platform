@@ -1,0 +1,600 @@
+<div class="strategies-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">
+          <i class="fas fa-chess-knight"></i>
+          Credit Building Strategies
+        </h1>
+        <p class="page-subtitle">Manage and track credit improvement strategies</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          type="button" 
+          class="btn btn-outline-primary"
+          (click)="onToggleFilters()"
+          [class.active]="showFilters">
+          <i class="fas fa-filter"></i>
+          Filters
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="onCreateStrategy()">
+          <i class="fas fa-plus"></i>
+          New Strategy
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon bg-primary">
+        <i class="fas fa-chess-knight"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Total Strategies</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon bg-success">
+        <i class="fas fa-play"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.active }}</div>
+        <div class="stat-label">Active</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon bg-info">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.completed }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon bg-warning">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.effectiveness }}%</div>
+        <div class="stat-label">Avg Effectiveness</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel" [class.show]="showFilters">
+    <form [formGroup]="filterForm" class="filters-form">
+      <div class="filter-group">
+        <label for="search">Search</label>
+        <input 
+          type="text" 
+          id="search"
+          class="form-control" 
+          formControlName="search"
+          placeholder="Search strategies...">
+      </div>
+      <div class="filter-group">
+        <label for="type">Type</label>
+        <select id="type" class="form-control" formControlName="type">
+          <option value="">All Types</option>
+          <option [value]="StrategyType.SECURED_CARD">{{ getStrategyTypeLabel(StrategyType.SECURED_CARD) }}</option>
+          <option [value]="StrategyType.AUTHORIZED_USER">{{ getStrategyTypeLabel(StrategyType.AUTHORIZED_USER) }}</option>
+          <option [value]="StrategyType.CREDIT_BUILDER_LOAN">{{ getStrategyTypeLabel(StrategyType.CREDIT_BUILDER_LOAN) }}</option>
+          <option [value]="StrategyType.RENT_REPORTING">{{ getStrategyTypeLabel(StrategyType.RENT_REPORTING) }}</option>
+          <option [value]="StrategyType.UTILITY_REPORTING">{{ getStrategyTypeLabel(StrategyType.UTILITY_REPORTING) }}</option>
+          <option [value]="StrategyType.DEBT_CONSOLIDATION">{{ getStrategyTypeLabel(StrategyType.DEBT_CONSOLIDATION) }}</option>
+          <option [value]="StrategyType.PAYMENT_HISTORY">{{ getStrategyTypeLabel(StrategyType.PAYMENT_HISTORY) }}</option>
+          <option [value]="StrategyType.CREDIT_MIX">{{ getStrategyTypeLabel(StrategyType.CREDIT_MIX) }}</option>
+          <option [value]="StrategyType.LENGTH_OF_HISTORY">{{ getStrategyTypeLabel(StrategyType.LENGTH_OF_HISTORY) }}</option>
+          <option [value]="StrategyType.CREDIT_UTILIZATION">{{ getStrategyTypeLabel(StrategyType.CREDIT_UTILIZATION) }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="status">Status</label>
+        <select id="status" class="form-control" formControlName="status">
+          <option value="">All Statuses</option>
+          <option [value]="StrategyStatus.DRAFT">Draft</option>
+          <option [value]="StrategyStatus.ACTIVE">Active</option>
+          <option [value]="StrategyStatus.COMPLETED">Completed</option>
+          <option [value]="StrategyStatus.PAUSED">Paused</option>
+          <option [value]="StrategyStatus.CANCELLED">Cancelled</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="clientId">Client</label>
+        <input 
+          type="text" 
+          id="clientId"
+          class="form-control" 
+          formControlName="clientId"
+          placeholder="Client ID...">
+      </div>
+      <div class="filter-actions">
+        <button type="button" class="btn btn-outline-secondary" (click)="onClearFilters()">
+          <i class="fas fa-times"></i>
+          Clear
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Strategies Table -->
+  <div class="table-container">
+    <div class="table-header">
+      <div class="table-info">
+        <span class="results-count">{{ filteredStrategies.length }} strategies</span>
+        <span class="selected-count" *ngIf="selectedStrategies.length > 0">
+          ({{ selectedStrategies.length }} selected)
+        </span>
+      </div>
+      <div class="table-actions" *ngIf="selectedStrategies.length > 0">
+        <button type="button" class="btn btn-sm btn-outline-danger">
+          <i class="fas fa-trash"></i>
+          Delete Selected
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th class="select-column">
+              <input 
+                type="checkbox" 
+                class="form-check-input"
+                [checked]="selectedStrategies.length === filteredStrategies.length && filteredStrategies.length > 0"
+                [indeterminate]="selectedStrategies.length > 0 && selectedStrategies.length < filteredStrategies.length"
+                (change)="onSelectAllStrategies($event)">
+            </th>
+            <th class="sortable" (click)="onSort('name')">
+              Strategy Name
+              <i class="fas fa-sort" 
+                 [class.fa-sort-up]="sortField === 'name' && sortDirection === 'asc'"
+                 [class.fa-sort-down]="sortField === 'name' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('type')">
+              Type
+              <i class="fas fa-sort" 
+                 [class.fa-sort-up]="sortField === 'type' && sortDirection === 'asc'"
+                 [class.fa-sort-down]="sortField === 'type' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('status')">
+              Status
+              <i class="fas fa-sort" 
+                 [class.fa-sort-up]="sortField === 'status' && sortDirection === 'asc'"
+                 [class.fa-sort-down]="sortField === 'status' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('targetScore')">
+              Target Score
+              <i class="fas fa-sort" 
+                 [class.fa-sort-up]="sortField === 'targetScore' && sortDirection === 'asc'"
+                 [class.fa-sort-down]="sortField === 'targetScore' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('currentScore')">
+              Current Score
+              <i class="fas fa-sort" 
+                 [class.fa-sort-up]="sortField === 'currentScore' && sortDirection === 'asc'"
+                 [class.fa-sort-down]="sortField === 'currentScore' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('effectiveness')">
+              Effectiveness
+              <i class="fas fa-sort" 
+                 [class.fa-sort-up]="sortField === 'effectiveness' && sortDirection === 'asc'"
+                 [class.fa-sort-down]="sortField === 'effectiveness' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('timeframe')">
+              Timeframe
+              <i class="fas fa-sort" 
+                 [class.fa-sort-up]="sortField === 'timeframe' && sortDirection === 'asc'"
+                 [class.fa-sort-down]="sortField === 'timeframe' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="actions-column">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let strategy of filteredStrategies" 
+              [class.selected]="selectedStrategies.includes(strategy.id)">
+            <td class="select-column">
+              <input 
+                type="checkbox" 
+                class="form-check-input"
+                [checked]="selectedStrategies.includes(strategy.id)"
+                (change)="onSelectStrategy(strategy.id, $event)">
+            </td>
+            <td>
+              <div class="strategy-name">
+                <strong>{{ strategy.title }}</strong>
+                <div class="strategy-description">{{ strategy.description | slice:0:100 }}{{ strategy.description.length > 100 ? '...' : '' }}</div>
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-outline-primary">{{ getStrategyTypeLabel(strategy.type) }}</span>
+            </td>
+            <td>
+              <span class="badge" [class]="'badge-' + getStrategyStatusColor(strategy.status)">
+                {{ strategy.status | titlecase }}
+              </span>
+            </td>
+            <td>
+              <span class="score-value">{{ strategy.estimatedImpact }}%</span>
+            </td>
+            <td>
+              <span class="score-value">{{ strategy.progress }}%</span>
+            </td>
+            <td>
+              <div class="effectiveness-bar">
+                <div class="progress">
+                  <div class="progress-bar bg-success" 
+                       [style.width.%]="strategy.estimatedImpact || 0">
+                  </div>
+                </div>
+                <span class="effectiveness-text">{{ formatEffectiveness(strategy.estimatedImpact || 0) }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="timeframe-text">{{ formatTimeframe(strategy.timeframe) }}</span>
+            </td>
+            <td class="actions-column">
+              <div class="action-buttons">
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="onViewStrategy(strategy)"
+                  title="View Strategy">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="onEditStrategy(strategy)"
+                  title="Edit Strategy">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="onDeleteStrategy(strategy)"
+                  title="Delete Strategy">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && filteredStrategies.length === 0">
+      <div class="empty-icon">
+        <i class="fas fa-chess-knight"></i>
+      </div>
+      <h3>No strategies found</h3>
+      <p *ngIf="filters.search || filters.type || filters.status || filters.clientId">
+        Try adjusting your filters or 
+        <button type="button" class="btn btn-link p-0" (click)="onClearFilters()">clear all filters</button>
+      </p>
+      <p *ngIf="!filters.search && !filters.type && !filters.status && !filters.clientId">
+        Get started by creating your first credit building strategy.
+      </p>
+      <button type="button" class="btn btn-primary" (click)="onCreateStrategy()">
+        <i class="fas fa-plus"></i>
+        Create Strategy
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+      <p>Loading strategies...</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <nav aria-label="Strategies pagination" *ngIf="totalPages > 1">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </li>
+      <li class="page-item" 
+          *ngFor="let page of [].constructor(totalPages); let i = index" 
+          [class.active]="currentPage === i + 1">
+        <button class="page-link" (click)="onPageChange(i + 1)">{{ i + 1 }}</button>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<!-- Create Strategy Modal -->
+<div class="modal fade" [class.show]="showCreateModal" [style.display]="showCreateModal ? 'block' : 'none'" *ngIf="showCreateModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-plus"></i>
+          Create New Strategy
+        </h5>
+        <button type="button" class="btn-close" (click)="showCreateModal = false"></button>
+      </div>
+      <form [formGroup]="strategyForm" (ngSubmit)="onSaveStrategy()">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="name" class="form-label">Strategy Name *</label>
+                <input 
+                  type="text" 
+                  id="name"
+                  class="form-control" 
+                  formControlName="name"
+                  [class.is-invalid]="isFieldInvalid('name')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('name')">
+                  {{ getFieldError('name') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="type" class="form-label">Type *</label>
+                <select 
+                  id="type" 
+                  class="form-control" 
+                  formControlName="type"
+                  [class.is-invalid]="isFieldInvalid('type')">
+                  <option value="">Select Type</option>
+                  <option [value]="StrategyType.SECURED_CARD">{{ getStrategyTypeLabel(StrategyType.SECURED_CARD) }}</option>
+                  <option [value]="StrategyType.AUTHORIZED_USER">{{ getStrategyTypeLabel(StrategyType.AUTHORIZED_USER) }}</option>
+                  <option [value]="StrategyType.CREDIT_BUILDER_LOAN">{{ getStrategyTypeLabel(StrategyType.CREDIT_BUILDER_LOAN) }}</option>
+                  <option [value]="StrategyType.RENT_REPORTING">{{ getStrategyTypeLabel(StrategyType.RENT_REPORTING) }}</option>
+                  <option [value]="StrategyType.UTILITY_REPORTING">{{ getStrategyTypeLabel(StrategyType.UTILITY_REPORTING) }}</option>
+                  <option [value]="StrategyType.DEBT_CONSOLIDATION">{{ getStrategyTypeLabel(StrategyType.DEBT_CONSOLIDATION) }}</option>
+                  <option [value]="StrategyType.PAYMENT_HISTORY">{{ getStrategyTypeLabel(StrategyType.PAYMENT_HISTORY) }}</option>
+                  <option [value]="StrategyType.CREDIT_MIX">{{ getStrategyTypeLabel(StrategyType.CREDIT_MIX) }}</option>
+                  <option [value]="StrategyType.LENGTH_OF_HISTORY">{{ getStrategyTypeLabel(StrategyType.LENGTH_OF_HISTORY) }}</option>
+                  <option [value]="StrategyType.CREDIT_UTILIZATION">{{ getStrategyTypeLabel(StrategyType.CREDIT_UTILIZATION) }}</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('type')">
+                  {{ getFieldError('type') }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="clientId" class="form-label">Client ID *</label>
+                <input 
+                  type="text" 
+                  id="clientId"
+                  class="form-control" 
+                  formControlName="clientId"
+                  [class.is-invalid]="isFieldInvalid('clientId')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('clientId')">
+                  {{ getFieldError('clientId') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="priority" class="form-label">Priority *</label>
+                <select 
+                  id="priority" 
+                  class="form-control" 
+                  formControlName="priority"
+                  [class.is-invalid]="isFieldInvalid('priority')">
+                  <option value="">Select Priority</option>
+                  <option [value]="RecommendationPriority.LOW">Low</option>
+                  <option [value]="RecommendationPriority.MEDIUM">Medium</option>
+                  <option [value]="RecommendationPriority.HIGH">High</option>
+                  <option [value]="RecommendationPriority.CRITICAL">Critical</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('priority')">
+                  {{ getFieldError('priority') }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="targetScore" class="form-label">Target Score</label>
+                <input 
+                  type="number" 
+                  id="targetScore"
+                  class="form-control" 
+                  formControlName="targetScore"
+                  min="300" 
+                  max="850"
+                  [class.is-invalid]="isFieldInvalid('targetScore')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('targetScore')">
+                  {{ getFieldError('targetScore') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="timeframe" class="form-label">Timeframe *</label>
+                <input 
+                  type="text" 
+                  id="timeframe"
+                  class="form-control" 
+                  formControlName="timeframe"
+                  placeholder="e.g., 6 months"
+                  [class.is-invalid]="isFieldInvalid('timeframe')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('timeframe')">
+                  {{ getFieldError('timeframe') }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description *</label>
+            <textarea 
+              id="description"
+              class="form-control" 
+              formControlName="description"
+              rows="3"
+              [class.is-invalid]="isFieldInvalid('description')"></textarea>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('description')">
+              {{ getFieldError('description') }}
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="requiredActions" class="form-label">Required Actions</label>
+            <textarea 
+              id="requiredActions"
+              class="form-control" 
+              formControlName="requiredActions"
+              rows="3"
+              placeholder="Enter each action on a new line"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea 
+              id="notes"
+              class="form-control" 
+              formControlName="notes"
+              rows="2"></textarea>
+          </div>
+          <div class="form-check">
+            <input 
+              type="checkbox" 
+              id="isActive"
+              class="form-check-input" 
+              formControlName="isActive">
+            <label for="isActive" class="form-check-label">Active Strategy</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="showCreateModal = false">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="strategyForm.invalid">
+            <i class="fas fa-save"></i>
+            Create Strategy
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Strategy Modal -->
+<div class="modal fade" [class.show]="showEditModal" [style.display]="showEditModal ? 'block' : 'none'" *ngIf="showEditModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-edit"></i>
+          Edit Strategy
+        </h5>
+        <button type="button" class="btn-close" (click)="showEditModal = false"></button>
+      </div>
+      <form [formGroup]="strategyForm" (ngSubmit)="onSaveStrategy()">
+        <div class="modal-body">
+          <!-- Same form fields as create modal -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="editName" class="form-label">Strategy Name *</label>
+                <input 
+                  type="text" 
+                  id="editName"
+                  class="form-control" 
+                  formControlName="name"
+                  [class.is-invalid]="isFieldInvalid('name')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('name')">
+                  {{ getFieldError('name') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="editType" class="form-label">Type *</label>
+                <select 
+                  id="editType" 
+                  class="form-control" 
+                  formControlName="type"
+                  [class.is-invalid]="isFieldInvalid('type')">
+                  <option value="">Select Type</option>
+                  <option [value]="StrategyType.SECURED_CARD">{{ getStrategyTypeLabel(StrategyType.SECURED_CARD) }}</option>
+                  <option [value]="StrategyType.AUTHORIZED_USER">{{ getStrategyTypeLabel(StrategyType.AUTHORIZED_USER) }}</option>
+                  <option [value]="StrategyType.CREDIT_BUILDER_LOAN">{{ getStrategyTypeLabel(StrategyType.CREDIT_BUILDER_LOAN) }}</option>
+                  <option [value]="StrategyType.RENT_REPORTING">{{ getStrategyTypeLabel(StrategyType.RENT_REPORTING) }}</option>
+                  <option [value]="StrategyType.UTILITY_REPORTING">{{ getStrategyTypeLabel(StrategyType.UTILITY_REPORTING) }}</option>
+                  <option [value]="StrategyType.DEBT_CONSOLIDATION">{{ getStrategyTypeLabel(StrategyType.DEBT_CONSOLIDATION) }}</option>
+                  <option [value]="StrategyType.PAYMENT_HISTORY">{{ getStrategyTypeLabel(StrategyType.PAYMENT_HISTORY) }}</option>
+                  <option [value]="StrategyType.CREDIT_MIX">{{ getStrategyTypeLabel(StrategyType.CREDIT_MIX) }}</option>
+                  <option [value]="StrategyType.LENGTH_OF_HISTORY">{{ getStrategyTypeLabel(StrategyType.LENGTH_OF_HISTORY) }}</option>
+                  <option [value]="StrategyType.CREDIT_UTILIZATION">{{ getStrategyTypeLabel(StrategyType.CREDIT_UTILIZATION) }}</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('type')">
+                  {{ getFieldError('type') }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Rest of form fields same as create modal -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="showEditModal = false">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="strategyForm.invalid">
+            <i class="fas fa-save"></i>
+            Update Strategy
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" [class.show]="showDeleteModal" [style.display]="showDeleteModal ? 'block' : 'none'" *ngIf="showDeleteModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-exclamation-triangle text-danger"></i>
+          Confirm Delete
+        </h5>
+        <button type="button" class="btn-close" (click)="showDeleteModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the strategy <strong>"{{ editingStrategy?.title }}"</strong>?</p>
+        <p class="text-muted">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="showDeleteModal = false">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="onConfirmDelete()">
+          <i class="fas fa-trash"></i>
+          Delete Strategy
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade show" *ngIf="showCreateModal || showEditModal || showDeleteModal"></div>

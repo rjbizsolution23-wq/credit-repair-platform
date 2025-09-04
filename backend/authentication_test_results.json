@@ -1,0 +1,108 @@
+{
+  "summary": {
+    "total_tests": 9,
+    "passed_tests": 7,
+    "failed_tests": 2,
+    "success_rate": 77.77777777777779,
+    "test_timestamp": "2025-08-25T23:47:36.535740"
+  },
+  "detailed_results": [
+    {
+      "test": "Authentication Health Check",
+      "success": true,
+      "timestamp": "2025-08-25T23:47:36.204504",
+      "details": "System healthy, 1 users registered",
+      "response_data": {
+        "healthy": true,
+        "message": "Authentication system operational",
+        "registered_users": 1,
+        "blacklisted_tokens": 0,
+        "jwt_algorithm": "HS256",
+        "token_expiration_hours": 24
+      }
+    },
+    {
+      "test": "Unauthorized Access Protection",
+      "success": false,
+      "timestamp": "2025-08-25T23:47:36.209505",
+      "details": "Expected 401, got 403",
+      "response_data": "{\"detail\":\"Not authenticated\"}"
+    },
+    {
+      "test": "Invalid Token Protection",
+      "success": true,
+      "timestamp": "2025-08-25T23:47:36.214509",
+      "details": "Correctly rejected invalid token",
+      "response_data": {
+        "detail": "Invalid token"
+      }
+    },
+    {
+      "test": "User Registration",
+      "success": false,
+      "timestamp": "2025-08-25T23:47:36.221123",
+      "details": "HTTP 400",
+      "response_data": "{\"detail\":\"Email already registered\"}"
+    },
+    {
+      "test": "Duplicate Registration Protection",
+      "success": true,
+      "timestamp": "2025-08-25T23:47:36.226122",
+      "details": "Correctly prevented duplicate email registration",
+      "response_data": {
+        "detail": "Email already registered"
+      }
+    },
+    {
+      "test": "User Login",
+      "success": true,
+      "timestamp": "2025-08-25T23:47:36.522008",
+      "details": "Login successful, token expires in 86400 seconds",
+      "response_data": {
+        "user": {
+          "id": "b3bcda7f-bf81-4609-893d-611d4172dfb2",
+          "email": "test@rickjeffersonsolutions.com",
+          "first_name": "Test",
+          "last_name": "User",
+          "role": "client",
+          "is_active": true,
+          "created_at": "2025-08-26T04:47:12.719639"
+        },
+        "token_type": "bearer"
+      }
+    },
+    {
+      "test": "Protected Route Access",
+      "success": true,
+      "timestamp": "2025-08-25T23:47:36.526012",
+      "details": "Successfully accessed user profile for test@rickjeffersonsolutions.com",
+      "response_data": {
+        "id": "b3bcda7f-bf81-4609-893d-611d4172dfb2",
+        "email": "test@rickjeffersonsolutions.com",
+        "first_name": "Test",
+        "last_name": "User",
+        "role": "client",
+        "is_active": true,
+        "created_at": "2025-08-26T04:47:12.719639"
+      }
+    },
+    {
+      "test": "User Logout",
+      "success": true,
+      "timestamp": "2025-08-25T23:47:36.529009",
+      "details": "Successfully logged out",
+      "response_data": {
+        "message": "Successfully logged out"
+      }
+    },
+    {
+      "test": "Blacklisted Token Protection",
+      "success": true,
+      "timestamp": "2025-08-25T23:47:36.532738",
+      "details": "Correctly rejected blacklisted token",
+      "response_data": {
+        "detail": "Authentication failed"
+      }
+    }
+  ]
+}

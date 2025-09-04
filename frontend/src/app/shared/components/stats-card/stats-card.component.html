@@ -1,0 +1,71 @@
+<div 
+  [class]="getCardClasses()"
+  [attr.aria-label]="getAriaLabel()"
+  [attr.role]="config.clickable ? 'button' : null"
+  [attr.tabindex]="config.clickable ? '0' : null"
+  (click)="onCardClick($event)"
+  (keydown.enter)="onCardClick($event)"
+  (keydown.space)="onCardClick($event)">
+  
+  <!-- Loading Overlay -->
+  <div class="stats-loading-overlay" *ngIf="isLoading()">
+    <app-loading-spinner 
+      type="border" 
+      size="sm" 
+      [text]="''"
+      [overlay]="false">
+    </app-loading-spinner>
+  </div>
+
+  <!-- Error State -->
+  <div class="stats-error" *ngIf="hasError()">
+    <i class="feather icon-alert-triangle stats-error-icon"></i>
+    <span class="stats-error-message">{{ error }}</span>
+  </div>
+
+  <!-- Normal Content -->
+  <div class="stats-content" *ngIf="!hasError()">
+    <!-- Header -->
+    <div class="stats-header">
+      <!-- Icon -->
+      <div class="stats-icon-container" *ngIf="shouldShowIcon()">
+        <i 
+          [class]="getIconClasses()"
+          (click)="onIconClick($event)"
+          [attr.aria-hidden]="true">
+        </i>
+      </div>
+
+      <!-- Title -->
+      <div class="stats-title-container">
+        <h3 class="stats-title">{{ title }}</h3>
+        <p class="stats-subtitle" *ngIf="shouldShowSubtitle()">{{ subtitle }}</p>
+      </div>
+
+      <!-- Trend -->
+      <div class="stats-trend-container" *ngIf="shouldShowTrend()">
+        <div [class]="getTrendClasses()">
+          <i [class]="getTrendIcon()" [attr.aria-hidden]="true"></i>
+          <span class="trend-value">{{ getFormattedTrend() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Value -->
+    <div class="stats-value-container">
+      <div class="stats-value" [class.loading]="isLoading()">
+        {{ getFormattedValue() }}
+      </div>
+    </div>
+
+    <!-- Trend Label -->
+    <div class="stats-trend-label" *ngIf="shouldShowTrend() && getTrendLabel()">
+      {{ getTrendLabel() }}
+    </div>
+  </div>
+
+  <!-- Click Indicator -->
+  <div class="stats-click-indicator" *ngIf="config.clickable">
+    <i class="feather icon-chevron-right" [attr.aria-hidden]="true"></i>
+  </div>
+</div>

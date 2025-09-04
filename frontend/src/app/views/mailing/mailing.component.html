@@ -1,0 +1,663 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+  <div>
+    <h4 class="mb-3 mb-md-0">Mail Management</h4>
+    <p class="text-muted">Manage and track all postal correspondence</p>
+  </div>
+  <div class="d-flex align-items-center flex-wrap text-nowrap">
+    <!-- USPS Connection Status -->
+    <div class="me-3">
+      <span class="badge" [ngClass]="uspsConnected ? 'bg-success' : 'bg-warning'">
+        <i class="feather" [ngClass]="uspsConnected ? 'icon-check-circle' : 'icon-alert-circle'" style="font-size: 12px;"></i>
+        USPS {{ uspsConnected ? 'Connected' : 'Disconnected' }}
+      </span>
+    </div>
+    
+    <button class="btn btn-primary me-2" (click)="showNewMailModal = true">
+      <i class="feather icon-plus me-1"></i>
+      New Mail
+    </button>
+    <button class="btn btn-outline-primary me-2" (click)="bulkCreateLabels()" [disabled]="selectedMailItems.length === 0">
+      <i class="feather icon-send me-1"></i>
+      Bulk Send ({{ selectedMailItems.length }})
+    </button>
+    <button class="btn btn-outline-info me-2" (click)="connectUsps()" *ngIf="!uspsConnected">
+      <i class="feather icon-link me-1"></i>
+      Connect USPS
+    </button>
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="feather icon-more-horizontal"></i>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" (click)="exportMailData()"><i class="feather icon-download me-2"></i>Export Data</a></li>
+        <li><a class="dropdown-item" href="#" (click)="selectAllMail()"><i class="feather icon-check-square me-2"></i>Select All</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="#"><i class="feather icon-settings me-2"></i>Settings</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Statistics Overview -->
+<div class="row mb-4">
+  <div class="col-12 col-sm-6 col-xl-2">
+    <div class="card stats-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title mb-0">Total Sent</h6>
+            <h3 class="mb-0 text-primary">{{ stats.totalSent }}</h3>
+            <p class="text-muted mb-0 small">This month</p>
+          </div>
+          <div class="icon-wrapper bg-primary">
+            <i class="feather icon-send"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-2">
+    <div class="card stats-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title mb-0">Delivered</h6>
+            <h3 class="mb-0 text-success">{{ stats.delivered }}</h3>
+            <p class="text-muted mb-0 small">{{ stats.successRate.toFixed(1) }}% rate</p>
+          </div>
+          <div class="icon-wrapper bg-success">
+            <i class="feather icon-check-circle"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-2">
+    <div class="card stats-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title mb-0">Pending</h6>
+            <h3 class="mb-0 text-warning">{{ stats.pending }}</h3>
+            <p class="text-muted mb-0 small">In transit</p>
+          </div>
+          <div class="icon-wrapper bg-warning">
+            <i class="feather icon-clock"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-2">
+    <div class="card stats-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title mb-0">Monthly Cost</h6>
+            <h3 class="mb-0 text-info">${{ stats.monthlyCost.toFixed(2) }}</h3>
+            <p class="text-muted mb-0 small">USPS postage</p>
+          </div>
+          <div class="icon-wrapper bg-info">
+            <i class="feather icon-dollar-sign"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-2">
+    <div class="card stats-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title mb-0">Avg Delivery</h6>
+            <h3 class="mb-0 text-secondary">{{ stats.avgDeliveryTime.toFixed(1) }}</h3>
+            <p class="text-muted mb-0 small">days</p>
+          </div>
+          <div class="icon-wrapper bg-secondary">
+            <i class="feather icon-truck"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-2">
+    <div class="card stats-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title mb-0">USPS Labels</h6>
+            <h3 class="mb-0 text-dark">{{ mailItems.filter(item => item.uspsLabelId).length }}</h3>
+            <p class="text-muted mb-0 small">Created</p>
+          </div>
+          <div class="icon-wrapper bg-dark">
+            <i class="feather icon-tag"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation Tabs -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs nav-tabs-line" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [class.active]="activeTab === 'dashboard'" 
+                    (click)="setActiveTab('dashboard')" type="button">
+              <i class="feather icon-bar-chart-2 me-2"></i>
+              Dashboard
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [class.active]="activeTab === 'mail-items'" 
+                    (click)="setActiveTab('mail-items')" type="button">
+              <i class="feather icon-mail me-2"></i>
+              Mail Items
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [class.active]="activeTab === 'templates'" 
+                    (click)="setActiveTab('templates')" type="button">
+              <i class="feather icon-file-text me-2"></i>
+              Templates
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [class.active]="activeTab === 'recipients'" 
+                    (click)="setActiveTab('recipients')" type="button">
+              <i class="feather icon-users me-2"></i>
+              Recipients
+            </button>
+          </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content mt-4">
+          <!-- Dashboard Tab -->
+          <div *ngIf="activeTab === 'dashboard'" class="tab-pane fade show active">
+            <div class="row">
+              <!-- Mail Volume Chart -->
+              <div class="col-lg-8 mb-4">
+                <div class="card">
+                  <div class="card-header">
+                    <h6 class="card-title mb-0">Mail Volume Trends</h6>
+                  </div>
+                  <div class="card-body">
+                    <div id="mailVolumeChart"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Delivery Rate Chart -->
+              <div class="col-lg-4 mb-4">
+                <div class="card">
+                  <div class="card-header">
+                    <h6 class="card-title mb-0">Delivery Status</h6>
+                  </div>
+                  <div class="card-body">
+                    <div id="deliveryRateChart"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Cost Analysis Chart -->
+              <div class="col-12 mb-4">
+                <div class="card">
+                  <div class="card-header">
+                    <h6 class="card-title mb-0">Monthly Cost Analysis</h6>
+                  </div>
+                  <div class="card-body">
+                    <div id="costAnalysisChart"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Recent Activity -->
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <h6 class="card-title mb-0">Recent Mail Activity</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="activity-timeline">
+                      <div class="activity-item" *ngFor="let item of mailItems.slice(0, 5)">
+                        <div class="activity-icon" [ngClass]="getStatusClass(item.status)">
+                          <i class="feather icon-mail"></i>
+                        </div>
+                        <div class="activity-content">
+                          <h6 class="mb-1">{{ item.templateName }}</h6>
+                          <p class="text-muted mb-1">{{ item.clientName }} → {{ item.recipient.name }}</p>
+                          <small class="text-muted">{{ item.sentDate | date:'MMM dd, yyyy' }}</small>
+                        </div>
+                        <div class="activity-status">
+                          <span [ngClass]="getStatusClass(item.status)">{{ item.status | titlecase }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Mail Items Tab -->
+          <div *ngIf="activeTab === 'mail-items'" class="tab-pane fade show active">
+            <!-- Search and Filters -->
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="Search mail items..." 
+                         [(ngModel)]="searchTerm" (ngModelChange)="filterMail()">
+                  <span class="input-group-text">
+                    <i class="feather icon-search"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" [(ngModel)]="statusFilter" (ngModelChange)="filterMail()">
+                  <option value="all">All Status</option>
+                  <option value="draft">Draft</option>
+                  <option value="queued">Queued</option>
+                  <option value="sent">Sent</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="returned">Returned</option>
+                  <option value="failed">Failed</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" [(ngModel)]="typeFilter" (ngModelChange)="filterMail()">
+                  <option value="all">All Types</option>
+                  <option value="certified">Certified</option>
+                  <option value="priority">Priority</option>
+                  <option value="express">Express</option>
+                  <option value="standard">Standard</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" [(ngModel)]="dateFilter" (ngModelChange)="filterMail()">
+                  <option value="all">All Dates</option>
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Mail Items Table -->
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Client</th>
+                    <th>Template</th>
+                    <th>Recipient</th>
+                    <th>Status</th>
+                    <th>Type</th>
+                    <th>Sent Date</th>
+                    <th>Cost</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of filteredMailItems">
+                    <td>
+                      <div>
+                        <h6 class="mb-0">{{ item.clientName }}</h6>
+                        <small class="text-muted">{{ item.clientId }}</small>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <h6 class="mb-0">{{ item.templateName }}</h6>
+                        <small class="text-muted" *ngIf="item.notes">{{ item.notes }}</small>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <h6 class="mb-0">{{ item.recipient.name }}</h6>
+                        <small class="text-muted">{{ item.recipient.address.city }}, {{ item.recipient.address.state }}</small>
+                      </div>
+                    </td>
+                    <td>
+                      <span [ngClass]="getStatusClass(item.status)">{{ item.status | titlecase }}</span>
+                    </td>
+                    <td>
+                      <span [ngClass]="getTypeClass(item.mailType)">{{ item.mailType | titlecase }}</span>
+                    </td>
+                    <td>
+                      <div *ngIf="item.sentDate">
+                        {{ item.sentDate | date:'MMM dd, yyyy' }}
+                        <br>
+                        <small class="text-muted">{{ item.sentDate | date:'h:mm a' }}</small>
+                      </div>
+                      <span *ngIf="!item.sentDate" class="text-muted">Not sent</span>
+                    </td>
+                    <td>
+                      <strong>${{ item.cost.toFixed(2) }}</strong>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                          Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li *ngIf="item.status === 'draft'">
+                            <a class="dropdown-item" href="#" (click)="sendMail(item.id)">
+                              <i class="feather icon-send me-2"></i>Send Mail
+                            </a>
+                          </li>
+                          <li *ngIf="item.trackingNumber">
+                            <a class="dropdown-item" href="#" (click)="trackMail(item.trackingNumber!)">
+                              <i class="feather icon-map-pin me-2"></i>Track Package
+                            </a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="#">
+                              <i class="feather icon-eye me-2"></i>View Details
+                            </a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="#">
+                              <i class="feather icon-edit me-2"></i>Edit
+                            </a>
+                          </li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li>
+                            <a class="dropdown-item text-danger" href="#">
+                              <i class="feather icon-trash-2 me-2"></i>Delete
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Empty State -->
+            <div *ngIf="filteredMailItems.length === 0" class="text-center py-5">
+              <i class="feather icon-mail text-muted" style="font-size: 3rem;"></i>
+              <h5 class="mt-3 text-muted">No mail items found</h5>
+              <p class="text-muted">Create your first mail item to get started</p>
+              <button class="btn btn-primary" (click)="createNewMail()">
+                <i class="feather icon-plus me-1"></i>
+                Create Mail Item
+              </button>
+            </div>
+          </div>
+          
+          <!-- Templates Tab -->
+          <div *ngIf="activeTab === 'templates'" class="tab-pane fade show active">
+            <div class="row">
+              <div class="col-12 col-md-6 col-lg-4 mb-4" *ngFor="let template of mailTemplates">
+                <div class="card template-card h-100">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <h6 class="card-title mb-0">{{ template.name }}</h6>
+                      <span class="badge bg-primary">{{ template.type | titlecase }}</span>
+                    </div>
+                    <p class="card-text text-muted">{{ template.content.substring(0, 100) }}...</p>
+                    <div class="template-stats mb-3">
+                      <div class="row text-center">
+                        <div class="col-4">
+                          <h6 class="mb-0">{{ template.usageCount }}</h6>
+                          <small class="text-muted">Used</small>
+                        </div>
+                        <div class="col-4">
+                          <h6 class="mb-0">{{ template.successRate }}%</h6>
+                          <small class="text-muted">Success</small>
+                        </div>
+                        <div class="col-4">
+                          <h6 class="mb-0" [class]="template.isActive ? 'text-success' : 'text-danger'">
+                            {{ template.isActive ? 'Active' : 'Inactive' }}
+                          </h6>
+                          <small class="text-muted">Status</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="template-actions">
+                      <button class="btn btn-outline-primary btn-sm me-2">
+                        <i class="feather icon-eye me-1"></i>
+                        Preview
+                      </button>
+                      <button class="btn btn-outline-secondary btn-sm">
+                        <i class="feather icon-edit me-1"></i>
+                        Edit
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Recipients Tab -->
+          <div *ngIf="activeTab === 'recipients'" class="tab-pane fade show active">
+            <div class="row">
+              <div class="col-12 col-md-6 col-lg-4 mb-4" *ngFor="let recipient of recipients">
+                <div class="card recipient-card h-100">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <h6 class="card-title mb-0">{{ recipient.name }}</h6>
+                      <span class="badge bg-info">{{ recipient.type | titlecase }}</span>
+                    </div>
+                    <div class="recipient-address mb-3">
+                      <p class="mb-1">{{ recipient.address.street }}</p>
+                      <p class="mb-0">{{ recipient.address.city }}, {{ recipient.address.state }} {{ recipient.address.zipCode }}</p>
+                    </div>
+                    <div class="recipient-contact" *ngIf="recipient.contactInfo">
+                      <div *ngIf="recipient.contactInfo.phone" class="mb-1">
+                        <i class="feather icon-phone me-2"></i>
+                        <small>{{ recipient.contactInfo.phone }}</small>
+                      </div>
+                      <div *ngIf="recipient.contactInfo.email" class="mb-1">
+                        <i class="feather icon-mail me-2"></i>
+                        <small>{{ recipient.contactInfo.email }}</small>
+                      </div>
+                    </div>
+                    <div class="recipient-actions mt-3">
+                      <button class="btn btn-outline-primary btn-sm me-2">
+                        <i class="feather icon-edit me-1"></i>
+                        Edit
+                      </button>
+                      <button class="btn btn-outline-secondary btn-sm">
+                        <i class="feather icon-mail me-1"></i>
+                        Send Mail
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Mail Modal -->
+<div class="modal fade" [class.show]="showNewMailModal" [style.display]="showNewMailModal ? 'block' : 'none'" 
+     tabindex="-1" *ngIf="showNewMailModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create New Mail</h5>
+        <button type="button" class="btn-close" (click)="showNewMailModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Client Name</label>
+              <input type="text" class="form-control" [(ngModel)]="newMailItem.clientName" name="clientName">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Client ID</label>
+              <input type="text" class="form-control" [(ngModel)]="newMailItem.clientId" name="clientId">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Template</label>
+              <select class="form-select" [(ngModel)]="selectedTemplate" name="template">
+                <option [ngValue]="null">Select Template</option>
+                <option *ngFor="let template of mailTemplates" [ngValue]="template">
+                  {{ template.name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Recipient</label>
+              <select class="form-select" [(ngModel)]="selectedRecipient" name="recipient">
+                <option [ngValue]="null">Select Recipient</option>
+                <option *ngFor="let recipient of recipients" [ngValue]="recipient">
+                  {{ recipient.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Mail Type</label>
+              <select class="form-select" [(ngModel)]="newMailItem.mailType" name="mailType">
+                <option value="certified">Certified Mail</option>
+                <option value="priority">Priority Mail</option>
+                <option value="express">Express Mail</option>
+                <option value="standard">Standard Mail</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Cost</label>
+              <input type="number" class="form-control" [(ngModel)]="newMailItem.cost" name="cost" step="0.01">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="newMailItem.notes" name="notes"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="showNewMailModal = false">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveNewMail()">Create Mail</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showNewMailModal" *ngIf="showNewMailModal"></div>
+
+<!-- Bulk Operations Modal -->
+<div class="modal fade" [class.show]="showBulkModal" [style.display]="showBulkModal ? 'block' : 'none'" 
+     tabindex="-1" *ngIf="showBulkModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Bulk Create USPS Labels</h5>
+        <button type="button" class="btn-close" (click)="showBulkModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <i class="feather icon-info me-2"></i>
+          Creating USPS labels for {{ selectedMailItems.length }} selected mail items.
+        </div>
+        
+        <div class="progress mb-3" *ngIf="bulkOperationProgress.inProgress">
+          <div class="progress-bar" role="progressbar" 
+               [style.width.%]="(bulkOperationProgress.completed / bulkOperationProgress.total) * 100">
+            {{ bulkOperationProgress.completed }} / {{ bulkOperationProgress.total }}
+          </div>
+        </div>
+        
+        <div class="list-group" *ngIf="bulkOperationProgress.results.length > 0">
+          <div class="list-group-item" *ngFor="let result of bulkOperationProgress.results">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ result.clientName }}</strong>
+                <small class="text-muted d-block">{{ result.templateName }}</small>
+              </div>
+              <div>
+                <span class="badge" [class]="result.success ? 'bg-success' : 'bg-danger'">
+                  {{ result.success ? 'Success' : 'Failed' }}
+                </span>
+              </div>
+            </div>
+            <div *ngIf="result.labelId" class="mt-2">
+              <small class="text-muted">Label ID: {{ result.labelId }}</small>
+            </div>
+            <div *ngIf="result.error" class="mt-2">
+              <small class="text-danger">{{ result.error }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="showBulkModal = false">Close</button>
+        <button type="button" class="btn btn-primary" 
+                (click)="bulkCreateLabels()" 
+                [disabled]="bulkOperationProgress.inProgress">
+          <span *ngIf="bulkOperationProgress.inProgress" class="spinner-border spinner-border-sm me-2"></span>
+          {{ bulkOperationProgress.inProgress ? 'Creating...' : 'Start Bulk Creation' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showBulkModal" *ngIf="showBulkModal"></div>
+
+<!-- Tracking Results Modal -->
+<div class="modal fade" [class.show]="trackingResults.length > 0" 
+     [style.display]="trackingResults.length > 0 ? 'block' : 'none'" 
+     tabindex="-1" *ngIf="trackingResults.length > 0">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">USPS Tracking Results</h5>
+        <button type="button" class="btn-close" (click)="trackingResults = []"></button>
+      </div>
+      <div class="modal-body">
+        <div class="list-group">
+          <div class="list-group-item" *ngFor="let tracking of trackingResults">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <h6 class="mb-1">{{ tracking.trackingNumber }}</h6>
+                <p class="mb-1">{{ tracking.status }}</p>
+                <small class="text-muted">{{ tracking.lastUpdate | date:'medium' }}</small>
+              </div>
+              <div class="text-end">
+                <span class="badge" [class]="getTrackingStatusColor(tracking.status)">
+                  {{ tracking.status }}
+                </span>
+              </div>
+            </div>
+            <div *ngIf="tracking.location" class="mt-2">
+              <small class="text-muted">
+                <i class="feather icon-map-pin me-1"></i>
+                {{ tracking.location }}
+              </small>
+            </div>
+            <div *ngIf="tracking.estimatedDelivery" class="mt-1">
+              <small class="text-info">
+                <i class="feather icon-calendar me-1"></i>
+                Est. Delivery: {{ tracking.estimatedDelivery | date:'shortDate' }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="trackingResults = []">Close</button>
+        <button type="button" class="btn btn-primary" (click)="refreshTracking()">
+          <i class="feather icon-refresh-cw me-2"></i>
+          Refresh Tracking
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="trackingResults.length > 0" *ngIf="trackingResults.length > 0"></div>

@@ -1,0 +1,162 @@
+<div class="server-error-container">
+  <div class="server-error-content">
+    <!-- Rick Jefferson Branding -->
+    <div class="rick-jefferson-brand-header mb-4">
+      <h3 class="rick-jefferson-title">Rick Jefferson Solutions</h3>
+      <p class="rick-jefferson-tagline">Your Credit Freedom Starts Here</p>
+    </div>
+    
+    <!-- Error Icon and Code -->
+    <div class="error-header">
+      <div class="error-icon">
+        <i class="fas fa-server"></i>
+      </div>
+      <h1 class="error-code">500</h1>
+      <h2 class="error-title">Internal Server Error</h2>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message">
+      <p class="primary-message">
+        We're experiencing some technical difficulties. Our team has been notified and is working to resolve the issue.
+      </p>
+      <p class="secondary-message">
+        Please try again in a few moments. If the problem persists, contact our support team.
+      </p>
+    </div>
+
+    <!-- Error Details -->
+    <div class="error-details">
+      <div class="error-id">
+        <span class="label">Error ID:</span>
+        <code class="error-code-text">{{ errorId }}</code>
+        <button 
+          type="button" 
+          class="copy-btn"
+          (click)="copyErrorId()"
+          title="Copy Error ID"
+          aria-label="Copy Error ID">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+      <div class="timestamp">
+        <span class="label">Time:</span>
+        <span class="time-text">{{ getCurrentTime() }}</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button 
+        type="button" 
+        class="btn btn-primary"
+        [disabled]="!canRetry"
+        (click)="retryPage()"
+        [attr.aria-label]="retryButtonText">
+        <i class="fas" [class.fa-redo]="!isRetrying" [class.fa-spinner]="isRetrying" [class.fa-spin]="isRetrying"></i>
+        {{ retryButtonText }}
+      </button>
+      
+      <button 
+        type="button" 
+        class="btn btn-outline-secondary"
+        (click)="refreshPage()"
+        aria-label="Refresh Page">
+        <i class="fas fa-sync-alt"></i>
+        Refresh Page
+      </button>
+      
+      <button 
+        type="button" 
+        class="btn btn-outline-primary"
+        (click)="goHome()"
+        aria-label="Go to Dashboard">
+        <i class="fas fa-home"></i>
+        Go to Dashboard
+      </button>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="retry-progress" *ngIf="retryCount > 0">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="(retryCount / maxRetries) * 100"></div>
+      </div>
+      <span class="progress-text">Retry {{ retryCount }} of {{ maxRetries }}</span>
+    </div>
+
+    <!-- Help Section -->
+    <div class="help-section">
+      <h4>What can you do?</h4>
+      <div class="help-grid">
+        <div class="help-item">
+          <div class="help-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="help-content">
+            <h5>Wait a moment</h5>
+            <p>The issue might be temporary. Try refreshing the page in a few minutes.</p>
+          </div>
+        </div>
+        
+        <div class="help-item">
+          <div class="help-icon">
+            <i class="fas fa-bug"></i>
+          </div>
+          <div class="help-content">
+            <h5>Report the issue</h5>
+            <p>Help us fix this by reporting the error with the ID above.</p>
+            <button 
+              type="button" 
+              class="help-btn"
+              (click)="reportError()"
+              aria-label="Report Error">
+              Report Error
+            </button>
+          </div>
+        </div>
+        
+        <div class="help-item">
+          <div class="help-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="help-content">
+            <h5>Check system status</h5>
+            <p>See if there are any known issues affecting our services.</p>
+            <button 
+              type="button" 
+              class="help-btn"
+              (click)="checkStatus()"
+              aria-label="Check System Status">
+              System Status
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="navigation-links">
+      <button 
+        type="button" 
+        class="nav-link"
+        (click)="goBack()"
+        aria-label="Go Back">
+        <i class="fas fa-arrow-left"></i>
+        Go Back
+      </button>
+    </div>
+  </div>
+
+  <!-- Background Animation -->
+  <div class="background-animation">
+    <div class="server-rack">
+      <div class="server-unit" *ngFor="let unit of [1,2,3,4,5]" [class]="'unit-' + unit">
+        <div class="server-lights">
+          <div class="light red" [class.blink]="unit % 2 === 0"></div>
+          <div class="light green" [class.blink]="unit % 3 === 0"></div>
+          <div class="light blue" [class.blink]="unit % 5 === 0"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

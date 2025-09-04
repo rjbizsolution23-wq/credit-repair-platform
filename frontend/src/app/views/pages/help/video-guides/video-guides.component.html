@@ -1,0 +1,199 @@
+<div class="video-guides-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <h1 class="page-title">Video Guides</h1>
+    <p class="page-subtitle">
+      Learn how to maximize your credit repair success with our comprehensive video tutorials.
+    </p>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="search-filter-section">
+    <div class="search-box">
+      <i class="feather-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+        placeholder="Search videos..."
+        class="search-input"
+      >
+      <button *ngIf="searchTerm" (click)="clearSearch()" class="clear-search">
+        <i class="feather-x"></i>
+      </button>
+    </div>
+
+    <div class="category-filters">
+      <button
+        *ngFor="let category of categories"
+        (click)="selectCategory(category.id)"
+        [class]="'category-btn ' + (selectedCategory === category.id ? 'active' : '')"
+      >
+        {{ category.name }}
+        <span class="count">{{ category.count }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Video Player Section -->
+  <div class="video-player-section" *ngIf="selectedVideo">
+    <div class="video-player">
+      <div class="player-header">
+        <h2>{{ selectedVideo.title }}</h2>
+        <button (click)="closeVideo()" class="close-btn">
+          <i class="feather-x"></i>
+        </button>
+      </div>
+      
+      <div class="player-container">
+        <div *ngIf="isLoading" class="loading-overlay">
+          <div class="spinner"></div>
+          <p>Loading video...</p>
+        </div>
+        
+        <div *ngIf="!isLoading" class="video-placeholder">
+          <!-- In a real implementation, this would be a video player -->
+          <div class="video-frame">
+            <i class="feather-play-circle"></i>
+            <p>Video Player</p>
+            <small>{{ selectedVideo.videoUrl }}</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="video-info">
+        <div class="video-meta">
+          <span class="duration">
+            <i class="feather-clock"></i>
+            {{ selectedVideo.duration }}
+          </span>
+          <span class="difficulty" [style.color]="getDifficultyColor(selectedVideo.difficulty)">
+            <i class="feather-target"></i>
+            {{ selectedVideo.difficulty }}
+          </span>
+          <span class="views">
+            <i class="feather-eye"></i>
+            {{ formatViews(selectedVideo.views) }} views
+          </span>
+          <span class="date">
+            <i class="feather-calendar"></i>
+            {{ formatDate(selectedVideo.publishedDate) }}
+          </span>
+        </div>
+        
+        <div class="video-description">
+          <p>{{ selectedVideo.description }}</p>
+        </div>
+        
+        <div class="video-tags">
+          <span class="tag" *ngFor="let tag of selectedVideo.tags">
+            #{{ tag }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Grid Section -->
+  <div class="video-grid-section">
+    <div class="section-header">
+      <h2>{{ getCategoryName() }}</h2>
+      <p class="results-count">{{ filteredVideos.length }} video{{ filteredVideos.length !== 1 ? 's' : '' }} found</p>
+    </div>
+
+    <div class="video-grid" *ngIf="filteredVideos.length > 0">
+      <div
+        class="video-card"
+        *ngFor="let video of filteredVideos"
+        (click)="selectVideo(video)"
+        [class.selected]="selectedVideo?.id === video.id"
+      >
+        <div class="video-thumbnail">
+          <img [src]="video.thumbnail" [alt]="video.title" onerror="this.src='/assets/images/video-placeholder.jpg'">
+          <div class="play-overlay">
+            <i class="feather-play"></i>
+          </div>
+          <div class="duration-badge">{{ video.duration }}</div>
+        </div>
+        
+        <div class="video-content">
+          <h3 class="video-title">{{ video.title }}</h3>
+          <p class="video-description">{{ video.description }}</p>
+          
+          <div class="video-meta">
+            <span class="difficulty" [style.color]="getDifficultyColor(video.difficulty)">
+              {{ video.difficulty }}
+            </span>
+            <span class="views">{{ formatViews(video.views) }} views</span>
+            <span class="date">{{ formatDate(video.publishedDate) }}</span>
+          </div>
+          
+          <div class="video-tags">
+            <span class="tag" *ngFor="let tag of video.tags.slice(0, 3)">
+              #{{ tag }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Results -->
+    <div class="no-results" *ngIf="filteredVideos.length === 0">
+      <i class="feather-video-off"></i>
+      <h3>No videos found</h3>
+      <p>Try adjusting your search terms or selecting a different category.</p>
+      <button (click)="clearSearch()" class="btn btn-primary">Clear Search</button>
+    </div>
+  </div>
+
+  <!-- Featured Playlists -->
+  <div class="playlists-section">
+    <h2>Featured Playlists</h2>
+    <div class="playlists-grid">
+      <div class="playlist-card">
+        <div class="playlist-icon">
+          <i class="feather-play-circle"></i>
+        </div>
+        <div class="playlist-info">
+          <h3>Complete Beginner's Guide</h3>
+          <p>Start your credit repair journey with our comprehensive beginner series</p>
+          <span class="video-count">6 videos • 45 minutes</span>
+        </div>
+      </div>
+      
+      <div class="playlist-card">
+        <div class="playlist-icon">
+          <i class="feather-target"></i>
+        </div>
+        <div class="playlist-info">
+          <h3>10 Step Total Enforcement Chain™</h3>
+          <p>Master our signature methodology for maximum credit repair success</p>
+          <span class="video-count">10 videos • 2 hours</span>
+        </div>
+      </div>
+      
+      <div class="playlist-card">
+        <div class="playlist-icon">
+          <i class="feather-trending-up"></i>
+        </div>
+        <div class="playlist-info">
+          <h3>Advanced Strategies</h3>
+          <p>Take your credit repair skills to the next level with expert techniques</p>
+          <span class="video-count">8 videos • 1.5 hours</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Section -->
+  <div class="help-section">
+    <div class="help-card">
+      <i class="feather-help-circle"></i>
+      <div class="help-content">
+        <h3>Need Additional Help?</h3>
+        <p>Can't find what you're looking for? Our support team is here to help.</p>
+        <a routerLink="/help/contact-support" class="help-link">Contact Support</a>
+      </div>
+    </div>
+  </div>
+</div>

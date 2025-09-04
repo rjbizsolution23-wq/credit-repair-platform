@@ -1,0 +1,131 @@
+{
+  "generated_at": "2025-08-07T05:22:01.264091",
+  "summary": {
+    "total_files": 3239,
+    "total_size_mb": 25.96,
+    "total_documents": 8955,
+    "total_training_examples": 2422
+  },
+  "file_types": {
+    ".json": 821,
+    ".jsonl": 805,
+    ".log": 2,
+    ".md": 808,
+    ".html": 803
+  },
+  "categories": {
+    "unknown": 8902,
+    "financial_education": 14,
+    "dispute_letter": 3,
+    "validation_letter": 4,
+    "goodwill_letter": 3,
+    "financial_literacy": 29
+  },
+  "sources": {
+    "unknown": 7266,
+    "government": 14,
+    "template": 10,
+    "educational_guide": 14,
+    "educational_institution": 15,
+    "markdown": 1636
+  },
+  "quality_distribution": {
+    "High (0.8+)": 9,
+    "Good (0.6-0.8)": 4
+  },
+  "crawl_progress": {
+    "tencent_docs_repo": {
+      "files": 3217,
+      "size_mb": 11.55,
+      "documents": 825,
+      "training_examples": 803,
+      "databases": {},
+      "last_modified": "2025-08-07 04:39:17"
+    },
+    "credit_education_corpus": {
+      "files": 18,
+      "size_mb": 0.13,
+      "documents": 66,
+      "training_examples": 10,
+      "databases": {},
+      "last_modified": "2025-08-07 05:21:25"
+    },
+    "exported_credit_corpus": {
+      "files": 4,
+      "size_mb": 14.28,
+      "documents": 8064,
+      "training_examples": 1609,
+      "databases": {},
+      "last_modified": "2025-08-07 05:02:47"
+    }
+  },
+  "system_resources": {
+    "cpu_percent": 47.2,
+    "memory_percent": 88.9,
+    "memory_available_gb": 1.3138008117675781,
+    "disk_free_gb": 349.2096138000488,
+    "disk_used_percent": 63.3415947476215
+  },
+  "timeline": [
+    {
+      "timestamp": "2025-08-07T05:20:13.636567",
+      "total_documents": 8955,
+      "total_training_examples": 2422,
+      "total_size_mb": 25.96
+    },
+    {
+      "timestamp": "2025-08-07T05:20:25.542672",
+      "total_documents": 8955,
+      "total_training_examples": 2422,
+      "total_size_mb": 25.96
+    },
+    {
+      "timestamp": "2025-08-07T05:20:37.557663",
+      "total_documents": 8955,
+      "total_training_examples": 2422,
+      "total_size_mb": 25.96
+    },
+    {
+      "timestamp": "2025-08-07T05:20:49.383285",
+      "total_documents": 8955,
+      "total_training_examples": 2422,
+      "total_size_mb": 25.96
+    },
+    {
+      "timestamp": "2025-08-07T05:21:01.425991",
+      "total_documents": 8955,
+      "total_training_examples": 2422,
+      "total_size_mb": 25.96
+    },
+    {
+      "timestamp": "2025-08-07T05:21:13.378372",
+      "total_documents": 8955,
+      "total_training_examples": 2422,
+      "total_size_mb": 25.96
+    },
+    {
+      "timestamp": "2025-08-07T05:21:25.383488",
+      "total_documents": 8955,
+      "total_training_examples": 2422,
+      "total_size_mb": 25.96
+    },
+    {
+      "timestamp": "2025-08-07T05:21:37.376260",
+      "total_documents": 8955,
+      "total_training_examples": 2422,
+      "total_size_mb": 25.96
+    },
+    {
+      "timestamp": "2025-08-07T05:21:49.313314",
+      "total_documents": 8955,
+      "total_training_examples": 2422,
+      "total_size_mb": 25.96
+    },
+    {
+      "timestamp": "2025-08-07T05:22:01.243045",
+      "total_documents": 8955,
+      "total_training_examples": 2422,
+      "total_size_mb": 25.96
+    }
+  ]
+}

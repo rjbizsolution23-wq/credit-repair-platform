@@ -1,0 +1,302 @@
+.credit-monitoring {
+  .score-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    
+    .score-number {
+      font-size: 3rem;
+      font-weight: bold;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .score-grade {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+  }
+  
+  .bureau-card {
+    transition: transform 0.2s ease-in-out;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .bureau-score {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+  }
+  
+  .negative-factor-item {
+    padding: 12px;
+    border-left: 4px solid #dc3545;
+    background-color: #fff5f5;
+    margin-bottom: 10px;
+    border-radius: 0 8px 8px 0;
+    
+    .factor-title {
+      font-weight: 600;
+      color: #dc3545;
+    }
+    
+    .factor-description {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .dispute-recommendation {
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 5px solid #28a745;
+    
+    .recommendation-header {
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .priority-high {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .priority-medium {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    
+    .priority-low {
+      background-color: #28a745;
+      color: white;
+    }
+  }
+  
+  .insight-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    
+    .insight-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+    }
+    
+    .insight-good {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .insight-fair {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+    
+    .insight-poor {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  }
+  
+  .api-status {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      
+      i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+      }
+    }
+  }
+  
+  .chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  
+  .loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    
+    .spinner-border {
+      width: 3rem;
+      height: 3rem;
+    }
+  }
+  
+  .improvement-alert {
+    border-left: 4px solid #17a2b8;
+    background-color: #d1ecf1;
+    
+    &.alert-success {
+      border-left-color: #28a745;
+      background-color: #d4edda;
+    }
+    
+    &.alert-warning {
+      border-left-color: #ffc107;
+      background-color: #fff3cd;
+    }
+    
+    &.alert-danger {
+      border-left-color: #dc3545;
+      background-color: #f8d7da;
+    }
+  }
+  
+  .score-excellent {
+    color: #28a745 !important;
+  }
+  
+  .score-good {
+    color: #17a2b8 !important;
+  }
+  
+  .score-fair {
+    color: #ffc107 !important;
+  }
+  
+  .score-poor {
+    color: #dc3545 !important;
+  }
+  
+  .grade-excellent {
+    background-color: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  .grade-good {
+    background-color: #17a2b8;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  .grade-fair {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  .grade-poor {
+    background-color: #dc3545;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  .table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .btn-create-dispute {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+    }
+  }
+  
+  .credit-health-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .health-label {
+      font-weight: 500;
+      color: #495057;
+    }
+    
+    .health-status {
+      font-size: 0.875rem;
+      padding: 4px 8px;
+      border-radius: 12px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .score-card .score-number {
+      font-size: 2rem;
+    }
+    
+    .bureau-card .bureau-score {
+      font-size: 1.8rem;
+    }
+    
+    .table-responsive {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Animation keyframes
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}

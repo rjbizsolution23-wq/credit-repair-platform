@@ -1,0 +1,428 @@
+<div class="disputes-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-content">
+      <div class="page-title">
+        <h1>Credit Bureau Disputes</h1>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a routerLink="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a routerLink="/bureaus">Bureaus</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Disputes</li>
+          </ol>
+        </nav>
+      </div>
+      <div class="page-actions">
+        <button type="button" class="btn btn-outline-light" (click)="toggleFilters()">
+          <i class="fas fa-filter"></i>
+          {{ showFilters ? 'Hide Filters' : 'Show Filters' }}
+        </button>
+        <button type="button" class="btn btn-outline-light" (click)="exportDisputes()">
+          <i class="fas fa-download"></i>
+          Export
+        </button>
+        <button type="button" class="btn btn-outline-light" (click)="refreshData()">
+          <i class="fas fa-sync-alt"></i>
+          Refresh
+        </button>
+        <button type="button" class="btn btn-primary" (click)="createDispute()">
+          <i class="fas fa-plus"></i>
+          New Dispute
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Panel -->
+  <div class="filter-panel" [class.show]="showFilters">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-filter"></i>
+          Filter Disputes
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <!-- Search -->
+          <div class="col-md-4">
+            <label for="search" class="form-label">Search</label>
+            <input
+              type="text"
+              id="search"
+              class="form-control"
+              placeholder="Search disputes..."
+              [formControl]="searchControl">
+          </div>
+
+          <!-- Type Filter -->
+          <div class="col-md-4">
+            <label for="typeFilter" class="form-label">Type</label>
+            <select
+              id="typeFilter"
+              class="form-select"
+              [(ngModel)]="filters.type"
+              (change)="onFilterChange()">
+              <option value="">All Types</option>
+              <option [value]="DisputeType.INACCURATE_INFORMATION">{{ getDisputeTypeLabel(DisputeType.INACCURATE_INFORMATION) }}</option>
+              <option [value]="DisputeType.IDENTITY_THEFT">{{ getDisputeTypeLabel(DisputeType.IDENTITY_THEFT) }}</option>
+              <option [value]="DisputeType.OUTDATED_INFORMATION">{{ getDisputeTypeLabel(DisputeType.OUTDATED_INFORMATION) }}</option>
+              <option [value]="DisputeType.DUPLICATE_ACCOUNTS">{{ getDisputeTypeLabel(DisputeType.DUPLICATE_ACCOUNTS) }}</option>
+              <option [value]="DisputeType.UNAUTHORIZED_INQUIRY">{{ getDisputeTypeLabel(DisputeType.UNAUTHORIZED_INQUIRY) }}</option>
+              <option [value]="DisputeType.MIXED_FILES">{{ getDisputeTypeLabel(DisputeType.MIXED_FILES) }}</option>
+            </select>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="col-md-4">
+            <label for="statusFilter" class="form-label">Status</label>
+            <select
+              id="statusFilter"
+              class="form-select"
+              [(ngModel)]="filters.status"
+              (change)="onFilterChange()">
+              <option value="">All Statuses</option>
+              <option [value]="DisputeStatus.DRAFT">{{ getDisputeStatusLabel(DisputeStatus.DRAFT) }}</option>
+              <option [value]="DisputeStatus.SUBMITTED">{{ getDisputeStatusLabel(DisputeStatus.SUBMITTED) }}</option>
+              <option [value]="DisputeStatus.IN_PROGRESS">{{ getDisputeStatusLabel(DisputeStatus.IN_PROGRESS) }}</option>
+              <option [value]="DisputeStatus.RESOLVED">{{ getDisputeStatusLabel(DisputeStatus.RESOLVED) }}</option>
+              <option [value]="DisputeStatus.REJECTED">{{ getDisputeStatusLabel(DisputeStatus.REJECTED) }}</option>
+              <option [value]="DisputeStatus.CANCELLED">{{ getDisputeStatusLabel(DisputeStatus.CANCELLED) }}</option>
+            </select>
+          </div>
+
+          <!-- Bureau Filter -->
+          <div class="col-md-4">
+            <label for="bureauFilter" class="form-label">Bureau</label>
+            <select
+              id="bureauFilter"
+              class="form-select"
+              [(ngModel)]="filters.bureau"
+              (change)="onFilterChange()">
+              <option value="">All Bureaus</option>
+              <option [value]="CreditBureau.EXPERIAN">{{ getCreditBureauLabel(CreditBureau.EXPERIAN) }}</option>
+              <option [value]="CreditBureau.EQUIFAX">{{ getCreditBureauLabel(CreditBureau.EQUIFAX) }}</option>
+              <option [value]="CreditBureau.TRANSUNION">{{ getCreditBureauLabel(CreditBureau.TRANSUNION) }}</option>
+            </select>
+          </div>
+
+          <!-- Method Filter -->
+          <div class="col-md-4">
+            <label for="methodFilter" class="form-label">Method</label>
+            <select
+              id="methodFilter"
+              class="form-select"
+              [(ngModel)]="filters.method"
+              (change)="onFilterChange()">
+              <option value="">All Methods</option>
+              <option [value]="DisputeMethod.ONLINE">{{ getDisputeMethodLabel(DisputeMethod.ONLINE) }}</option>
+              <option [value]="DisputeMethod.MAIL">{{ getDisputeMethodLabel(DisputeMethod.MAIL) }}</option>
+              <option [value]="DisputeMethod.PHONE">{{ getDisputeMethodLabel(DisputeMethod.PHONE) }}</option>
+            </select>
+          </div>
+
+          <!-- Date Range -->
+          <div class="col-md-4">
+            <label for="dateFrom" class="form-label">Date From</label>
+            <input
+              type="date"
+              id="dateFrom"
+              class="form-control"
+              [(ngModel)]="filters.dateFrom"
+              (change)="onFilterChange()">
+          </div>
+
+          <div class="col-md-4">
+            <label for="dateTo" class="form-label">Date To</label>
+            <input
+              type="date"
+              id="dateTo"
+              class="form-control"
+              [(ngModel)]="filters.dateTo"
+              (change)="onFilterChange()">
+          </div>
+
+          <!-- Overdue Only -->
+          <div class="col-md-4">
+            <div class="form-check mt-4">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="overdueOnly"
+                [(ngModel)]="filters.overdueOnly"
+                (change)="onFilterChange()">
+              <label class="form-check-label" for="overdueOnly">
+                Show overdue disputes only
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-actions mt-3">
+          <button type="button" class="btn btn-secondary" (click)="clearFilters()">
+            <i class="fas fa-times"></i>
+            Clear Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Actions -->
+  <div class="bulk-actions" *ngIf="showBulkActions">
+    <div class="bulk-actions-content">
+      <span class="bulk-actions-info">
+        {{ selectedDisputes.size }} dispute(s) selected
+      </span>
+      <div class="bulk-actions-buttons">
+        <button type="button" class="btn btn-success btn-sm" (click)="performBulkAction('submit')">
+          <i class="fas fa-paper-plane"></i>
+          Submit
+        </button>
+        <button type="button" class="btn btn-warning btn-sm" (click)="performBulkAction('withdraw')">
+          <i class="fas fa-undo"></i>
+          Withdraw
+        </button>
+        <button type="button" class="btn btn-danger btn-sm" (click)="performBulkAction('delete')">
+          <i class="fas fa-trash"></i>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="loading-text">Loading disputes...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="alert alert-danger" *ngIf="error && !loading">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ error }}
+  </div>
+
+  <!-- Disputes Table -->
+  <div class="disputes-table-container" *ngIf="!loading">
+    <div class="card">
+      <div class="card-header">
+        <div class="table-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-list"></i>
+            Disputes ({{ totalItems }})
+          </h5>
+          <div class="table-controls">
+            <div class="page-size-selector">
+              <label for="pageSize">Show:</label>
+              <select
+                id="pageSize"
+                class="form-select form-select-sm"
+                [value]="pageSize"
+                (change)="onPageSizeChange(+$any($event.target).value)">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" class="select-column">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="isAllSelected()"
+                    [indeterminate]="isIndeterminate()"
+                    (change)="toggleAllDisputes()">
+                </th>
+                <th scope="col" class="sortable" (click)="onSort('disputedItem.accountName')">
+                  Account
+                  <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'disputedItem.accountName' && sortDirection === 'asc'"
+                     [class.fa-sort-down]="sortField === 'disputedItem.accountName' && sortDirection === 'desc'"></i>
+                </th>
+                <th scope="col" class="sortable" (click)="onSort('type')">
+                  Type
+                  <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'type' && sortDirection === 'asc'"
+                     [class.fa-sort-down]="sortField === 'type' && sortDirection === 'desc'"></i>
+                </th>
+                <th scope="col" class="sortable" (click)="onSort('bureau')">
+                  Bureau
+                  <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'bureau' && sortDirection === 'asc'"
+                     [class.fa-sort-down]="sortField === 'bureau' && sortDirection === 'desc'"></i>
+                </th>
+                <th scope="col" class="sortable" (click)="onSort('status')">
+                  Status
+                  <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'status' && sortDirection === 'asc'"
+                     [class.fa-sort-down]="sortField === 'status' && sortDirection === 'desc'"></i>
+                </th>
+                <th scope="col" class="sortable" (click)="onSort('createdAt')">
+                  Created
+                  <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'createdAt' && sortDirection === 'asc'"
+                     [class.fa-sort-down]="sortField === 'createdAt' && sortDirection === 'desc'"></i>
+                </th>
+                <th scope="col" class="sortable" (click)="onSort('expectedResponseDate')">
+                  Response Due
+                  <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'expectedResponseDate' && sortDirection === 'asc'"
+                     [class.fa-sort-down]="sortField === 'expectedResponseDate' && sortDirection === 'desc'"></i>
+                </th>
+                <th scope="col" class="actions-column">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let dispute of filteredDisputes; trackBy: trackByDispute" 
+                  [class.table-row-selected]="isDisputeSelected(dispute.id)">
+                <td class="select-column">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="isDisputeSelected(dispute.id)"
+                    (change)="toggleDisputeSelection(dispute.id)">
+                </td>
+                <td class="account-column">
+                  <div class="account-info">
+                    <div class="account-name">{{ dispute.disputedItems?.[0]?.creditorName || 'N/A' }}</div>
+                    <div class="account-number">{{ dispute.disputedItems?.[0]?.accountNumber || 'N/A' }}</div>
+                  </div>
+                </td>
+                <td class="type-column">
+                  <div class="type-info">
+                    <i [class]="getTypeIcon(dispute.type)"></i>
+                    {{ getDisputeTypeLabel(dispute.type) }}
+                  </div>
+                </td>
+                <td class="bureau-column">
+                  <span class="badge badge-secondary">
+                    {{ getCreditBureauLabel(dispute.bureau) }}
+                  </span>
+                </td>
+                <td class="status-column">
+                  <span class="badge" [class]="'badge-' + getDisputeStatusColor(dispute.status)">
+                    <i [class]="getStatusIcon(dispute.status)"></i>
+                    {{ getDisputeStatusLabel(dispute.status) }}
+                  </span>
+                  <div class="status-info" *ngIf="isDisputeOverdue(dispute)">
+                    <small class="text-danger">
+                      <i class="fas fa-exclamation-triangle"></i>
+                      Overdue
+                    </small>
+                  </div>
+                </td>
+                <td class="date-column">
+                  <div class="date-info">
+                    <div class="date">{{ formatDate(dispute.createdAt) }}</div>
+                    <div class="age text-muted">{{ calculateDisputeAge(dispute) }} days ago</div>
+                  </div>
+                </td>
+                <td class="date-column">
+                  <div class="date-info">
+                    <div class="date">{{ dispute.expectedResponseDate ? formatDate(dispute.expectedResponseDate) : 'N/A' }}</div>
+                    <div class="days-until" [class]="'text-' + getDisputePriorityColor(dispute)">
+                      {{ getDaysUntilDeadline(dispute) }} days
+                    </div>
+                  </div>
+                </td>
+                <td class="actions-column">
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                            [id]="'disputeActions' + dispute.id" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu" [attr.aria-labelledby]="'disputeActions' + dispute.id">
+                      <li>
+                        <a class="dropdown-item" href="#" (click)="$event.preventDefault(); viewDispute(dispute)">
+                          <i class="fas fa-eye"></i>
+                          View
+                        </a>
+                      </li>
+                      <li *ngIf="canEditDispute(dispute)">
+                        <a class="dropdown-item" href="#" (click)="$event.preventDefault(); editDispute(dispute)">
+                          <i class="fas fa-edit"></i>
+                          Edit
+                        </a>
+                      </li>
+                      <li *ngIf="canSubmitDispute(dispute)">
+                        <a class="dropdown-item" href="#" (click)="$event.preventDefault(); submitDispute(dispute)">
+                          <i class="fas fa-paper-plane"></i>
+                          Submit
+                        </a>
+                      </li>
+                      <li *ngIf="canWithdrawDispute(dispute)">
+                        <a class="dropdown-item text-warning" href="#" (click)="$event.preventDefault(); withdrawDispute(dispute)">
+                          <i class="fas fa-undo"></i>
+                          Withdraw
+                        </a>
+                      </li>
+                      <li *ngIf="canDeleteDispute(dispute)"><hr class="dropdown-divider"></li>
+                      <li *ngIf="canDeleteDispute(dispute)">
+                        <a class="dropdown-item text-danger" href="#" (click)="$event.preventDefault(); deleteDispute(dispute)">
+                          <i class="fas fa-trash"></i>
+                          Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="filteredDisputes.length === 0 && !loading">
+          <i class="fas fa-inbox"></i>
+          <h5>No disputes found</h5>
+          <p>No disputes match your current filters. Try adjusting your search criteria or create a new dispute.</p>
+          <button type="button" class="btn btn-primary" (click)="createDispute()">
+            <i class="fas fa-plus"></i>
+            Create New Dispute
+          </button>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="card-footer" *ngIf="totalPages > 1">
+        <nav aria-label="Disputes pagination">
+          <ul class="pagination pagination-sm justify-content-center mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" href="#" (click)="$event.preventDefault(); onPageChange(currentPage - 1)" 
+                 [attr.aria-disabled]="currentPage === 1">
+                <i class="fas fa-chevron-left"></i>
+                Previous
+              </a>
+            </li>
+            
+            <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index" 
+                [class.active]="currentPage === i + 1">
+              <a class="page-link" href="#" (click)="$event.preventDefault(); onPageChange(i + 1)">
+                {{ i + 1 }}
+              </a>
+            </li>
+            
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" href="#" (click)="$event.preventDefault(); onPageChange(currentPage + 1)"
+                 [attr.aria-disabled]="currentPage === totalPages">
+                Next
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        
+        <div class="pagination-info">
+          Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ mathMin(currentPage * pageSize, totalItems) }} of {{ totalItems }} disputes
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

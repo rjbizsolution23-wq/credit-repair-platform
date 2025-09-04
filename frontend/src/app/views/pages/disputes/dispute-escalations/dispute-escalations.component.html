@@ -1,0 +1,777 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="header-content">
+    <div class="header-left">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/dashboard">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a routerLink="/disputes">Disputes</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Escalations</li>
+        </ol>
+      </nav>
+      <h1 class="page-title">
+        <i class="fas fa-exclamation-triangle"></i>
+        Dispute Escalations
+        <span class="badge bg-danger ms-2" *ngIf="totalItems > 0">{{ totalItems }}</span>
+      </h1>
+      <p class="page-description">Manage escalated disputes requiring special attention</p>
+    </div>
+    <div class="header-actions">
+      <button 
+        type="button" 
+        class="btn btn-outline-secondary" 
+        (click)="toggleFilters()"
+        [class.active]="showFilters">
+        <i class="fas fa-filter"></i>
+        Filters
+      </button>
+      <button type="button" class="btn btn-primary" (click)="refresh()">
+        <i class="fas fa-sync-alt"></i>
+        Refresh
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="loading-text">Loading escalations...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+  <i class="fas fa-exclamation-triangle"></i>
+  {{ error }}
+  <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="refresh()">
+    Try Again
+  </button>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading && !error" class="main-content">
+  <!-- Filters Panel -->
+  <div class="filters-panel" [class.show]="showFilters">
+    <div class="panel-header">
+      <h5>Filter Escalations</h5>
+      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearFilters()">
+        Clear All
+      </button>
+    </div>
+    
+    <form [formGroup]="filtersForm" class="filters-form">
+      <div class="row g-3">
+        <!-- Search -->
+        <div class="col-md-6">
+          <label class="form-label">Search</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            formControlName="search"
+            placeholder="Search by reference, client, creditor, or reason...">
+        </div>
+        
+        <!-- Date Range -->
+        <div class="col-md-6" formGroupName="dateRange">
+          <label class="form-label">Date Range</label>
+          <select class="form-select mb-2" formControlName="preset">
+            <option *ngFor="let preset of datePresets" [value]="preset.value">
+              {{ preset.label }}
+            </option>
+          </select>
+          <div class="row g-2" *ngIf="filtersForm.get('dateRange.preset')?.value === 'custom'">
+            <div class="col-6">
+              <input type="date" class="form-control" formControlName="start" placeholder="Start Date">
+            </div>
+            <div class="col-6">
+              <input type="date" class="form-control" formControlName="end" placeholder="End Date">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Status Filter -->
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          <div class="checkbox-group">
+            <div class="form-check" *ngFor="let option of statusOptions">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                [id]="'status-' + option.value"
+                [checked]="filtersForm.get('status')?.value?.includes(option.value)"
+                (change)="onStatusChange(option.value, $any($event.target).checked)">
+              <label class="form-check-label" [for]="'status-' + option.value">
+                {{ option.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Priority Filter -->
+        <div class="col-md-3">
+          <label class="form-label">Priority</label>
+          <div class="checkbox-group">
+            <div class="form-check" *ngFor="let option of priorityOptions">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                [id]="'priority-' + option.value"
+                [checked]="filtersForm.get('priority')?.value?.includes(option.value)"
+                (change)="onPriorityChange(option.value, $any($event.target).checked)">
+              <label class="form-check-label" [for]="'priority-' + option.value">
+                {{ option.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Level Filter -->
+        <div class="col-md-3">
+          <label class="form-label">Escalation Level</label>
+          <div class="checkbox-group">
+            <div class="form-check" *ngFor="let option of levelOptions">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                [id]="'level-' + option.value"
+                [checked]="filtersForm.get('level')?.value?.includes(option.value)"
+                (change)="onLevelChange(option.value, $any($event.target).checked)">
+              <label class="form-check-label" [for]="'level-' + option.value">
+                {{ option.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Credit Bureau Filter -->
+        <div class="col-md-3">
+          <label class="form-label">Credit Bureau</label>
+          <div class="checkbox-group">
+            <div class="form-check" *ngFor="let option of creditBureauOptions">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                [id]="'bureau-' + option.value"
+                [checked]="filtersForm.get('creditBureau')?.value?.includes(option.value)"
+                (change)="onCreditBureauChange(option.value, $any($event.target).checked)">
+              <label class="form-check-label" [for]="'bureau-' + option.value">
+                {{ option.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="activeView === 'list'" class="list-view">
+    <!-- Bulk Actions -->
+    <div class="bulk-actions" *ngIf="showBulkActions">
+      <div class="bulk-info">
+        <span class="selected-count">{{ selectedEscalations.length }} selected</span>
+      </div>
+      <div class="bulk-buttons">
+        <div class="dropdown">
+          <button 
+            class="btn btn-sm btn-outline-primary dropdown-toggle" 
+            type="button" 
+            data-bs-toggle="dropdown">
+            Update Status
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="#" (click)="bulkUpdateStatus('in_progress'); $event.preventDefault()">
+                Mark as In Progress
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" (click)="bulkUpdateStatus('resolved'); $event.preventDefault()">
+                Mark as Resolved
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" (click)="bulkUpdateStatus('closed'); $event.preventDefault()">
+                Mark as Closed
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="dropdown">
+          <button 
+            class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+            type="button" 
+            data-bs-toggle="dropdown">
+            Assign To
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="#" (click)="bulkAssign('Specialist 1'); $event.preventDefault()">
+                Specialist 1
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" (click)="bulkAssign('Specialist 2'); $event.preventDefault()">
+                Specialist 2
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" (click)="bulkAssign('Manager'); $event.preventDefault()">
+                Manager
+              </a>
+            </li>
+          </ul>
+        </div>
+        <button 
+          type="button" 
+          class="btn btn-sm btn-outline-secondary"
+          (click)="selectedEscalations = []; showBulkActions = false">
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="results-summary">
+      <div class="summary-info">
+        <span class="results-count">
+          Showing {{ filteredEscalations.length }} of {{ totalItems }} escalations
+        </span>
+      </div>
+      <div class="view-options">
+        <div class="form-check">
+          <input 
+            class="form-check-input" 
+            type="checkbox" 
+            id="selectAll"
+            [checked]="selectedEscalations.length === filteredEscalations.length && filteredEscalations.length > 0"
+            [indeterminate]="selectedEscalations.length > 0 && selectedEscalations.length < filteredEscalations.length"
+            (change)="selectAllEscalations()">
+          <label class="form-check-label" for="selectAll">
+            Select All
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Escalations List -->
+    <div class="escalations-list" *ngIf="filteredEscalations.length > 0">
+      <div 
+        class="escalation-item"
+        *ngFor="let escalation of filteredEscalations"
+        [class.selected]="isEscalationSelected(escalation.id)"
+        [class.urgent]="escalation.escalation.priority === 'urgent'">
+        
+        <div class="escalation-selection">
+          <input 
+            type="checkbox" 
+            class="form-check-input"
+            [checked]="isEscalationSelected(escalation.id)"
+            (change)="toggleEscalationSelection(escalation.id)">
+        </div>
+        
+        <div class="escalation-content" (click)="viewEscalation(escalation)">
+          <div class="escalation-header">
+            <div class="escalation-title">
+              <h6 class="escalation-reference">{{ escalation.disputeReference }}</h6>
+              <div class="escalation-badges">
+                <span class="badge" [ngClass]="getStatusBadgeClass(escalation.escalation.status)">
+                  {{ escalation.escalation.status | titlecase }}
+                </span>
+                <span class="badge" [ngClass]="getPriorityBadgeClass(escalation.escalation.priority)">
+                  {{ escalation.escalation.priority | titlecase }}
+                </span>
+                <span class="badge" [ngClass]="getLevelBadgeClass(escalation.escalation.level)">
+                  {{ escalation.escalation.level | titlecase }}
+                </span>
+              </div>
+            </div>
+            <div class="escalation-meta">
+              <span class="escalation-date">
+                <i class="fas fa-calendar"></i>
+                Escalated: {{ formatDate(escalation.escalation.escalatedDate) }}
+              </span>
+              <span class="escalation-due">
+                <i class="fas fa-clock"></i>
+                Due: {{ formatDate(escalation.escalation.dueDate) }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="escalation-body">
+            <div class="client-info">
+              <div class="client-details">
+                <span class="client-name">
+                  <i class="fas fa-user"></i>
+                  {{ escalation.clientName }}
+                </span>
+                <span class="client-id">ID: {{ escalation.clientId }}</span>
+              </div>
+            </div>
+            
+            <div class="dispute-info">
+              <div class="dispute-details">
+                <span class="creditor-name">
+                  <strong>{{ escalation.creditorName }}</strong>
+                </span>
+                <span class="account-number">{{ escalation.accountNumber }}</span>
+                <span class="bureau-name">
+                  <i class="fas fa-building"></i>
+                  {{ escalation.originalDispute.creditBureau | titlecase }}
+                </span>
+              </div>
+              <div class="dispute-type">
+                {{ escalation.originalDispute.type }} - {{ escalation.originalDispute.reason }}
+              </div>
+            </div>
+            
+            <div class="escalation-reason">
+              <strong>Escalation Reason:</strong> {{ escalation.escalation.reason }}
+            </div>
+            
+            <div class="escalation-resolution" *ngIf="escalation.resolution">
+              <span class="resolution-badge badge" [ngClass]="getOutcomeBadgeClass(escalation.resolution.outcome)">
+                {{ escalation.resolution.outcome | titlecase }}
+              </span>
+              <span class="resolution-date">
+                Resolved: {{ formatDate(escalation.resolution.resolvedDate) }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="escalation-footer">
+            <div class="escalation-assigned" *ngIf="escalation.escalation.assignedTo">
+              <i class="fas fa-user-tag"></i>
+              Assigned to: {{ escalation.escalation.assignedTo }}
+            </div>
+            <div class="escalation-escalated-by">
+              <i class="fas fa-user"></i>
+              Escalated by: {{ escalation.escalation.escalatedBy }}
+            </div>
+            <div class="escalation-attachments" *ngIf="escalation.attachments.length > 0">
+              <i class="fas fa-paperclip"></i>
+              {{ escalation.attachments.length }} attachment(s)
+            </div>
+          </div>
+        </div>
+        
+        <div class="escalation-actions">
+          <div class="dropdown">
+            <button 
+              class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+              type="button" 
+              data-bs-toggle="dropdown">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" href="#" (click)="viewEscalation(escalation); $event.preventDefault()">
+                  <i class="fas fa-eye"></i>
+                  View Details
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" (click)="editEscalation(escalation); $event.preventDefault()">
+                  <i class="fas fa-edit"></i>
+                  Edit Escalation
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" href="#" (click)="resolveEscalation(escalation); $event.preventDefault()">
+                  <i class="fas fa-check"></i>
+                  Mark as Resolved
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" (click)="escalateFurther(escalation); $event.preventDefault()">
+                  <i class="fas fa-arrow-up"></i>
+                  Escalate Further
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" href="#" (click)="goToDispute(escalation.disputeId); $event.preventDefault()">
+                  <i class="fas fa-external-link-alt"></i>
+                  View Original Dispute
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#" (click)="goToClient(escalation.clientId); $event.preventDefault()">
+                  <i class="fas fa-user"></i>
+                  View Client
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredEscalations.length === 0 && !loading" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3>No Escalations Found</h3>
+      <p>No escalated disputes match your current filters.</p>
+      <button type="button" class="btn btn-primary" (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Escalations pagination" *ngIf="totalPages > 1">
+      <div class="pagination-container">
+        <div class="pagination-info">
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        </div>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" href="#" (click)="onPageChange(currentPage - 1); $event.preventDefault()">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+          <li 
+            class="page-item" 
+            *ngFor="let page of [].constructor(totalPages); let i = index"
+            [class.active]="currentPage === i + 1">
+            <a class="page-link" href="#" (click)="onPageChange(i + 1); $event.preventDefault()">
+              {{ i + 1 }}
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" href="#" (click)="onPageChange(currentPage + 1); $event.preventDefault()">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Detail View -->
+  <div *ngIf="activeView === 'detail' && selectedEscalation" class="detail-view">
+    <div class="detail-header">
+      <button type="button" class="btn btn-outline-secondary" (click)="backToList()">
+        <i class="fas fa-arrow-left"></i>
+        Back to List
+      </button>
+      <h2>Escalation Details</h2>
+      <div class="detail-actions">
+        <button type="button" class="btn btn-outline-primary" (click)="editEscalation(selectedEscalation)">
+          <i class="fas fa-edit"></i>
+          Edit
+        </button>
+        <button type="button" class="btn btn-success" (click)="resolveEscalation(selectedEscalation)">
+          <i class="fas fa-check"></i>
+          Resolve
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-content">
+      <div class="row g-4">
+        <!-- Escalation Information -->
+        <div class="col-lg-8">
+          <div class="card">
+            <div class="card-header">
+              <h5>Escalation Information</h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Reference</label>
+                  <p class="form-control-plaintext">{{ selectedEscalation.disputeReference }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Escalation Level</label>
+                  <p class="form-control-plaintext">
+                    <span class="badge" [ngClass]="getLevelBadgeClass(selectedEscalation.escalation.level)">
+                      {{ selectedEscalation.escalation.level | titlecase }}
+                    </span>
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Escalated Date</label>
+                  <p class="form-control-plaintext">{{ formatDateTime(selectedEscalation.escalation.escalatedDate) }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Escalated By</label>
+                  <p class="form-control-plaintext">{{ selectedEscalation.escalation.escalatedBy }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Due Date</label>
+                  <p class="form-control-plaintext">{{ formatDateTime(selectedEscalation.escalation.dueDate) }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Assigned To</label>
+                  <p class="form-control-plaintext">{{ selectedEscalation.escalation.assignedTo || 'Unassigned' }}</p>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Escalation Reason</label>
+                  <div class="escalation-reason-display">
+                    {{ selectedEscalation.escalation.reason }}
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Notes</label>
+                  <div class="escalation-notes-display">
+                    {{ selectedEscalation.escalation.notes }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Original Dispute -->
+          <div class="card mt-4">
+            <div class="card-header">
+              <h5>Original Dispute</h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Creditor</label>
+                  <p class="form-control-plaintext">{{ selectedEscalation.creditorName }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Account Number</label>
+                  <p class="form-control-plaintext">{{ selectedEscalation.accountNumber }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Type</label>
+                  <p class="form-control-plaintext">{{ selectedEscalation.originalDispute.type }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Credit Bureau</label>
+                  <p class="form-control-plaintext">{{ selectedEscalation.originalDispute.creditBureau | titlecase }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Submitted Date</label>
+                  <p class="form-control-plaintext">{{ formatDateTime(selectedEscalation.originalDispute.submittedDate) }}</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Reason</label>
+                  <p class="form-control-plaintext">{{ selectedEscalation.originalDispute.reason }}</p>
+                </div>
+              </div>
+              <div class="mt-3">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-primary"
+                  (click)="goToDispute(selectedEscalation.disputeId)">
+                  <i class="fas fa-external-link-alt"></i>
+                  View Full Dispute
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="card mt-4">
+            <div class="card-header">
+              <h5>Timeline</h5>
+            </div>
+            <div class="card-body">
+              <div class="timeline">
+                <div 
+                  class="timeline-item"
+                  *ngFor="let item of selectedEscalation.timeline">
+                  <div class="timeline-marker"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <span class="timeline-action">{{ item.action }}</span>
+                      <span class="timeline-date">{{ formatDateTime(item.date) }}</span>
+                    </div>
+                    <div class="timeline-details">
+                      <span class="timeline-user">by {{ item.user }}</span>
+                      <p class="timeline-description">{{ item.details }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attachments -->
+          <div class="card mt-4" *ngIf="selectedEscalation.attachments.length > 0">
+            <div class="card-header">
+              <h5>Attachments</h5>
+            </div>
+            <div class="card-body">
+              <div class="attachments-list">
+                <div 
+                  class="attachment-item"
+                  *ngFor="let attachment of selectedEscalation.attachments">
+                  <div class="attachment-icon">
+                    <i class="fas fa-file"></i>
+                  </div>
+                  <div class="attachment-info">
+                    <div class="attachment-name">{{ attachment.name }}</div>
+                    <div class="attachment-meta">
+                      {{ formatFileSize(attachment.size) }} • 
+                      {{ formatDateTime(attachment.uploadedAt) }} • 
+                      {{ attachment.uploadedBy }}
+                    </div>
+                  </div>
+                  <div class="attachment-actions">
+                    <button 
+                      type="button" 
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="downloadAttachment(attachment)">
+                      <i class="fas fa-download"></i>
+                      Download
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Escalation Management -->
+        <div class="col-lg-4">
+          <form [formGroup]="escalationForm" (ngSubmit)="saveEscalation()">
+            <div class="card">
+              <div class="card-header">
+                <h5>Update Escalation</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" formControlName="status">
+                    <option *ngFor="let option of statusOptions" [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Priority</label>
+                  <select class="form-select" formControlName="priority">
+                    <option *ngFor="let option of priorityOptions" [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Escalation Level</label>
+                  <select class="form-select" formControlName="level">
+                    <option *ngFor="let option of levelOptions" [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Assigned To</label>
+                  <input type="text" class="form-control" formControlName="assignedTo">
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Due Date</label>
+                  <input type="date" class="form-control" formControlName="dueDate">
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Notes</label>
+                  <textarea 
+                    class="form-control" 
+                    rows="4" 
+                    formControlName="notes"
+                    placeholder="Add notes about this escalation..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100" [disabled]="escalationForm.invalid">
+                  <i class="fas fa-save"></i>
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Resolution -->
+          <div class="card mt-4" *ngIf="selectedEscalation.escalation.status === 'resolved' || selectedEscalation.resolution">
+            <div class="card-header">
+              <h5>Resolution</h5>
+            </div>
+            <div class="card-body" formGroupName="resolution">
+              <div class="mb-3">
+                <label class="form-label">Outcome</label>
+                <select class="form-select" formControlName="outcome">
+                  <option *ngFor="let option of outcomeOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Resolution Details</label>
+                <textarea 
+                  class="form-control" 
+                  rows="4" 
+                  formControlName="resolution"
+                  placeholder="Describe how this escalation was resolved..."></textarea>
+              </div>
+              
+              <div class="mb-3">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    id="followUpRequired"
+                    formControlName="followUpRequired">
+                  <label class="form-check-label" for="followUpRequired">
+                    Follow-up Required
+                  </label>
+                </div>
+              </div>
+              
+              <div class="mb-3" *ngIf="escalationForm.get('resolution.followUpRequired')?.value">
+                <label class="form-label">Follow-up Date</label>
+                <input type="date" class="form-control" formControlName="followUpDate">
+              </div>
+            </div>
+          </div>
+
+          <!-- Client Information -->
+          <div class="card mt-4">
+            <div class="card-header">
+              <h5>Client Information</h5>
+            </div>
+            <div class="card-body">
+              <div class="client-summary">
+                <div class="client-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="client-details">
+                  <div class="client-name">{{ selectedEscalation.clientName }}</div>
+                  <div class="client-id">ID: {{ selectedEscalation.clientId }}</div>
+                </div>
+              </div>
+              <div class="mt-3">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-primary w-100"
+                  (click)="goToClient(selectedEscalation.clientId)">
+                  <i class="fas fa-user"></i>
+                  View Client Profile
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

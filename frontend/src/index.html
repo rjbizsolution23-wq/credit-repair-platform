@@ -1,0 +1,49 @@
+<!doctype html>
+<!--
+
+Rick Jefferson AI Supreme Credit Enforcement Platform
+Author: Rick Jefferson Solutions
+Website: https://rickjeffersonsolutions.com
+Description: Advanced Credit Repair and Legal Enforcement Dashboard
+Powered by: AI-Driven Credit Dispute Technology
+
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Rick Jefferson AI - Supreme Credit Enforcement Platform</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="css/splash-screen.css">
+
+  <!-- Rick Jefferson Solutions Brand Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- End fonts -->
+</head>
+<body>
+
+  <!-- START: Setting up theme mode on page load for the splash screen -->
+  <script>
+    const themeMode = localStorage.getItem('theme');
+    if (themeMode) {
+      document.documentElement.setAttribute('data-bs-theme', themeMode);
+    } else {
+      document.documentElement.setAttribute('data-bs-theme', window.matchMedia('(prefers-color-scheme: dark)').matches? 'dark': 'light');
+    }
+  </script>
+  <!-- END: Setting up theme mode on page load for the splash screen -->
+
+  <app-root>
+    <!-- START: Splash screen -->
+    <div class="splash-screen">
+      <div class="logo"></div>
+      <div class="spinner"></div>
+    </div>
+    <!-- END: Splash screen -->
+  </app-root>
+
+</body>
+</html>

@@ -1,0 +1,258 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h4 class="page-title">All Clients</h4>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Clients</li>
+      </ol>
+    </nav>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-primary" (click)="exportClients()">
+      <i data-feather="download"></i> Export
+    </button>
+    <a routerLink="/clients/import" class="btn btn-outline-secondary">
+      <i data-feather="upload"></i> Import
+    </a>
+    <a routerLink="/clients/add" class="btn btn-primary">
+      <i data-feather="plus"></i> Add Client
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <!-- Filters -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="form-group">
+          <label for="search">Search Clients</label>
+          <div class="input-group">
+            <input 
+              type="text" 
+              id="search"
+              class="form-control" 
+              placeholder="Search by name, email, or phone..."
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onSearchChange()">
+            <div class="input-group-append">
+              <span class="input-group-text">
+                <i data-feather="search"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select 
+            id="status"
+            class="form-control" 
+            [(ngModel)]="selectedStatus"
+            (ngModelChange)="onStatusChange()">
+            <option *ngFor="let status of statusOptions" [value]="status.value">
+              {{ status.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="stage">Current Stage</label>
+          <select 
+            id="stage"
+            class="form-control" 
+            [(ngModel)]="selectedStage"
+            (ngModelChange)="onStageChange()">
+            <option *ngFor="let stage of stageOptions" [value]="stage.value">
+              {{ stage.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+          <label for="perPage">Per Page</label>
+          <select 
+            id="perPage"
+            class="form-control" 
+            [(ngModel)]="itemsPerPage"
+            (ngModelChange)="onPageChange(1)">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center py-4">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+      <p class="mt-2">Loading clients...</p>
+    </div>
+
+    <!-- Clients Table -->
+    <div *ngIf="!loading" class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Contact</th>
+            <th>Status</th>
+            <th>Current Stage</th>
+            <th>Credit Score</th>
+            <th>Disputes</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let client of getPaginatedClients()">
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar avatar-sm me-2">
+                  <img 
+                    [src]="client.avatar || '/assets/images/default-avatar.png'" 
+                    [alt]="client.firstName + ' ' + client.lastName"
+                    class="rounded-circle">
+                </div>
+                <div>
+                  <h6 class="mb-0">{{ client.firstName }} {{ client.lastName }}</h6>
+                  <small class="text-muted">ID: {{ client.id }}</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div>
+                <div class="mb-1">
+                  <i data-feather="mail" class="icon-sm me-1"></i>
+                  <small>{{ client.email }}</small>
+                </div>
+                <div>
+                  <i data-feather="phone" class="icon-sm me-1"></i>
+                  <small>{{ client.phone }}</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getStatusBadgeClass(client.status)">
+                {{ client.status | titlecase }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getStageBadgeClass(client.currentStage)">
+                {{ client.currentStage?.replace('_', ' ') | titlecase }}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <span class="fw-bold me-2">{{ client.creditScore || 'N/A' }}</span>
+                <div *ngIf="client.creditScore" class="progress" style="width: 60px; height: 6px;">
+                  <div 
+                    class="progress-bar" 
+                    [ngClass]="{
+                      'bg-danger': client.creditScore < 580,
+                      'bg-warning': client.creditScore >= 580 && client.creditScore < 670,
+                      'bg-info': client.creditScore >= 670 && client.creditScore < 740,
+                      'bg-success': client.creditScore >= 740
+                    }"
+                    [style.width.%]="(client.creditScore / 850) * 100">
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <span class="badge badge-primary me-2">{{ client.activeDisputes || 0 }}</span>
+                <small class="text-muted">active</small>
+              </div>
+            </td>
+            <td>
+              <small>{{ client.createdAt | date:'short' }}</small>
+            </td>
+            <td>
+              <div class="dropdown">
+                <button 
+                  class="btn btn-link p-0" 
+                  type="button" 
+                  [id]="'dropdownMenuButton' + client.id" 
+                  data-bs-toggle="dropdown" 
+                  aria-expanded="false">
+                  <i data-feather="more-horizontal"></i>
+                </button>
+                <ul class="dropdown-menu" [attr.aria-labelledby]="'dropdownMenuButton' + client.id">
+                  <li>
+                    <a class="dropdown-item" [routerLink]="['/clients/view', client.id]">
+                      <i data-feather="eye" class="icon-sm me-2"></i>
+                      View Details
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" [routerLink]="['/clients/edit', client.id]">
+                      <i data-feather="edit" class="icon-sm me-2"></i>
+                      Edit Client
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" [routerLink]="['/disputes/create']" [queryParams]="{clientId: client.id}">
+                      <i data-feather="file-text" class="icon-sm me-2"></i>
+                      Create Dispute
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" [routerLink]="['/credit-reports']" [queryParams]="{clientId: client.id}">
+                      <i data-feather="bar-chart-2" class="icon-sm me-2"></i>
+                      View Credit Report
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <button class="dropdown-item text-danger" (click)="deleteClient(client.id)">
+                      <i data-feather="trash-2" class="icon-sm me-2"></i>
+                      Delete Client
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredClients.length === 0" class="text-center py-5">
+        <i data-feather="users" class="icon-lg text-muted mb-3"></i>
+        <h5 class="text-muted">No clients found</h5>
+        <p class="text-muted">Try adjusting your search criteria or add a new client.</p>
+        <a routerLink="/clients/add" class="btn btn-primary">
+          <i data-feather="plus"></i> Add First Client
+        </a>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && filteredClients.length > 0" class="d-flex justify-content-between align-items-center mt-4">
+      <div>
+        <small class="text-muted">
+          Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to 
+          {{ Math.min(currentPage * itemsPerPage, totalItems) }} of 
+          {{ totalItems }} clients
+        </small>
+      </div>
+      <ngb-pagination 
+        [(page)]="currentPage"
+        [pageSize]="itemsPerPage"
+        [collectionSize]="totalItems"
+        [maxSize]="5"
+        [rotate]="true"
+        [boundaryLinks]="true">
+      </ngb-pagination>
+    </div>
+  </div>
+</div>

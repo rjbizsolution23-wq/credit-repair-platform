@@ -1,0 +1,219 @@
+<div [class]="getFieldClasses()">
+  <!-- Label -->
+  <label 
+    *ngIf="shouldShowLabel() && !config.floatingLabel"
+    [for]="getFieldId()"
+    class="form-label">
+    {{ label }}
+    <span class="required-indicator" *ngIf="shouldShowRequiredIndicator()">*</span>
+  </label>
+
+  <!-- Input Container -->
+  <div class="form-input-container">
+    <!-- Left Icon -->
+    <div class="form-icon form-icon-left" *ngIf="shouldShowIcon() && iconPosition === 'left'">
+      <i [class]="getDisplayIcon()" (click)="onIconClick($event)" [attr.aria-hidden]="true"></i>
+    </div>
+
+    <!-- Text Input -->
+    <input
+      *ngIf="isTextInput()"
+      [id]="getFieldId()"
+      [class]="getInputClasses()"
+      [type]="getInputType()"
+      [value]="value || ''"
+      [placeholder]="placeholder"
+      [required]="required"
+      [disabled]="disabled"
+      [readonly]="readonly"
+      [maxlength]="maxLength"
+      [minlength]="minLength"
+      [min]="min"
+      [max]="max"
+      [step]="step"
+      [pattern]="pattern"
+      [autocomplete]="autocomplete"
+      [attr.aria-describedby]="getAriaDescribedBy()"
+      [attr.aria-invalid]="hasError()"
+      [attr.aria-required]="required"
+      (input)="onInput($event)"
+      (focus)="onFocus($event)"
+      (blur)="onBlur($event)"
+      (keyup)="onKeyUp($event)"
+      (keydown)="onKeyDown($event)">
+
+    <!-- Textarea -->
+    <textarea
+      *ngIf="isTextarea()"
+      [id]="getFieldId()"
+      [class]="getInputClasses()"
+      [value]="value || ''"
+      [placeholder]="placeholder"
+      [required]="required"
+      [disabled]="disabled"
+      [readonly]="readonly"
+      [maxlength]="maxLength"
+      [minlength]="minLength"
+      [rows]="rows"
+      [cols]="cols"
+      [attr.aria-describedby]="getAriaDescribedBy()"
+      [attr.aria-invalid]="hasError()"
+      [attr.aria-required]="required"
+      (input)="onInput($event)"
+      (focus)="onFocus($event)"
+      (blur)="onBlur($event)"
+      (keyup)="onKeyUp($event)"
+      (keydown)="onKeyDown($event)"></textarea>
+
+    <!-- Select -->
+    <select
+      *ngIf="isSelect()"
+      [id]="getFieldId()"
+      [class]="getInputClasses()"
+      [value]="value"
+      [required]="required"
+      [disabled]="disabled"
+      [multiple]="multiple"
+      [attr.aria-describedby]="getAriaDescribedBy()"
+      [attr.aria-invalid]="hasError()"
+      [attr.aria-required]="required"
+      (change)="onInput($event)"
+      (focus)="onFocus($event)"
+      (blur)="onBlur($event)">
+      <option value="" *ngIf="!required && !multiple">{{ placeholder || 'Select an option' }}</option>
+      <option 
+        *ngFor="let option of options" 
+        [value]="option.value"
+        [disabled]="option.disabled">
+        {{ option.label }}
+      </option>
+    </select>
+
+    <!-- Checkbox -->
+    <div class="form-checkbox-container" *ngIf="isCheckbox()">
+      <input
+        [id]="getFieldId()"
+        type="checkbox"
+        class="form-check-input"
+        [checked]="value"
+        [required]="required"
+        [disabled]="disabled"
+        [attr.aria-describedby]="getAriaDescribedBy()"
+        [attr.aria-invalid]="hasError()"
+        [attr.aria-required]="required"
+        (change)="onInput($event)"
+        (focus)="onFocus($event)"
+        (blur)="onBlur($event)">
+      <label [for]="getFieldId()" class="form-check-label">
+        {{ label }}
+        <span class="required-indicator" *ngIf="shouldShowRequiredIndicator()">*</span>
+      </label>
+    </div>
+
+    <!-- Radio Group -->
+    <div class="form-radio-group" *ngIf="isRadio()">
+      <div class="form-radio-item" *ngFor="let option of options">
+        <input
+          [id]="getFieldId() + '-' + option.value"
+          type="radio"
+          class="form-check-input"
+          [name]="getFieldId()"
+          [value]="option.value"
+          [checked]="value === option.value"
+          [required]="required"
+          [disabled]="disabled || option.disabled"
+          [attr.aria-describedby]="getAriaDescribedBy()"
+          [attr.aria-invalid]="hasError()"
+          [attr.aria-required]="required"
+          (change)="onInput($event)"
+          (focus)="onFocus($event)"
+          (blur)="onBlur($event)">
+        <label [for]="getFieldId() + '-' + option.value" class="form-check-label">
+          {{ option.label }}
+        </label>
+      </div>
+    </div>
+
+    <!-- File Input -->
+    <input
+      *ngIf="isFile()"
+      [id]="getFieldId()"
+      type="file"
+      [class]="getInputClasses()"
+      [required]="required"
+      [disabled]="disabled"
+      [multiple]="multiple"
+      [accept]="accept"
+      [attr.aria-describedby]="getAriaDescribedBy()"
+      [attr.aria-invalid]="hasError()"
+      [attr.aria-required]="required"
+      (change)="onInput($event)"
+      (focus)="onFocus($event)"
+      (blur)="onBlur($event)">
+
+    <!-- Floating Label -->
+    <label 
+      *ngIf="shouldShowLabel() && config.floatingLabel"
+      [for]="getFieldId()"
+      class="form-label form-label-floating"
+      [class.form-label-active]="focused || hasValue()">
+      {{ label }}
+      <span class="required-indicator" *ngIf="shouldShowRequiredIndicator()">*</span>
+    </label>
+
+    <!-- Right Icon -->
+    <div class="form-icon form-icon-right" *ngIf="shouldShowIcon() && iconPosition === 'right'">
+      <i [class]="getDisplayIcon()" (click)="onIconClick($event)" [attr.aria-hidden]="true"></i>
+    </div>
+
+    <!-- Clear Button -->
+    <button 
+      type="button"
+      class="form-clear-btn"
+      *ngIf="shouldShowClearButton()"
+      (click)="onClearClick($event)"
+      [attr.aria-label]="'Clear ' + (label || 'field')">
+      <i class="feather icon-x" [attr.aria-hidden]="true"></i>
+    </button>
+
+    <!-- Loading Spinner -->
+    <div class="form-loading" *ngIf="loading">
+      <app-loading-spinner 
+        type="border" 
+        size="sm" 
+        [text]="''"
+        [overlay]="false">
+      </app-loading-spinner>
+    </div>
+  </div>
+
+  <!-- Help Text -->
+  <div 
+    *ngIf="shouldShowHelpText()"
+    [id]="getFieldId() + '-help'"
+    class="form-help-text">
+    {{ helpText }}
+  </div>
+
+  <!-- Error Messages -->
+  <div 
+    *ngIf="shouldShowErrorMessages()"
+    [id]="getFieldId() + '-error'"
+    class="form-error-messages"
+    role="alert"
+    aria-live="polite">
+    <div class="form-error-message" *ngFor="let error of errorMessages">
+      <i class="feather icon-alert-circle" [attr.aria-hidden]="true"></i>
+      {{ error.message }}
+    </div>
+  </div>
+
+  <!-- Character Count -->
+  <div 
+    *ngIf="shouldShowCharacterCount()"
+    class="form-character-count"
+    [class.form-character-count-warning]="characterCount > (maxLength! * 0.8)"
+    [class.form-character-count-error]="characterCount >= maxLength!">
+    {{ characterCount }} / {{ maxLength }}
+  </div>
+</div>

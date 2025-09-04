@@ -1,0 +1,125 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title mb-0">Report Comparison</h4>
+          <p class="text-muted mb-0">Compare credit reports side by side</p>
+        </div>
+        <div class="card-body">
+          <!-- Report Selection -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5>Available Reports</h5>
+              <div class="list-group">
+                <div *ngFor="let report of reports" 
+                     class="list-group-item list-group-item-action"
+                     [class.disabled]="selectedReports.length >= 2 && !selectedReports.includes(report)"
+                     (click)="selectReport(report)">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-1">{{ report.bureau }} - {{ report.date | date:'MMM yyyy' }}</h6>
+                      <p class="mb-1">Score: <span [class]="'text-' + getScoreColor(report.score)">{{ report.score }}</span></p>
+                      <small class="text-muted">{{ report.accounts }} accounts, {{ report.inquiries }} inquiries</small>
+                    </div>
+                    <i class="fas fa-plus" *ngIf="!selectedReports.includes(report)"></i>
+                    <i class="fas fa-check text-success" *ngIf="selectedReports.includes(report)"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>Selected Reports ({{ selectedReports.length }}/2)</h5>
+                <button class="btn btn-sm btn-outline-secondary" 
+                        (click)="clearSelection()"
+                        [disabled]="selectedReports.length === 0">
+                  Clear All
+                </button>
+              </div>
+              
+              <div *ngIf="selectedReports.length === 0" class="text-center py-4">
+                <i class="fas fa-arrow-left fa-2x text-muted mb-3"></i>
+                <p class="text-muted">Select up to 2 reports to compare</p>
+              </div>
+              
+              <div *ngFor="let report of selectedReports; let i = index" class="card mb-2">
+                <div class="card-body py-2">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">{{ report.bureau }} - {{ report.date | date:'MMM yyyy' }}</h6>
+                      <small class="text-muted">Score: {{ report.score }}</small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" (click)="removeReport(i)">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comparison Table -->
+          <div *ngIf="selectedReports.length === 2" class="row">
+            <div class="col-12">
+              <h5 class="mb-3">Comparison Results</h5>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Metric</th>
+                      <th>{{ selectedReports[0].bureau }} ({{ selectedReports[0].date | date:'MMM yyyy' }})</th>
+                      <th>{{ selectedReports[1].bureau }} ({{ selectedReports[1].date | date:'MMM yyyy' }})</th>
+                      <th>Difference</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Credit Score</strong></td>
+                      <td>
+                        <span [class]="'text-' + getScoreColor(selectedReports[0].score)">{{ selectedReports[0].score }}</span>
+                      </td>
+                      <td>
+                        <span [class]="'text-' + getScoreColor(selectedReports[1].score)">{{ selectedReports[1].score }}</span>
+                      </td>
+                      <td>
+                        <span [class]="selectedReports[1].score > selectedReports[0].score ? 'text-success' : (selectedReports[1].score < selectedReports[0].score ? 'text-danger' : 'text-muted')">
+                          <i class="fas" 
+                             [class.fa-arrow-up]="selectedReports[1].score > selectedReports[0].score"
+                             [class.fa-arrow-down]="selectedReports[1].score < selectedReports[0].score"
+                             [class.fa-minus]="selectedReports[1].score === selectedReports[0].score"></i>
+                          {{ selectedReports[1].score > selectedReports[0].score ? '+' : '' }}{{ selectedReports[1].score - selectedReports[0].score }}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>Total Accounts</strong></td>
+                      <td>{{ selectedReports[0].accounts }}</td>
+                      <td>{{ selectedReports[1].accounts }}</td>
+                      <td>
+                        <span [class]="selectedReports[1].accounts > selectedReports[0].accounts ? 'text-info' : (selectedReports[1].accounts < selectedReports[0].accounts ? 'text-warning' : 'text-muted')">
+                          {{ selectedReports[1].accounts > selectedReports[0].accounts ? '+' : '' }}{{ selectedReports[1].accounts - selectedReports[0].accounts }}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><strong>Hard Inquiries</strong></td>
+                      <td>{{ selectedReports[0].inquiries }}</td>
+                      <td>{{ selectedReports[1].inquiries }}</td>
+                      <td>
+                        <span [class]="selectedReports[1].inquiries < selectedReports[0].inquiries ? 'text-success' : (selectedReports[1].inquiries > selectedReports[0].inquiries ? 'text-danger' : 'text-muted')">
+                          {{ selectedReports[1].inquiries > selectedReports[0].inquiries ? '+' : '' }}{{ selectedReports[1].inquiries - selectedReports[0].inquiries }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

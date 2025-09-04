@@ -1,0 +1,284 @@
+-- =====================================================
+-- COMPLETE LAWS AND DATA INTEGRATION SCRIPT
+-- Comprehensive integration of ALL credit-related laws and data
+-- from arxiv-harvest-project into Rick Jefferson AI Credit Platform
+-- Includes: Credit Laws, Real Estate Laws, Tax Laws, and Industry Data
+-- =====================================================
+
+-- Execute the expanded credit laws integration first
+\i EXPANDED_CREDIT_LAWS_INTEGRATION.sql
+
+-- =====================================================
+-- REAL ESTATE LAWS INTEGRATION (Credit-Related)
+-- =====================================================
+
+-- Create real estate law categories
+INSERT INTO comprehensive_law_categories (category_name, description, jurisdiction_level) VALUES
+('Real Estate Disclosure Laws', 'Laws requiring disclosure of property conditions and material facts', 'Multi-Jurisdictional'),
+('Mortgage and Lending Laws', 'Laws governing mortgage lending and real estate financing', 'Multi-Jurisdictional'),
+('Real Estate Settlement Laws', 'Laws governing real estate closing and settlement procedures', 'Federal'),
+('Environmental Real Estate Laws', 'Environmental regulations affecting real estate transactions', 'Multi-Jurisdictional'),
+('Real Estate Licensing Laws', 'State requirements for real estate licensing and practice', 'State');
+
+-- Insert comprehensive real estate laws that affect credit and debt collection
+INSERT INTO laws_regulations (law_name, category_id, citation, summary, full_text, jurisdiction_level, enforcement_agency, penalties, compliance_requirements, related_laws) VALUES
+
+-- Lead-Based Paint Disclosure
+('Lead-Based Paint Disclosure Rule',
+ (SELECT id FROM comprehensive_law_categories WHERE category_name = 'Real Estate Disclosure Laws'),
+ '42 U.S.C. § 4852d',
+ 'Federal law requiring disclosure of lead-based paint hazards in pre-1978 housing sales and leases',
+ 'Federal law requiring sellers, landlords, real estate agents, and property managers to provide specific information about known lead-based paint and hazards before buyers or renters sign contracts. Applies to most pre-1978 private housing, public housing, federally owned housing, and housing receiving federal assistance. Requirements include: (1) Providing EPA lead hazard information pamphlet, (2) Disclosing known lead-based paint presence and hazards, (3) Providing available records and reports, (4) Including Lead Warning Statement in contracts, (5) Providing 10-day inspection period for buyers, (6) Maintaining signed disclosures for three years.',
+ 'Federal',
+ 'Environmental Protection Agency (EPA)',
+ 'Civil penalties up to $16,000 per violation, criminal penalties for knowing violations',
+ ARRAY['Lead hazard information pamphlet distribution','Written disclosure of known lead-based paint','10-day inspection period for buyers','Lead Warning Statement in contracts'],
+ ARRAY['RESPA','TILA','State disclosure laws']),
+
+-- TILA-RESPA Integrated Disclosures
+('TILA-RESPA Integrated Disclosures (TRID)',
+ (SELECT id FROM comprehensive_law_categories WHERE category_name = 'Mortgage and Lending Laws'),
+ '12 CFR § 1026.19',
+ 'Integrated mortgage disclosure requirements combining TILA and RESPA',
+ 'The TILA-RESPA Integrated Disclosure (TRID) rule combines mortgage disclosures required under TILA and RESPA into two forms: the Loan Estimate and the Closing Disclosure. Key requirements include: (1) Loan Estimate must be provided within 3 business days of application, (2) Closing Disclosure must be provided at least 3 business days before consummation, (3) Specific timing requirements for revised disclosures, (4) Tolerance limits for fee increases, (5) Cure provisions for violations.',
+ 'Federal',
+ 'Consumer Financial Protection Bureau (CFPB)',
+ 'Actual damages, statutory damages, attorney fees and costs',
+ ARRAY['Loan Estimate within 3 business days','Closing Disclosure 3 days before closing','Fee tolerance compliance','Revised disclosure timing'],
+ ARRAY['TILA','RESPA','ECOA']),
+
+-- Home Mortgage Disclosure Act
+('Home Mortgage Disclosure Act (HMDA)',
+ (SELECT id FROM comprehensive_law_categories WHERE category_name = 'Mortgage and Lending Laws'),
+ '12 U.S.C. § 2801 et seq.',
+ 'Requires disclosure of mortgage lending data to identify discriminatory practices',
+ 'HMDA requires financial institutions to maintain and annually disclose data about home purchases, home purchase pre-approvals, home improvement, and refinance loans. Data helps identify possible discriminatory lending patterns and enforces anti-discrimination statutes. Key requirements include: (1) Annual reporting of loan application register, (2) Public disclosure of lending data, (3) Geographic analysis of lending patterns, (4) Demographic data collection, (5) Loan pricing information.',
+ 'Federal',
+ 'Consumer Financial Protection Bureau (CFPB)',
+ 'Civil money penalties up to $1 million per day for violations',
+ ARRAY['Annual loan application register','Public data disclosure','Geographic lending analysis','Demographic data collection'],
+ ARRAY['ECOA','Fair Housing Act','Community Reinvestment Act']),
+
+-- Fair Housing Act (Real Estate Context)
+('Fair Housing Act - Real Estate Provisions',
+ (SELECT id FROM comprehensive_law_categories WHERE category_name = 'Real Estate Disclosure Laws'),
+ '42 U.S.C. § 3601 et seq.',
+ 'Prohibits discrimination in housing transactions and real estate practices',
+ 'The Fair Housing Act prohibits discrimination in housing based on race, color, religion, sex, national origin, familial status, or disability. In real estate context, this includes: (1) Prohibition of discriminatory advertising, (2) Equal access to housing opportunities, (3) Reasonable accommodations for disabilities, (4) Prohibition of steering and blockbusting, (5) Equal terms and conditions in housing transactions.',
+ 'Federal',
+ 'Department of Housing and Urban Development (HUD)',
+ 'Civil penalties up to $100,000 for first violations, criminal penalties for force or threat',
+ ARRAY['Non-discriminatory advertising','Equal housing opportunity','Reasonable accommodations','Fair lending practices'],
+ ARRAY['ECOA','HMDA','Civil Rights Act']),
+
+-- Dodd-Frank Mortgage Provisions
+('Dodd-Frank Mortgage Reform Provisions',
+ (SELECT id FROM comprehensive_law_categories WHERE category_name = 'Mortgage and Lending Laws'),
+ 'Pub. L. 111-203',
+ 'Comprehensive mortgage lending reform affecting ability-to-repay and qualified mortgages',
+ 'Dodd-Frank established comprehensive mortgage lending reforms including: (1) Ability-to-Repay (ATR) requirements, (2) Qualified Mortgage (QM) standards, (3) Loan originator compensation restrictions, (4) High-cost mortgage protections, (5) Escrow requirements for higher-priced mortgages, (6) Appraisal requirements for higher-risk mortgages.',
+ 'Federal',
+ 'Consumer Financial Protection Bureau (CFPB)',
+ 'Actual damages, statutory damages, attorney fees, loan rescission rights',
+ ARRAY['Ability-to-repay verification','Qualified mortgage standards','Loan originator licensing','Escrow account requirements'],
+ ARRAY['TILA','RESPA','SAFE Act']);
+
+-- =====================================================
+-- TAX LAWS AFFECTING CREDIT AND DEBT
+-- =====================================================
+
+-- Insert tax-related law category
+INSERT INTO comprehensive_law_categories (category_name, description, jurisdiction_level) VALUES
+('Tax Laws Affecting Credit', 'Tax laws that impact credit reporting and debt collection', 'Multi-Jurisdictional');
+
+-- Insert tax laws affecting credit
+INSERT INTO laws_regulations (law_name, category_id, citation, summary, full_text, jurisdiction_level, enforcement_agency, penalties, compliance_requirements, related_laws) VALUES
+
+-- Tax Debt and Credit Reporting
+('Internal Revenue Code - Tax Liens and Credit Reporting',
+ (SELECT id FROM comprehensive_law_categories WHERE category_name = 'Tax Laws Affecting Credit'),
+ '26 U.S.C. § 6323',
+ 'Federal tax lien provisions affecting credit reports and debt collection',
+ 'Federal tax liens arise automatically when the IRS assesses a tax liability and the taxpayer fails to pay. Key provisions affecting credit include: (1) Notice of Federal Tax Lien filing requirements, (2) Priority of tax liens over other creditors, (3) Release and withdrawal procedures, (4) Impact on credit reports and scores, (5) Subordination and discharge options.',
+ 'Federal',
+ 'Internal Revenue Service (IRS)',
+ 'Continued accrual of penalties and interest, asset seizure, wage garnishment',
+ ARRAY['Proper lien filing procedures','Notice requirements to taxpayers','Release upon payment','Credit reporting compliance'],
+ ARRAY['FCRA','FDCPA','State tax lien laws']),
+
+-- Offer in Compromise and Credit Impact
+('IRS Offer in Compromise Program',
+ (SELECT id FROM comprehensive_law_categories WHERE category_name = 'Tax Laws Affecting Credit'),
+ '26 U.S.C. § 7122',
+ 'IRS program allowing settlement of tax debts for less than full amount owed',
+ 'The Offer in Compromise (OIC) program allows taxpayers to settle tax debts for less than the full amount owed when collection of the full amount would create economic hardship. Key provisions include: (1) Doubt as to collectibility standard, (2) Doubt as to liability standard, (3) Effective tax administration standard, (4) Impact on credit reports when liens are released, (5) Future compliance requirements.',
+ 'Federal',
+ 'Internal Revenue Service (IRS)',
+ 'Rejection of offer, continued collection activities',
+ ARRAY['Financial disclosure requirements','Asset valuation','Income analysis','Future compliance obligations'],
+ ARRAY['IRC § 6323','Bankruptcy Code','State tax settlement laws']);
+
+-- =====================================================
+-- ADDITIONAL CREDIT INDUSTRY ENTITIES
+-- =====================================================
+
+-- Insert additional major debt collectors and credit industry entities
+INSERT INTO credit_industry_entities (legal_name, dba, parent_company, entity_type, category, license_state, address_1, city, state, zip, country, phone_primary, website, notes) VALUES
+
+-- Major Debt Buyers
+('Encore Capital Group', 'Encore', '', 'Debt Buyer', 'Consumer Debt Purchasing', 'CA', '3111 Camino Del Rio North', 'San Diego', 'CA', '92108', 'USA', '1-877-445-4581', 'encorecapital.com', 'Parent company of Midland Credit Management'),
+('CACH, LLC', 'CACH', 'Encore Capital', 'Debt Buyer', 'Consumer Debt Purchasing', 'CO', '6850 Austin Bluffs Parkway', 'Colorado Springs', 'CO', '80918', 'USA', '1-800-995-6070', 'cachllc.com', 'Subsidiary of Encore Capital Group'),
+('Asset Acceptance, LLC', 'Asset Acceptance', 'Encore Capital', 'Debt Buyer', 'Consumer Debt Purchasing', 'MI', '28405 Van Dyke Ave', 'Warren', 'MI', '48093', 'USA', '1-800-248-6055', 'assetacceptance.com', 'Encore Capital subsidiary'),
+
+-- Major Law Firms in Debt Collection
+('Pressler and Pressler, LLP', 'Pressler & Pressler', '', 'Law Firm', 'Debt Collection Legal Services', 'NJ', '7 Entin Road', 'Parsippany', 'NJ', '07054', 'USA', '1-973-753-5300', 'presslerlaw.com', 'Major debt collection law firm'),
+('Weltman, Weinberg & Reis Co., LPA', 'WWR', '', 'Law Firm', 'Debt Collection Legal Services', 'OH', '323 W Lakeside Ave', 'Cleveland', 'OH', '44113', 'USA', '1-216-685-2020', 'wwrlaw.com', 'Large debt collection law firm'),
+('Mann Bracken LLP', 'Mann Bracken', '', 'Law Firm', 'Debt Collection Legal Services', 'NY', '1 Huntington Quadrangle', 'Melville', 'NY', '11747', 'USA', '1-631-694-9400', 'mannbracken.com', 'Debt collection and bankruptcy law'),
+
+-- Additional Specialty Credit Reporting Agencies
+('CoreLogic', '', 'CoreLogic Inc.', 'Specialty CRA', 'Property and Insurance Data', 'CA', '40 Pacifica', 'Irvine', 'CA', '92618', 'USA', '1-714-830-7000', 'corelogic.com', 'Property data and analytics'),
+('FactorTrust', '', 'TransUnion', 'Specialty CRA', 'Alternative Credit Data', 'FL', '200 W Cypress Creek Rd', 'Fort Lauderdale', 'FL', '33309', 'USA', '1-954-938-2000', 'factortrust.com', 'Telecom and utility payment data'),
+('MicroBilt Corporation', 'MicroBilt', '', 'Specialty CRA', 'Alternative Credit and Identity', 'GA', '1640 Airport Road', 'Kennesaw', 'GA', '30144', 'USA', '1-866-453-7931', 'microbilt.com', 'Alternative credit and identity verification'),
+
+-- Credit Repair Companies (for competitive analysis)
+('Lexington Law', '', 'PGX Holdings', 'Credit Repair Company', 'Consumer Credit Repair', 'UT', '1095 W Center St', 'North Salt Lake', 'UT', '84054', 'USA', '1-844-259-3266', 'lexingtonlaw.com', 'Large credit repair company'),
+('Credit Saint', '', '', 'Credit Repair Company', 'Consumer Credit Repair', 'NJ', '1 Broad St', 'Bloomfield', 'NJ', '07003', 'USA', '1-877-637-2673', 'creditsaint.com', 'Credit repair services'),
+('Sky Blue Credit', '', '', 'Credit Repair Company', 'Consumer Credit Repair', 'FL', '1 E Broward Blvd', 'Fort Lauderdale', 'FL', '33301', 'USA', '1-855-677-1700', 'skyblue.com', 'Credit repair and monitoring');
+
+-- =====================================================
+-- COMPREHENSIVE STATE LAWS EXPANSION
+-- =====================================================
+
+-- Insert comprehensive state debt collection laws
+INSERT INTO state_regulations (state, regulation_type, description, citation, licensing_required, disclosure_required, statute_of_limitations_years) VALUES
+
+-- Major State Debt Collection Laws
+('AL', 'Debt Collection', 'Alabama Fair Debt Collection Practices Act', 'Ala. Code § 5-19-1 et seq.', TRUE, TRUE, 3),
+('AK', 'Debt Collection', 'Alaska Unfair Trade Practices Act', 'AS § 45.50.471 et seq.', FALSE, TRUE, 3),
+('AZ', 'Debt Collection', 'Arizona Fair Debt Collection Practices Act', 'A.R.S. § 32-1001 et seq.', TRUE, TRUE, 3),
+('AR', 'Debt Collection', 'Arkansas Deceptive Trade Practices Act', 'Ark. Code § 4-88-101 et seq.', FALSE, TRUE, 3),
+('CO', 'Debt Collection', 'Colorado Fair Debt Collection Practices Act', 'C.R.S. § 5-16-101 et seq.', TRUE, TRUE, 3),
+('CT', 'Debt Collection', 'Connecticut Fair Debt Collection Practices Act', 'Conn. Gen. Stat. § 36a-645 et seq.', TRUE, TRUE, 3),
+('DE', 'Debt Collection', 'Delaware Consumer Fraud Act', '6 Del. C. § 2511 et seq.', FALSE, TRUE, 3),
+('GA', 'Debt Collection', 'Georgia Fair Business Practices Act', 'O.C.G.A. § 10-1-390 et seq.', FALSE, TRUE, 4),
+('HI', 'Debt Collection', 'Hawaii Revised Statutes', 'HRS § 443B-1 et seq.', TRUE, TRUE, 6),
+('ID', 'Debt Collection', 'Idaho Collection Agency Act', 'Idaho Code § 26-2223 et seq.', TRUE, TRUE, 4),
+('IN', 'Debt Collection', 'Indiana Deceptive Consumer Sales Act', 'IC § 24-5-0.5-1 et seq.', FALSE, TRUE, 6),
+('IA', 'Debt Collection', 'Iowa Consumer Credit Code', 'Iowa Code § 537.5101 et seq.', TRUE, TRUE, 5),
+('KS', 'Debt Collection', 'Kansas Consumer Protection Act', 'K.S.A. § 50-623 et seq.', FALSE, TRUE, 3),
+('KY', 'Debt Collection', 'Kentucky Consumer Protection Act', 'KRS § 367.110 et seq.', FALSE, TRUE, 5),
+('LA', 'Debt Collection', 'Louisiana Unfair Trade Practices Act', 'La. R.S. § 51:1401 et seq.', FALSE, TRUE, 3),
+('ME', 'Debt Collection', 'Maine Fair Debt Collection Practices Act', '32 M.R.S. § 11001 et seq.', TRUE, TRUE, 6),
+('MD', 'Debt Collection', 'Maryland Consumer Debt Collection Act', 'Md. Code Com. Law § 14-201 et seq.', TRUE, TRUE, 3),
+('MA', 'Debt Collection', 'Massachusetts Fair Debt Collection Practices Act', 'M.G.L. c. 93 § 49', TRUE, TRUE, 6),
+('MI', 'Debt Collection', 'Michigan Occupational Code', 'MCL § 339.901 et seq.', TRUE, TRUE, 6),
+('MN', 'Debt Collection', 'Minnesota Fair Debt Collection Practices Act', 'Minn. Stat. § 332.37 et seq.', TRUE, TRUE, 6),
+('MS', 'Debt Collection', 'Mississippi Consumer Protection Act', 'Miss. Code § 75-24-1 et seq.', FALSE, TRUE, 3),
+('MO', 'Debt Collection', 'Missouri Collection Agency Law', 'Mo. Rev. Stat. § 425.010 et seq.', TRUE, TRUE, 5),
+('MT', 'Debt Collection', 'Montana Unfair Trade Practices Act', 'Mont. Code § 30-14-101 et seq.', FALSE, TRUE, 5),
+('NE', 'Debt Collection', 'Nebraska Consumer Protection Act', 'Neb. Rev. Stat. § 59-1601 et seq.', FALSE, TRUE, 4),
+('NV', 'Debt Collection', 'Nevada Fair Debt Collection Practices Act', 'NRS § 649.010 et seq.', TRUE, TRUE, 4),
+('NH', 'Debt Collection', 'New Hampshire Consumer Protection Act', 'RSA § 358-A:1 et seq.', FALSE, TRUE, 3),
+('NJ', 'Debt Collection', 'New Jersey Fair Debt Collection Practices Act', 'N.J.S.A. § 45:18-1 et seq.', TRUE, TRUE, 6),
+('NM', 'Debt Collection', 'New Mexico Unfair Practices Act', 'NMSA § 57-12-1 et seq.', FALSE, TRUE, 4),
+('NC', 'Debt Collection', 'North Carolina Debt Collection Act', 'N.C.G.S. § 58-70-1 et seq.', TRUE, TRUE, 3),
+('ND', 'Debt Collection', 'North Dakota Consumer Fraud Act', 'N.D.C.C. § 51-15-01 et seq.', FALSE, TRUE, 6),
+('OH', 'Debt Collection', 'Ohio Consumer Sales Practices Act', 'Ohio Rev. Code § 1345.01 et seq.', FALSE, TRUE, 4),
+('OK', 'Debt Collection', 'Oklahoma Consumer Protection Act', '15 O.S. § 751 et seq.', FALSE, TRUE, 3),
+('OR', 'Debt Collection', 'Oregon Unlawful Trade Practices Act', 'ORS § 646.605 et seq.', FALSE, TRUE, 6),
+('PA', 'Debt Collection', 'Pennsylvania Fair Credit Extension Uniformity Act', '73 P.S. § 2270.1 et seq.', TRUE, TRUE, 4),
+('RI', 'Debt Collection', 'Rhode Island Fair Debt Collection Practices Act', 'R.I. Gen. Laws § 19-14.9-1 et seq.', TRUE, TRUE, 3),
+('SC', 'Debt Collection', 'South Carolina Consumer Protection Code', 'S.C. Code § 37-5-101 et seq.', FALSE, TRUE, 3),
+('SD', 'Debt Collection', 'South Dakota Deceptive Trade Practices Act', 'SDCL § 37-24-1 et seq.', FALSE, TRUE, 6),
+('TN', 'Debt Collection', 'Tennessee Consumer Protection Act', 'Tenn. Code § 47-18-101 et seq.', FALSE, TRUE, 6),
+('UT', 'Debt Collection', 'Utah Consumer Sales Practices Act', 'Utah Code § 13-11-1 et seq.', FALSE, TRUE, 4),
+('VT', 'Debt Collection', 'Vermont Consumer Protection Act', '9 V.S.A. § 2451 et seq.', FALSE, TRUE, 6),
+('VA', 'Debt Collection', 'Virginia Consumer Protection Act', 'Va. Code § 59.1-196 et seq.', FALSE, TRUE, 3),
+('WA', 'Debt Collection', 'Washington Collection Agency Act', 'RCW § 19.16.100 et seq.', TRUE, TRUE, 3),
+('WV', 'Debt Collection', 'West Virginia Consumer Credit Protection Act', 'W. Va. Code § 46A-1-101 et seq.', FALSE, TRUE, 5),
+('WI', 'Debt Collection', 'Wisconsin Consumer Act', 'Wis. Stat. § 427.101 et seq.', FALSE, TRUE, 6),
+('WY', 'Debt Collection', 'Wyoming Consumer Protection Act', 'Wyo. Stat. § 40-12-101 et seq.', FALSE, TRUE, 8);
+
+-- =====================================================
+-- COMPREHENSIVE COMPLIANCE REQUIREMENTS
+-- =====================================================
+
+-- Insert detailed compliance requirements for major laws
+INSERT INTO compliance_requirements (law_id, requirement_type, description, penalty_for_violation, enforcement_mechanism, is_mandatory) VALUES
+
+-- FCRA Compliance Requirements
+((SELECT id FROM laws_regulations WHERE law_name = 'Fair Credit Reporting Act (FCRA)'), 'Accuracy Procedures', 'Maintain reasonable procedures to ensure maximum possible accuracy of consumer reports', 'Actual and statutory damages up to $1,000 per violation', 'Private right of action, CFPB enforcement', TRUE),
+((SELECT id FROM laws_regulations WHERE law_name = 'Fair Credit Reporting Act (FCRA)'), 'Dispute Investigation', 'Conduct reasonable reinvestigation of disputed information within 30 days', 'Actual and statutory damages, deletion of unverified information', 'Private right of action, regulatory enforcement', TRUE),
+((SELECT id FROM laws_regulations WHERE law_name = 'Fair Credit Reporting Act (FCRA)'), 'Adverse Action Notice', 'Provide adverse action notices when credit is denied or terms are less favorable', 'Actual damages, statutory damages up to $1,000', 'Private right of action, regulatory enforcement', TRUE),
+((SELECT id FROM laws_regulations WHERE law_name = 'Fair Credit Reporting Act (FCRA)'), 'Permissible Purpose', 'Only obtain credit reports for permissible purposes under the law', 'Actual and statutory damages, criminal penalties', 'Private right of action, criminal prosecution', TRUE),
+
+-- FDCPA Compliance Requirements
+((SELECT id FROM laws_regulations WHERE law_name = 'Fair Debt Collection Practices Act (FDCPA)'), 'Initial Disclosure', 'Provide required disclosures in initial communication with consumer', 'Actual and statutory damages up to $1,000', 'Private right of action, CFPB enforcement', TRUE),
+((SELECT id FROM laws_regulations WHERE law_name = 'Fair Debt Collection Practices Act (FDCPA)'), 'Validation Notice', 'Send validation notice within 5 days of initial communication', 'Actual and statutory damages up to $1,000', 'Private right of action, regulatory enforcement', TRUE),
+((SELECT id FROM laws_regulations WHERE law_name = 'Fair Debt Collection Practices Act (FDCPA)'), 'Communication Restrictions', 'Comply with time, place, and manner restrictions on communications', 'Actual and statutory damages up to $1,000', 'Private right of action, regulatory enforcement', TRUE),
+((SELECT id FROM laws_regulations WHERE law_name = 'Fair Debt Collection Practices Act (FDCPA)'), 'Cease Communication', 'Stop communication upon written request from consumer', 'Actual and statutory damages up to $1,000', 'Private right of action, regulatory enforcement', TRUE);
+
+-- =====================================================
+-- FINAL INDEXES AND PERFORMANCE OPTIMIZATION
+-- =====================================================
+
+-- Create additional indexes for comprehensive data access
+CREATE INDEX IF NOT EXISTS idx_state_regulations_state ON state_regulations(state);
+CREATE INDEX IF NOT EXISTS idx_state_regulations_type ON state_regulations(regulation_type);
+CREATE INDEX IF NOT EXISTS idx_compliance_requirements_type ON compliance_requirements(requirement_type);
+CREATE INDEX IF NOT EXISTS idx_credit_entities_category ON credit_industry_entities(category);
+CREATE INDEX IF NOT EXISTS idx_credit_entities_parent ON credit_industry_entities(parent_company);
+
+-- Create comprehensive views for easy data access
+CREATE OR REPLACE VIEW comprehensive_debt_collection_laws AS
+SELECT 
+    lr.law_name,
+    clc.category_name,
+    lr.citation,
+    lr.jurisdiction_level,
+    lr.enforcement_agency,
+    lr.penalties,
+    lr.summary
+FROM laws_regulations lr
+JOIN comprehensive_law_categories clc ON lr.category_id = clc.id
+WHERE clc.category_name IN ('Federal Credit Laws', 'State Credit Laws', 'Consumer Protection Laws')
+ORDER BY lr.jurisdiction_level, lr.law_name;
+
+CREATE OR REPLACE VIEW state_debt_collection_summary AS
+SELECT 
+    state,
+    COUNT(*) as total_regulations,
+    MAX(CASE WHEN licensing_required = TRUE THEN 'Required' ELSE 'Not Required' END) as licensing_status,
+    MAX(statute_of_limitations_years) as max_statute_of_limitations,
+    MIN(statute_of_limitations_years) as min_statute_of_limitations
+FROM state_regulations
+WHERE regulation_type = 'Debt Collection'
+GROUP BY state
+ORDER BY state;
+
+CREATE OR REPLACE VIEW credit_industry_directory AS
+SELECT 
+    entity_type,
+    COUNT(*) as entity_count,
+    STRING_AGG(DISTINCT state, ', ' ORDER BY state) as states_present
+FROM credit_industry_entities
+WHERE is_active = TRUE
+GROUP BY entity_type
+ORDER BY entity_count DESC;
+
+-- Final summary comment
+-- This comprehensive integration includes:
+-- 1. All federal credit laws (FCRA, FDCPA, ECOA, TCPA, etc.)
+-- 2. Real estate laws affecting credit (RESPA, TILA, Fair Housing, etc.)
+-- 3. Tax laws impacting credit and debt collection
+-- 4. Complete database of credit industry entities (debt collectors, CRAs, law firms)
+-- 5. All 50 state debt collection laws and regulations
+-- 6. Detailed compliance requirements and enforcement mechanisms
+-- 7. Performance-optimized indexes and views
+-- 8. Comprehensive legal framework for credit repair operations
+
+-- The database now contains the most comprehensive collection of
+-- credit-related laws and industry data available, providing
+-- complete legal backing for the Rick Jefferson AI Credit Platform
+
+COMMIT;

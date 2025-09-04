@@ -1,0 +1,605 @@
+<div class="import-clients-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button 
+          type="button" 
+          class="btn btn-link back-btn" 
+          routerLink="/clients"
+          [attr.aria-label]="'Back to clients'"
+        >
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-text">
+          <h1 class="page-title">Import Clients</h1>
+          <p class="page-subtitle">Bulk import clients from CSV or Excel files</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="downloadTemplate()"
+        >
+          <i class="fas fa-download"></i>
+          Download Template
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          (click)="onCancel()"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="progress-steps">
+    <div class="steps-container">
+      <div 
+        class="step"
+        [class.active]="currentStep === 1"
+        [class.completed]="currentStep > 1"
+        (click)="goToStep(1)"
+      >
+        <div class="step-number">
+          <i class="fas fa-upload" *ngIf="currentStep === 1"></i>
+          <i class="fas fa-check" *ngIf="currentStep > 1"></i>
+          <span *ngIf="currentStep < 1">1</span>
+        </div>
+        <div class="step-label">
+          <span class="step-title">Upload File</span>
+          <span class="step-description">Select your data file</span>
+        </div>
+      </div>
+      
+      <div class="step-connector" [class.completed]="currentStep > 1"></div>
+      
+      <div 
+        class="step"
+        [class.active]="currentStep === 2"
+        [class.completed]="currentStep > 2"
+        [class.disabled]="!importPreview"
+        (click)="goToStep(2)"
+      >
+        <div class="step-number">
+          <i class="fas fa-eye" *ngIf="currentStep === 2"></i>
+          <i class="fas fa-check" *ngIf="currentStep > 2"></i>
+          <span *ngIf="currentStep < 2">2</span>
+        </div>
+        <div class="step-label">
+          <span class="step-title">Preview Data</span>
+          <span class="step-description">Review imported data</span>
+        </div>
+      </div>
+      
+      <div class="step-connector" [class.completed]="currentStep > 2"></div>
+      
+      <div 
+        class="step"
+        [class.active]="currentStep === 3"
+        [class.completed]="currentStep > 3"
+        [class.disabled]="!importPreview"
+        (click)="goToStep(3)"
+      >
+        <div class="step-number">
+          <i class="fas fa-cog" *ngIf="currentStep === 3"></i>
+          <i class="fas fa-check" *ngIf="currentStep > 3"></i>
+          <span *ngIf="currentStep < 3">3</span>
+        </div>
+        <div class="step-label">
+          <span class="step-title">Configure</span>
+          <span class="step-description">Map fields & options</span>
+        </div>
+      </div>
+      
+      <div class="step-connector" [class.completed]="currentStep > 3"></div>
+      
+      <div 
+        class="step"
+        [class.active]="currentStep === 4"
+        [class.completed]="currentStep > 4"
+        [class.disabled]="!importResult"
+      >
+        <div class="step-number">
+          <i class="fas fa-flag-checkered" *ngIf="currentStep === 4"></i>
+          <span *ngIf="currentStep < 4">4</span>
+        </div>
+        <div class="step-label">
+          <span class="step-title">Results</span>
+          <span class="step-description">Import summary</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div class="error-container" *ngIf="error">
+    <div class="alert alert-danger">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{ error }}</span>
+      <button 
+        type="button" 
+        class="btn btn-sm btn-outline-danger"
+        (click)="error = null"
+      >
+        <i class="fas fa-times"></i>
+        Dismiss
+      </button>
+    </div>
+  </div>
+
+  <!-- Step Content -->
+  <div class="step-content">
+    <!-- Step 1: Upload File -->
+    <div class="step-panel" *ngIf="currentStep === 1">
+      <div class="upload-section">
+        <h3>Upload Your File</h3>
+        <p class="text-muted">Select a CSV or Excel file containing your client data. Maximum file size is 10MB.</p>
+        
+        <!-- File Upload Area -->
+        <div 
+          class="file-upload-area"
+          [class.drag-over]="isDragOver"
+          [class.has-file]="selectedFile"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          (click)="fileInput.click()"
+        >
+          <input 
+            #fileInput
+            type="file" 
+            accept=".csv,.xls,.xlsx"
+            (change)="onFileSelected($event)"
+            style="display: none;"
+          >
+          
+          <div class="upload-content" *ngIf="!selectedFile">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h4>Drop your file here or click to browse</h4>
+            <p>Supported formats: CSV, XLS, XLSX</p>
+            <button type="button" class="btn btn-primary">
+              <i class="fas fa-folder-open"></i>
+              Choose File
+            </button>
+          </div>
+          
+          <div class="file-info" *ngIf="selectedFile">
+            <div class="file-icon">
+              <i class="fas fa-file-csv" *ngIf="selectedFile.name.endsWith('.csv')"></i>
+              <i class="fas fa-file-excel" *ngIf="selectedFile.name.endsWith('.xls') || selectedFile.name.endsWith('.xlsx')"></i>
+            </div>
+            <div class="file-details">
+              <h4>{{ selectedFile.name }}</h4>
+              <p>{{ getFileSize(selectedFile.size) }}</p>
+            </div>
+            <button 
+              type="button" 
+              class="btn btn-outline-danger btn-sm"
+              (click)="resetImport(); $event.stopPropagation()"
+            >
+              <i class="fas fa-times"></i>
+              Remove
+            </button>
+          </div>
+        </div>
+        
+        <!-- File Options -->
+        <div class="file-options" *ngIf="selectedFile">
+          <form [formGroup]="importForm">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label for="fileType" class="form-label">File Type</label>
+                  <select id="fileType" class="form-select" formControlName="fileType">
+                    <option value="csv">CSV</option>
+                    <option value="excel">Excel</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label for="delimiter" class="form-label">Delimiter</label>
+                  <select id="delimiter" class="form-select" formControlName="delimiter">
+                    <option value=",">Comma (,)</option>
+                    <option value=";">Semicolon (;)</option>
+                    <option value="\t">Tab</option>
+                    <option value="|">Pipe (|)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label for="encoding" class="form-label">Encoding</label>
+                  <select id="encoding" class="form-select" formControlName="encoding">
+                    <option value="utf-8">UTF-8</option>
+                    <option value="iso-8859-1">ISO-8859-1</option>
+                    <option value="windows-1252">Windows-1252</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <div class="form-check mt-4">
+                    <input 
+                      type="checkbox" 
+                      id="hasHeaders"
+                      class="form-check-input"
+                      formControlName="hasHeaders"
+                    >
+                    <label class="form-check-label" for="hasHeaders">
+                      File has headers
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Loading State -->
+        <div class="loading-state" *ngIf="isLoading">
+          <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Processing file...</p>
+          </div>
+        </div>
+        
+        <!-- Next Button -->
+        <div class="step-actions" *ngIf="selectedFile && !isLoading">
+          <button 
+            type="button" 
+            class="btn btn-primary"
+            (click)="processFile()"
+            [disabled]="isLoading"
+          >
+            <i class="fas fa-arrow-right"></i>
+            Process File
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Preview Data -->
+    <div class="step-panel" *ngIf="currentStep === 2 && importPreview">
+      <div class="preview-section">
+        <h3>Data Preview</h3>
+        <p class="text-muted">Review the imported data before proceeding to field mapping.</p>
+        
+        <!-- Preview Stats -->
+        <div class="preview-stats">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-table"></i>
+            </div>
+            <div class="stat-info">
+              <h4>{{ importPreview.totalRows }}</h4>
+              <p>Total Rows</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-check-circle text-success"></i>
+            </div>
+            <div class="stat-info">
+              <h4>{{ importPreview.validRows }}</h4>
+              <p>Valid Rows</p>
+            </div>
+          </div>
+          <div class="stat-card" *ngIf="importPreview.invalidRows > 0">
+            <div class="stat-icon">
+              <i class="fas fa-exclamation-circle text-warning"></i>
+            </div>
+            <div class="stat-info">
+              <h4>{{ importPreview.invalidRows }}</h4>
+              <p>Invalid Rows</p>
+            </div>
+          </div>
+          <div class="stat-card" *ngIf="importPreview.duplicateRows > 0">
+            <div class="stat-icon">
+              <i class="fas fa-copy text-info"></i>
+            </div>
+            <div class="stat-info">
+              <h4>{{ importPreview.duplicateRows }}</h4>
+              <p>Duplicate Rows</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Data Table -->
+        <div class="data-preview">
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th *ngFor="let header of importPreview.headers">{{ header }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of getPreviewRows(); let i = index">
+                  <td *ngFor="let cell of row">{{ cell }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-muted mt-2">
+            <i class="fas fa-info-circle"></i>
+            Showing first 5 rows of {{ importPreview.totalRows }} total rows.
+          </p>
+        </div>
+        
+        <!-- Step Actions -->
+        <div class="step-actions">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="previousStep()"
+          >
+            <i class="fas fa-arrow-left"></i>
+            Back
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-primary"
+            (click)="nextStep()"
+          >
+            Configure Mapping
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Configure Mapping -->
+    <div class="step-panel" *ngIf="currentStep === 3 && importPreview">
+      <div class="mapping-section">
+        <h3>Field Mapping</h3>
+        <p class="text-muted">Map the columns from your file to the client fields in our system.</p>
+        
+        <!-- Required Fields Alert -->
+        <div class="alert alert-warning" *ngIf="getRequiredFieldsMapped().length > 0">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>Missing Required Fields:</strong>
+          {{ getRequiredFieldsMapped().join(', ') }}
+        </div>
+        
+        <!-- Field Mapping Table -->
+        <div class="mapping-table">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>System Field</th>
+                  <th>Required</th>
+                  <th>File Column</th>
+                  <th>Sample Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let field of availableFields">
+                  <td>
+                    <strong>{{ field.label }}</strong>
+                    <small class="text-muted d-block">{{ field.key }}</small>
+                  </td>
+                  <td>
+                    <span class="badge" [class.bg-danger]="field.required" [class.bg-secondary]="!field.required">
+                      {{ field.required ? 'Required' : 'Optional' }}
+                    </span>
+                  </td>
+                  <td>
+                    <select 
+                      class="form-select"
+                      [value]="fieldMappings[field.key] || ''"
+                      (change)="onFieldMappingChange(field.key, $any($event.target).value)"
+                    >
+                      <option value="">-- Select Column --</option>
+                      <option 
+                        *ngFor="let header of importPreview.headers" 
+                        [value]="header"
+                      >
+                        {{ header }}
+                      </option>
+                    </select>
+                  </td>
+                  <td>
+                    <span class="sample-data" *ngIf="fieldMappings[field.key]">
+                      {{ getPreviewRows()[0]?.[importPreview.headers.indexOf(fieldMappings[field.key])] || 'N/A' }}
+                    </span>
+                    <span class="text-muted" *ngIf="!fieldMappings[field.key]">No mapping</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Import Options -->
+        <div class="import-options">
+          <h4>Import Options</h4>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  id="skipDuplicates"
+                  class="form-check-input"
+                  [(ngModel)]="importOptions.skipDuplicates"
+                >
+                <label class="form-check-label" for="skipDuplicates">
+                  <strong>Skip Duplicates</strong>
+                  <small class="text-muted d-block">Skip clients that already exist (based on email)</small>
+                </label>
+              </div>
+              
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  id="updateExisting"
+                  class="form-check-input"
+                  [(ngModel)]="importOptions.updateExisting"
+                >
+                <label class="form-check-label" for="updateExisting">
+                  <strong>Update Existing</strong>
+                  <small class="text-muted d-block">Update existing clients with new data</small>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  id="validateData"
+                  class="form-check-input"
+                  [(ngModel)]="importOptions.validateData"
+                >
+                <label class="form-check-label" for="validateData">
+                  <strong>Validate Data</strong>
+                  <small class="text-muted d-block">Validate email, phone, and other field formats</small>
+                </label>
+              </div>
+              
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  id="sendWelcomeEmail"
+                  class="form-check-input"
+                  [(ngModel)]="importOptions.sendWelcomeEmail"
+                >
+                <label class="form-check-label" for="sendWelcomeEmail">
+                  <strong>Send Welcome Email</strong>
+                  <small class="text-muted d-block">Send welcome emails to new clients</small>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Step Actions -->
+        <div class="step-actions">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="previousStep()"
+          >
+            <i class="fas fa-arrow-left"></i>
+            Back
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-primary"
+            (click)="startImport()"
+            [disabled]="!canProceedToImport() || isImporting"
+          >
+            <i class="fas fa-spinner fa-spin" *ngIf="isImporting"></i>
+            <i class="fas fa-upload" *ngIf="!isImporting"></i>
+            {{ isImporting ? 'Importing...' : 'Start Import' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Results -->
+    <div class="step-panel" *ngIf="currentStep === 4 && importResult">
+      <div class="results-section">
+        <div class="results-header">
+          <div class="result-icon" [class.success]="importResult?.success" [class.error]="!importResult?.success">
+              <i class="fas fa-check-circle" *ngIf="importResult?.success"></i>
+              <i class="fas fa-exclamation-circle" *ngIf="!importResult?.success"></i>
+            </div>
+            <h3>{{ importResult?.success ? 'Import Completed' : 'Import Failed' }}</h3>
+            <p class="text-muted">
+              {{ importResult?.success ? 'Your clients have been imported successfully.' : 'There were errors during the import process.' }}
+            </p>
+        </div>
+        
+        <!-- Results Stats -->
+        <div class="results-stats">
+          <div class="stat-card success">
+            <div class="stat-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+              <h4>{{ importResult?.imported }}</h4>
+              <p>Successfully Imported</p>
+            </div>
+          </div>
+          
+          <div class="stat-card error" *ngIf="importResult && importResult.failed > 0">
+            <div class="stat-icon">
+              <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-info">
+              <h4>{{ importResult?.failed }}</h4>
+              <p>Failed to Import</p>
+            </div>
+          </div>
+          
+          <div class="stat-card warning" *ngIf="importResult && importResult.duplicates > 0">
+            <div class="stat-icon">
+              <i class="fas fa-copy"></i>
+            </div>
+            <div class="stat-info">
+              <h4>{{ importResult?.duplicates }}</h4>
+              <p>Duplicates Skipped</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Error Details -->
+        <div class="error-details" *ngIf="importResult?.errors && importResult.errors.length > 0">
+            <h4>Import Errors</h4>
+            <div class="error-list">
+              <div 
+                class="error-item" 
+                *ngFor="let error of importResult.errors.slice(0, 10)"
+              >
+              <div class="error-info">
+                <strong>Row {{ error.row }}</strong> - {{ error.field }}
+                <span class="error-value">"{{ error.value }}"</span>
+              </div>
+              <div class="error-message">{{ error.message }}</div>
+            </div>
+          </div>
+          
+          <div class="error-actions" *ngIf="importResult && importResult.errors.length > 10">
+            <p class="text-muted">
+              Showing 10 of {{ importResult?.errors?.length }} errors.
+            </p>
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary"
+              (click)="downloadErrors()"
+            >
+              <i class="fas fa-download"></i>
+              Download All Errors
+            </button>
+          </div>
+        </div>
+        
+        <!-- Step Actions -->
+        <div class="step-actions">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="resetImport()"
+          >
+            <i class="fas fa-redo"></i>
+            Import Another File
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-primary"
+            (click)="onFinish()"
+          >
+            <i class="fas fa-check"></i>
+            Finish
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

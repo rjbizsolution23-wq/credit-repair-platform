@@ -1,0 +1,741 @@
+<div class="goals-container">
+  <!-- Header Section -->
+  <div class="goals-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Credit Goals</h1>
+        <p class="page-subtitle">Track and achieve your credit improvement objectives</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" (click)="openTemplateModal()">
+          <i class="fas fa-template"></i>
+          Use Template
+        </button>
+        <button class="btn btn-primary" (click)="openGoalModal()">
+          <i class="fas fa-plus"></i>
+          New Goal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-bullseye"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.totalGoals }}</div>
+        <div class="stat-label">Total Goals</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon active">
+        <i class="fas fa-play-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.activeGoals }}</div>
+        <div class="stat-label">Active Goals</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon completed">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.completedGoals }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon progress">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.averageProgress }}%</div>
+        <div class="stat-label">Avg Progress</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon warning">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.upcomingDeadlines }}</div>
+        <div class="stat-label">Due Soon</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label>Search</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          placeholder="Search goals..."
+          [(ngModel)]="filters.search"
+          (input)="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <label>Category</label>
+        <select class="form-control" [(ngModel)]="filters.category" (change)="applyFilters()">
+          <option value="">All Categories</option>
+          <option value="credit_score">Credit Score</option>
+          <option value="debt_reduction">Debt Reduction</option>
+          <option value="credit_building">Credit Building</option>
+          <option value="financial_health">Financial Health</option>
+          <option value="homeownership">Homeownership</option>
+          <option value="business_credit">Business Credit</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Status</label>
+        <select class="form-control" [(ngModel)]="filters.status" (change)="applyFilters()">
+          <option value="">All Statuses</option>
+          <option value="not_started">Not Started</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="paused">Paused</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Priority</label>
+        <select class="form-control" [(ngModel)]="filters.priority" (change)="applyFilters()">
+          <option value="">All Priorities</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="critical">Critical</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Due Date</label>
+        <input 
+          type="date" 
+          class="form-control"
+          [(ngModel)]="filters.dueDate"
+          (change)="applyFilters()">
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-outline" (click)="clearFilters()">
+          <i class="fas fa-times"></i>
+          Clear
+        </button>
+      </div>
+    </div>
+    <div class="view-controls">
+      <div class="view-modes">
+        <button 
+          class="view-mode-btn" 
+          [class.active]="viewMode === 'grid'"
+          (click)="viewMode = 'grid'">
+          <i class="fas fa-th"></i>
+        </button>
+        <button 
+          class="view-mode-btn" 
+          [class.active]="viewMode === 'list'"
+          (click)="viewMode = 'list'">
+          <i class="fas fa-list"></i>
+        </button>
+        <button 
+          class="view-mode-btn" 
+          [class.active]="viewMode === 'kanban'"
+          (click)="viewMode = 'kanban'">
+          <i class="fas fa-columns"></i>
+        </button>
+      </div>
+      <div class="sort-controls">
+        <select class="form-control" [(ngModel)]="sortField" (change)="sort(sortField)">
+          <option value="createdDate">Created Date</option>
+          <option value="targetDate">Target Date</option>
+          <option value="priority">Priority</option>
+          <option value="progress">Progress</option>
+          <option value="title">Title</option>
+        </select>
+        <button class="btn btn-outline" (click)="sort(sortField)">
+          <i class="fas" [class.fa-sort-up]="sortDirection === 'asc'" [class.fa-sort-down]="sortDirection === 'desc'"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Goals Grid View -->
+  <div class="goals-content" *ngIf="viewMode === 'grid'">
+    <div class="goals-grid" *ngIf="!loading && paginatedGoals.length > 0">
+      <div class="goal-card" *ngFor="let goal of paginatedGoals">
+        <div class="goal-header">
+          <div class="goal-category">
+            <span class="category-badge">{{ getCategoryLabel(goal.category) }}</span>
+          </div>
+          <div class="goal-actions">
+            <button class="action-btn" (click)="openGoalViewer(goal)" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="action-btn" (click)="openGoalModal(goal)" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn" (click)="duplicateGoal(goal)" title="Duplicate">
+              <i class="fas fa-copy"></i>
+            </button>
+            <button class="action-btn danger" (click)="confirmDelete(goal)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="goal-content">
+          <h3 class="goal-title">{{ goal.title }}</h3>
+          <p class="goal-description">{{ goal.description }}</p>
+          <div class="goal-meta">
+            <div class="meta-item">
+              <span class="meta-label">Target:</span>
+              <span class="meta-value">{{ goal.targetValue }} {{ goal.unit }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Current:</span>
+              <span class="meta-value">{{ goal.currentValue }} {{ goal.unit }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Due:</span>
+              <span class="meta-value">{{ formatDate(goal.targetDate) }}</span>
+            </div>
+          </div>
+          <div class="goal-progress">
+            <div class="progress-header">
+              <span class="progress-label">Progress</span>
+              <span class="progress-value">{{ goal.progress }}%</span>
+            </div>
+            <div class="progress-bar">
+              <div 
+                class="progress-fill" 
+                [style.width.%]="goal.progress"
+                [style.background-color]="getProgressColor(goal.progress)">
+              </div>
+            </div>
+          </div>
+          <div class="goal-footer">
+            <div class="goal-badges">
+              <span class="badge priority" [ngClass]="getPriorityClass(goal.priority)">
+                {{ goal.priority | titlecase }}
+              </span>
+              <span class="badge status" [ngClass]="getStatusClass(goal.status)">
+                {{ goal.status.replace('_', ' ') | titlecase }}
+              </span>
+            </div>
+            <div class="goal-stats">
+              <span class="stat-item" *ngIf="goal.milestones.length > 0">
+                <i class="fas fa-flag"></i>
+                {{ getCompletedMilestonesCount(goal.milestones) }}/{{ goal.milestones.length }}
+              </span>
+              <span class="stat-item" *ngIf="goal.actions.length > 0">
+                <i class="fas fa-tasks"></i>
+                {{ getCompletedActionsCount(goal.actions) }}/{{ goal.actions.length }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goals List View -->
+    <div class="goals-list" *ngIf="isListView() && !loading && paginatedGoals.length > 0">
+      <div class="list-header">
+        <div class="col-title">Goal</div>
+        <div class="col-category">Category</div>
+        <div class="col-progress">Progress</div>
+        <div class="col-status">Status</div>
+        <div class="col-due">Due Date</div>
+        <div class="col-actions">Actions</div>
+      </div>
+      <div class="list-item" *ngFor="let goal of paginatedGoals">
+        <div class="col-title">
+          <div class="goal-info">
+            <h4 class="goal-name">{{ goal.title }}</h4>
+            <p class="goal-desc">{{ goal.description | slice:0:100 }}{{ goal.description.length > 100 ? '...' : '' }}</p>
+          </div>
+        </div>
+        <div class="col-category">
+          <span class="category-badge">{{ getCategoryLabel(goal.category) }}</span>
+        </div>
+        <div class="col-progress">
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div 
+                class="progress-fill" 
+                [style.width.%]="goal.progress"
+                [style.background-color]="getProgressColor(goal.progress)">
+              </div>
+            </div>
+            <span class="progress-text">{{ goal.progress }}%</span>
+          </div>
+        </div>
+        <div class="col-status">
+          <span class="badge status" [ngClass]="getStatusClass(goal.status)">
+            {{ goal.status.replace('_', ' ') | titlecase }}
+          </span>
+        </div>
+        <div class="col-due">
+          <span class="due-date" [class.overdue]="getDaysUntilDue(goal.targetDate) < 0">
+            {{ formatDate(goal.targetDate) }}
+          </span>
+          <span class="days-remaining" [class.urgent]="getDaysUntilDue(goal.targetDate) <= 7">
+            {{ getDaysUntilDue(goal.targetDate) }} days
+          </span>
+        </div>
+        <div class="col-actions">
+          <button class="action-btn" (click)="openGoalViewer(goal)" title="View">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="action-btn" (click)="openGoalModal(goal)" title="Edit">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="action-btn" (click)="toggleGoalStatus(goal)" title="Toggle Status">
+            <i class="fas fa-play-pause"></i>
+          </button>
+          <button class="action-btn danger" (click)="confirmDelete(goal)" title="Delete">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kanban View -->
+    <div class="kanban-board" *ngIf="isKanbanView() && !loading">
+      <div class="kanban-column" *ngFor="let status of ['not_started', 'in_progress', 'completed']">
+        <div class="column-header">
+          <h3 class="column-title">{{ status.replace('_', ' ') | titlecase }}</h3>
+          <span class="column-count">
+            {{ getGoalsByStatus(status).length }}
+          </span>
+        </div>
+        <div class="column-content">
+          <div class="kanban-card" *ngFor="let goal of getGoalsByStatus(status)">
+            <div class="card-header">
+              <span class="category-badge small">{{ getCategoryLabel(goal.category) }}</span>
+              <span class="priority-badge" [ngClass]="getPriorityClass(goal.priority)">
+                {{ goal.priority }}
+              </span>
+            </div>
+            <h4 class="card-title">{{ goal.title }}</h4>
+            <p class="card-description">{{ goal.description | slice:0:80 }}{{ goal.description.length > 80 ? '...' : '' }}</p>
+            <div class="card-progress">
+              <div class="progress-bar small">
+                <div 
+                  class="progress-fill" 
+                  [style.width.%]="goal.progress"
+                  [style.background-color]="getProgressColor(goal.progress)">
+                </div>
+              </div>
+              <span class="progress-text">{{ goal.progress }}%</span>
+            </div>
+            <div class="card-footer">
+              <span class="due-date">{{ formatDate(goal.targetDate) }}</span>
+              <div class="card-actions">
+                <button class="action-btn small" (click)="openGoalViewer(goal)">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn small" (click)="openGoalModal(goal)">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && paginatedGoals.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-bullseye"></i>
+    </div>
+    <h3 class="empty-title">No Goals Found</h3>
+    <p class="empty-description">
+      {{ filteredGoals.length === 0 && goals.length === 0 ? 
+        'Start by creating your first credit goal to track your progress.' :
+        'No goals match your current filters. Try adjusting your search criteria.' }}
+    </p>
+    <button class="btn btn-primary" (click)="openGoalModal()" *ngIf="goals.length === 0">
+      <i class="fas fa-plus"></i>
+      Create Your First Goal
+    </button>
+    <button class="btn btn-outline" (click)="clearFilters()" *ngIf="goals.length > 0">
+      <i class="fas fa-times"></i>
+      Clear Filters
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading goals...</p>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-container" *ngIf="!loading && totalPages > 1">
+    <div class="pagination-info">
+      Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to 
+      {{ getEndItem() }} of {{ totalItems }} goals
+    </div>
+    <div class="pagination">
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage === 1"
+        (click)="changePage(currentPage - 1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button 
+        class="page-btn" 
+        *ngFor="let page of [].constructor(totalPages); let i = index"
+        [class.active]="currentPage === i + 1"
+        (click)="changePage(i + 1)">
+        {{ i + 1 }}
+      </button>
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage === totalPages"
+        (click)="changePage(currentPage + 1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Goal Modal -->
+<div class="modal-overlay" *ngIf="showGoalModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">{{ editingGoal ? 'Edit Goal' : 'Create New Goal' }}</h2>
+      <button class="modal-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form [formGroup]="goalForm" (ngSubmit)="saveGoal()">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="title">Goal Title *</label>
+            <input 
+              type="text" 
+              id="title"
+              class="form-control"
+              formControlName="title"
+              placeholder="Enter goal title">
+          </div>
+          <div class="form-group">
+            <label for="category">Category *</label>
+            <select id="category" class="form-control" formControlName="category">
+              <option value="">Select category</option>
+              <option value="credit_score">Credit Score</option>
+              <option value="debt_reduction">Debt Reduction</option>
+              <option value="credit_building">Credit Building</option>
+              <option value="financial_health">Financial Health</option>
+              <option value="homeownership">Homeownership</option>
+              <option value="business_credit">Business Credit</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="description">Description *</label>
+          <textarea 
+            id="description"
+            class="form-control"
+            formControlName="description"
+            rows="3"
+            placeholder="Describe your goal and what you want to achieve">
+          </textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="targetValue">Target Value *</label>
+            <input 
+              type="number" 
+              id="targetValue"
+              class="form-control"
+              formControlName="targetValue"
+              placeholder="Enter target value">
+          </div>
+          <div class="form-group">
+            <label for="unit">Unit *</label>
+            <input 
+              type="text" 
+              id="unit"
+              class="form-control"
+              formControlName="unit"
+              placeholder="e.g., points, dollars, accounts">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="priority">Priority *</label>
+            <select id="priority" class="form-control" formControlName="priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="targetDate">Target Date *</label>
+            <input 
+              type="date" 
+              id="targetDate"
+              class="form-control"
+              formControlName="targetDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="tags">Tags</label>
+          <input 
+            type="text" 
+            id="tags"
+            class="form-control"
+            formControlName="tags"
+            placeholder="Enter tags separated by commas">
+        </div>
+        <div class="form-group">
+          <label for="notes">Notes</label>
+          <textarea 
+            id="notes"
+            class="form-control"
+            formControlName="notes"
+            rows="3"
+            placeholder="Additional notes or details about this goal">
+          </textarea>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="isPublic">
+            <span class="checkmark"></span>
+            Make this goal public (visible to others)
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="!goalForm.valid">
+          {{ editingGoal ? 'Update Goal' : 'Create Goal' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Template Modal -->
+<div class="modal-overlay" *ngIf="showTemplateModal" (click)="closeModal()">
+  <div class="modal-content large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Choose Goal Template</h2>
+      <button class="modal-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="templates-grid">
+        <div class="template-card" *ngFor="let template of goalTemplates" (click)="createFromTemplate(template)">
+          <div class="template-header">
+            <h3 class="template-title">{{ template.name }}</h3>
+            <span class="template-badge" *ngIf="template.isPopular">Popular</span>
+          </div>
+          <p class="template-description">{{ template.description }}</p>
+          <div class="template-details">
+            <div class="detail-item">
+              <span class="detail-label">Category:</span>
+              <span class="detail-value">{{ getCategoryLabel(template.category) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Timeframe:</span>
+              <span class="detail-value">{{ template.defaultTimeframe }} months</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Milestones:</span>
+              <span class="detail-value">{{ template.milestoneTemplates.length }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Actions:</span>
+              <span class="detail-value">{{ template.actionTemplates.length }}</span>
+            </div>
+          </div>
+          <div class="template-footer">
+            <button class="btn btn-primary btn-block">
+              <i class="fas fa-plus"></i>
+              Use This Template
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Goal Viewer Modal -->
+<div class="modal-overlay" *ngIf="showGoalViewer && viewingGoal" (click)="closeModal()">
+  <div class="modal-content large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">{{ viewingGoal.title }}</h2>
+      <button class="modal-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="goal-details">
+        <div class="details-section">
+          <h3>Goal Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Category:</label>
+              <span>{{ getCategoryLabel(viewingGoal.category) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Priority:</label>
+              <span class="badge" [ngClass]="getPriorityClass(viewingGoal.priority)">
+                {{ viewingGoal.priority | titlecase }}
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Status:</label>
+              <span class="badge" [ngClass]="getStatusClass(viewingGoal.status)">
+                {{ viewingGoal.status.replace('_', ' ') | titlecase }}
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Target:</label>
+              <span>{{ viewingGoal.targetValue }} {{ viewingGoal.unit }}</span>
+            </div>
+            <div class="info-item">
+              <label>Current:</label>
+              <span>{{ viewingGoal.currentValue }} {{ viewingGoal.unit }}</span>
+            </div>
+            <div class="info-item">
+              <label>Progress:</label>
+              <span>{{ viewingGoal.progress }}%</span>
+            </div>
+            <div class="info-item">
+              <label>Created:</label>
+              <span>{{ formatDate(viewingGoal.createdDate) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Target Date:</label>
+              <span>{{ formatDate(viewingGoal.targetDate) }}</span>
+            </div>
+          </div>
+          <div class="description-section">
+            <label>Description:</label>
+            <p>{{ viewingGoal.description }}</p>
+          </div>
+          <div class="notes-section" *ngIf="viewingGoal.notes">
+            <label>Notes:</label>
+            <p>{{ viewingGoal.notes }}</p>
+          </div>
+          <div class="tags-section" *ngIf="viewingGoal.tags.length > 0">
+            <label>Tags:</label>
+            <div class="tags-list">
+              <span class="tag" *ngFor="let tag of viewingGoal.tags">{{ tag }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="details-section" *ngIf="viewingGoal.milestones.length > 0">
+          <h3>Milestones ({{ getCompletedMilestonesCount(viewingGoal.milestones) }}/{{ viewingGoal.milestones.length }})</h3>
+          <div class="milestones-list">
+            <div class="milestone-item" *ngFor="let milestone of viewingGoal.milestones">
+              <div class="milestone-status">
+                <i class="fas" [class.fa-check-circle]="milestone.isCompleted" [class.fa-circle]="!milestone.isCompleted"></i>
+              </div>
+              <div class="milestone-content">
+                <h4 class="milestone-title">{{ milestone.title }}</h4>
+                <p class="milestone-description">{{ milestone.description }}</p>
+                <div class="milestone-meta">
+                  <span class="meta-item">Target: {{ milestone.targetValue }}</span>
+                  <span class="meta-item">Due: {{ formatDate(milestone.targetDate) }}</span>
+                  <span class="meta-item" *ngIf="milestone.completedDate">
+                    Completed: {{ formatDate(milestone.completedDate) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="details-section" *ngIf="viewingGoal.actions.length > 0">
+          <h3>Actions ({{ getCompletedActionsCount(viewingGoal.actions) }}/{{ viewingGoal.actions.length }})</h3>
+          <div class="actions-list">
+            <div class="action-item" *ngFor="let action of viewingGoal.actions">
+              <div class="action-status">
+                <i class="fas" 
+                   [class.fa-check-circle]="action.status === 'completed'"
+                   [class.fa-play-circle]="action.status === 'in_progress'"
+                   [class.fa-pause-circle]="action.status === 'pending'"
+                   [class.fa-times-circle]="action.status === 'skipped'">
+                </i>
+              </div>
+              <div class="action-content">
+                <h4 class="action-title">{{ action.title }}</h4>
+                <p class="action-description">{{ action.description }}</p>
+                <div class="action-meta">
+                  <span class="meta-item">Type: {{ action.actionType | titlecase }}</span>
+                  <span class="meta-item">Priority: {{ action.priority | titlecase }}</span>
+                  <span class="meta-item">Impact: {{ action.estimatedImpact }}/10</span>
+                  <span class="meta-item">Due: {{ formatDate(action.dueDate) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">
+        Close
+      </button>
+      <button type="button" class="btn btn-primary" (click)="openGoalModal(viewingGoal)">
+        <i class="fas fa-edit"></i>
+        Edit Goal
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeModal()">
+  <div class="modal-content small" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Confirm Delete</h2>
+      <button class="modal-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="delete-confirmation">
+        <div class="warning-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <p class="warning-text">
+          Are you sure you want to delete the goal "{{ deletingGoal?.title }}"?
+          This action cannot be undone.
+        </p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">
+        Cancel
+      </button>
+      <button type="button" class="btn btn-danger" (click)="deleteGoal()">
+        <i class="fas fa-trash"></i>
+        Delete Goal
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,721 @@
+// Variables
+$form-field-border: #ced4da;
+$form-field-border-focus: #007bff;
+$form-field-border-error: #dc3545;
+$form-field-bg: #ffffff;
+$form-field-bg-disabled: #f8f9fa;
+$form-field-text: #495057;
+$form-field-text-placeholder: #6c757d;
+$form-field-text-disabled: #6c757d;
+$form-field-radius: 4px;
+$form-field-padding: 0.75rem;
+$form-field-font-size: 1rem;
+$form-field-line-height: 1.5;
+$form-field-transition: all 0.15s ease-in-out;
+
+// Size variants
+$form-field-sizes: (
+  sm: (
+    padding: 0.5rem,
+    font-size: 0.875rem,
+    line-height: 1.4
+  ),
+  md: (
+    padding: 0.75rem,
+    font-size: 1rem,
+    line-height: 1.5
+  ),
+  lg: (
+    padding: 1rem,
+    font-size: 1.125rem,
+    line-height: 1.6
+  )
+);
+
+// Base form field
+.form-field {
+  margin-bottom: 1rem;
+  position: relative;
+
+  // Compact variant
+  &.form-field-compact {
+    margin-bottom: 0.5rem;
+  }
+
+  // Inline variant
+  &.form-field-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+
+    .form-label {
+      margin-bottom: 0;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .form-input-container {
+      flex: 1;
+    }
+  }
+
+  // Size variants
+  @each $size, $props in $form-field-sizes {
+    &.form-field-#{$size} {
+      .form-control,
+      .form-check-input {
+        padding: map-get($props, padding);
+        font-size: map-get($props, font-size);
+        line-height: map-get($props, line-height);
+      }
+
+      .form-label {
+        font-size: map-get($props, font-size);
+      }
+    }
+  }
+
+  // Floating label variant
+  &.form-field-floating {
+    .form-input-container {
+      position: relative;
+    }
+
+    .form-label-floating {
+      position: absolute;
+      top: 0;
+      left: $form-field-padding;
+      background: $form-field-bg;
+      padding: 0 0.25rem;
+      color: $form-field-text-placeholder;
+      font-size: $form-field-font-size;
+      line-height: 1;
+      pointer-events: none;
+      transform: translateY($form-field-padding);
+      transition: $form-field-transition;
+      z-index: 1;
+
+      &.form-label-active {
+        transform: translateY(-50%);
+        font-size: 0.875rem;
+        color: $form-field-border-focus;
+      }
+    }
+
+    &.form-field-focused .form-label-floating {
+      color: $form-field-border-focus;
+    }
+
+    &.form-field-error .form-label-floating {
+      color: $form-field-border-error;
+    }
+  }
+
+  // State variants
+  &.form-field-disabled {
+    .form-label {
+      color: $form-field-text-disabled;
+    }
+  }
+
+  &.form-field-readonly {
+    .form-control {
+      background-color: $form-field-bg-disabled;
+      cursor: default;
+    }
+  }
+
+  &.form-field-loading {
+    .form-input-container {
+      position: relative;
+    }
+  }
+
+  // Icon positioning
+  &.form-field-icon-left {
+    .form-control {
+      padding-left: 2.5rem;
+    }
+  }
+
+  &.form-field-icon-right {
+    .form-control {
+      padding-right: 2.5rem;
+    }
+  }
+}
+
+// Label
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: $form-field-text;
+  font-size: $form-field-font-size;
+  line-height: $form-field-line-height;
+
+  .required-indicator {
+    color: $form-field-border-error;
+    margin-left: 0.25rem;
+  }
+}
+
+// Input container
+.form-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+// Form controls
+.form-control {
+  display: block;
+  width: 100%;
+  padding: $form-field-padding;
+  font-size: $form-field-font-size;
+  font-weight: 400;
+  line-height: $form-field-line-height;
+  color: $form-field-text;
+  background-color: $form-field-bg;
+  background-clip: padding-box;
+  border: 1px solid $form-field-border;
+  border-radius: $form-field-radius;
+  transition: $form-field-transition;
+  appearance: none;
+
+  &:focus {
+    color: $form-field-text;
+    background-color: $form-field-bg;
+    border-color: $form-field-border-focus;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  &::placeholder {
+    color: $form-field-text-placeholder;
+    opacity: 1;
+  }
+
+  &:disabled {
+    background-color: $form-field-bg-disabled;
+    border-color: $form-field-border;
+    color: $form-field-text-disabled;
+    cursor: not-allowed;
+    opacity: 1;
+  }
+
+  &:readonly {
+    background-color: $form-field-bg-disabled;
+    cursor: default;
+  }
+
+  &.is-invalid {
+    border-color: $form-field-border-error;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+
+    &:focus {
+      border-color: $form-field-border-error;
+      box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+  }
+}
+
+// Textarea specific
+textarea.form-control {
+  resize: vertical;
+  min-height: calc(1.5em + #{$form-field-padding * 2} + 2px);
+}
+
+// Select specific
+select.form-control {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right $form-field-padding center;
+  background-repeat: no-repeat;
+  background-size: 16px 12px;
+  padding-right: 2.5rem;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &[multiple] {
+    background-image: none;
+    padding-right: $form-field-padding;
+  }
+}
+
+// Checkbox and Radio
+.form-checkbox-container,
+.form-radio-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.form-radio-group {
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.form-radio-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-check-input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  vertical-align: top;
+  background-color: $form-field-bg;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  border: 1px solid $form-field-border;
+  appearance: none;
+  color-adjust: exact;
+  transition: $form-field-transition;
+  cursor: pointer;
+
+  &[type="checkbox"] {
+    border-radius: 0.25rem;
+  }
+
+  &[type="radio"] {
+    border-radius: 50%;
+  }
+
+  &:active {
+    filter: brightness(90%);
+  }
+
+  &:focus {
+    border-color: $form-field-border-focus;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  &:checked {
+    background-color: $form-field-border-focus;
+    border-color: $form-field-border-focus;
+  }
+
+  &:checked[type="checkbox"] {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3e%3cpath stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 9 4 4 8-8'/%3e%3c/svg%3e");
+  }
+
+  &:checked[type="radio"] {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3e%3ccircle cx='8' cy='8' r='3' fill='white'/%3e%3c/svg%3e");
+  }
+
+  &:disabled {
+    pointer-events: none;
+    filter: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.is-invalid {
+    border-color: $form-field-border-error;
+  }
+}
+
+.form-check-label {
+  cursor: pointer;
+  font-size: $form-field-font-size;
+  line-height: $form-field-line-height;
+  color: $form-field-text;
+  user-select: none;
+
+  .required-indicator {
+    color: $form-field-border-error;
+    margin-left: 0.25rem;
+  }
+}
+
+// File input
+input[type="file"].form-control {
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+// Icons
+.form-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: $form-field-text-placeholder;
+  pointer-events: none;
+  z-index: 2;
+
+  &.form-icon-left {
+    left: 0;
+  }
+
+  &.form-icon-right {
+    right: 0;
+  }
+
+  i {
+    font-size: 1rem;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: color 0.15s ease-in-out;
+
+    &:hover {
+      color: $form-field-text;
+    }
+  }
+}
+
+// Clear button
+.form-clear-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  color: $form-field-text-placeholder;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  z-index: 2;
+  transition: all 0.15s ease-in-out;
+
+  &:hover {
+    color: $form-field-text;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  &:focus {
+    outline: 2px solid $form-field-border-focus;
+    outline-offset: 1px;
+  }
+
+  i {
+    font-size: 0.875rem;
+  }
+}
+
+// Loading spinner
+.form-loading {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+// Help text
+.form-help-text {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: $form-field-text-placeholder;
+  line-height: 1.4;
+}
+
+// Error messages
+.form-error-messages {
+  margin-top: 0.25rem;
+}
+
+.form-error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: $form-field-border-error;
+  line-height: 1.4;
+  margin-bottom: 0.25rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  i {
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+}
+
+// Character count
+.form-character-count {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: $form-field-text-placeholder;
+  text-align: right;
+  line-height: 1.4;
+
+  &.form-character-count-warning {
+    color: #ffc107;
+  }
+
+  &.form-character-count-error {
+    color: $form-field-border-error;
+  }
+}
+
+// Variant styles
+.form-field-outlined {
+  .form-control {
+    border: 2px solid $form-field-border;
+    background-color: transparent;
+
+    &:focus {
+      border-color: $form-field-border-focus;
+      background-color: transparent;
+    }
+
+    &.is-invalid {
+      border-color: $form-field-border-error;
+    }
+  }
+}
+
+.form-field-filled {
+  .form-control {
+    border: none;
+    border-bottom: 2px solid $form-field-border;
+    border-radius: $form-field-radius $form-field-radius 0 0;
+    background-color: rgba(0, 0, 0, 0.05);
+
+    &:focus {
+      border-bottom-color: $form-field-border-focus;
+      background-color: rgba(0, 0, 0, 0.08);
+      box-shadow: none;
+    }
+
+    &.is-invalid {
+      border-bottom-color: $form-field-border-error;
+      box-shadow: none;
+    }
+  }
+}
+
+.form-field-underlined {
+  .form-control {
+    border: none;
+    border-bottom: 1px solid $form-field-border;
+    border-radius: 0;
+    background-color: transparent;
+    padding-left: 0;
+    padding-right: 0;
+
+    &:focus {
+      border-bottom-color: $form-field-border-focus;
+      border-bottom-width: 2px;
+      background-color: transparent;
+      box-shadow: none;
+    }
+
+    &.is-invalid {
+      border-bottom-color: $form-field-border-error;
+      border-bottom-width: 2px;
+      box-shadow: none;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .form-field {
+    &.form-field-inline {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+
+      .form-label {
+        white-space: normal;
+      }
+    }
+  }
+
+  .form-control {
+    font-size: 16px; // Prevent zoom on iOS
+  }
+}
+
+// Dark theme
+@media (prefers-color-scheme: dark) {
+  .form-field {
+    .form-label {
+      color: #e2e8f0;
+    }
+
+    .form-control {
+      background-color: #2d3748;
+      border-color: #4a5568;
+      color: #e2e8f0;
+
+      &::placeholder {
+        color: #a0aec0;
+      }
+
+      &:focus {
+        background-color: #2d3748;
+        border-color: #63b3ed;
+        color: #e2e8f0;
+      }
+
+      &:disabled {
+        background-color: #1a202c;
+        color: #718096;
+      }
+    }
+
+    .form-help-text {
+      color: #a0aec0;
+    }
+
+    .form-check-label {
+      color: #e2e8f0;
+    }
+
+    .form-check-input {
+      background-color: #2d3748;
+      border-color: #4a5568;
+    }
+
+    .form-icon {
+      color: #a0aec0;
+    }
+
+    .form-clear-btn {
+      color: #a0aec0;
+
+      &:hover {
+        color: #e2e8f0;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .form-control {
+    border-width: 2px;
+    border-color: #000;
+
+    &:focus {
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.3);
+    }
+
+    &.is-invalid {
+      border-color: #cc0000;
+      box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.3);
+    }
+  }
+
+  .form-label,
+  .form-check-label {
+    font-weight: 700;
+    color: #000;
+  }
+
+  .form-error-message {
+    font-weight: 700;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .form-control,
+  .form-check-input,
+  .form-icon i,
+  .form-clear-btn,
+  .form-label-floating {
+    transition: none;
+  }
+}
+
+// Print styles
+@media print {
+  .form-field {
+    break-inside: avoid;
+    page-break-inside: avoid;
+
+    .form-control {
+      border: 1px solid #000 !important;
+      background: white !important;
+      color: #000 !important;
+    }
+
+    .form-label {
+      color: #000 !important;
+      font-weight: 700 !important;
+    }
+
+    .form-icon,
+    .form-clear-btn,
+    .form-loading {
+      display: none !important;
+    }
+  }
+}
+
+// RTL support
+[dir="rtl"] {
+  .form-field-icon-left {
+    .form-control {
+      padding-left: $form-field-padding;
+      padding-right: 2.5rem;
+    }
+
+    .form-icon-left {
+      left: auto;
+      right: 0;
+    }
+  }
+
+  .form-field-icon-right {
+    .form-control {
+      padding-left: 2.5rem;
+      padding-right: $form-field-padding;
+    }
+
+    .form-icon-right {
+      left: 0;
+      right: auto;
+    }
+  }
+
+  .form-clear-btn {
+    left: 0.5rem;
+    right: auto;
+  }
+
+  .form-loading {
+    left: 0.75rem;
+    right: auto;
+  }
+
+  .form-character-count {
+    text-align: left;
+  }
+
+  select.form-control {
+    background-position: left $form-field-padding center;
+    padding-left: 2.5rem;
+    padding-right: $form-field-padding;
+  }
+}

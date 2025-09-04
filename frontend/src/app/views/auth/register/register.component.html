@@ -1,0 +1,333 @@
+<div class="register-container">
+  <div class="register-card">
+    <!-- Header -->
+    <div class="register-header">
+      <div class="logo">
+        <i class="fas fa-shield-alt"></i>
+        <h1>CreditRepair Pro</h1>
+      </div>
+      <h2>Create Account</h2>
+      <p>Join thousands of users improving their credit scores</p>
+    </div>
+
+    <!-- Error Alert -->
+    <div class="alert alert-danger" *ngIf="errorMessage" role="alert">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ errorMessage }}</span>
+      <button type="button" class="btn-close" (click)="dismissError()" [disabled]="isLoading">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Registration Form -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form" novalidate>
+      <!-- Name Fields -->
+      <div class="name-row">
+        <div class="form-group">
+          <label for="firstName" class="form-label">
+            <i class="fas fa-user"></i>
+            First Name *
+          </label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('firstName')"
+            [class.is-valid]="isFieldValid('firstName')"
+            placeholder="Enter your first name"
+            [disabled]="isLoading"
+            autocomplete="given-name"
+          >
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('firstName')">
+            {{ getFieldErrorMessage('firstName') }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName" class="form-label">
+            <i class="fas fa-user"></i>
+            Last Name *
+          </label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('lastName')"
+            [class.is-valid]="isFieldValid('lastName')"
+            placeholder="Enter your last name"
+            [disabled]="isLoading"
+            autocomplete="family-name"
+          >
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('lastName')">
+            {{ getFieldErrorMessage('lastName') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email" class="form-label">
+          <i class="fas fa-envelope"></i>
+          Email Address *
+        </label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('email')"
+          [class.is-valid]="isFieldValid('email')"
+          placeholder="Enter your email address"
+          [disabled]="isLoading"
+          autocomplete="email"
+        >
+        <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
+          {{ getFieldErrorMessage('email') }}
+        </div>
+      </div>
+
+      <!-- Phone Field -->
+      <div class="form-group">
+        <label for="phone" class="form-label">
+          <i class="fas fa-phone"></i>
+          Phone Number
+        </label>
+        <input
+          type="tel"
+          id="phone"
+          formControlName="phone"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('phone')"
+          [class.is-valid]="isFieldValid('phone')"
+          placeholder="Enter your phone number (optional)"
+          [disabled]="isLoading"
+          autocomplete="tel"
+        >
+        <div class="invalid-feedback" *ngIf="isFieldInvalid('phone')">
+          {{ getFieldErrorMessage('phone') }}
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password" class="form-label">
+          <i class="fas fa-lock"></i>
+          Password *
+        </label>
+        <div class="password-input-group">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('password')"
+            [class.is-valid]="isFieldValid('password')"
+            placeholder="Create a strong password"
+            [disabled]="isLoading"
+            autocomplete="new-password"
+          >
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [disabled]="isLoading"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+        
+        <!-- Password Strength Indicator -->
+        <div class="password-strength" *ngIf="password?.value">
+          <div class="strength-bar">
+            <div 
+              class="strength-fill" 
+              [style.width.%]="(getPasswordStrength().score / 5) * 100"
+              [style.background-color]="getPasswordStrength().color"
+            ></div>
+          </div>
+          <span 
+            class="strength-label" 
+            [style.color]="getPasswordStrength().color"
+          >
+            {{ getPasswordStrength().label }}
+          </span>
+        </div>
+        
+        <div class="invalid-feedback" *ngIf="isFieldInvalid('password')">
+          {{ getFieldErrorMessage('password') }}
+        </div>
+        
+        <!-- Password Requirements -->
+        <div class="password-requirements" *ngIf="password?.touched">
+          <small>Password must contain:</small>
+          <ul>
+            <li [class.valid]="/[a-z]/.test(password?.value || '')">
+              <i class="fas fa-check" *ngIf="/[a-z]/.test(password?.value || '')"></i>
+              <i class="fas fa-times" *ngIf="!/[a-z]/.test(password?.value || '')"></i>
+              At least one lowercase letter
+            </li>
+            <li [class.valid]="/[A-Z]/.test(password?.value || '')">
+              <i class="fas fa-check" *ngIf="/[A-Z]/.test(password?.value || '')"></i>
+              <i class="fas fa-times" *ngIf="!/[A-Z]/.test(password?.value || '')"></i>
+              At least one uppercase letter
+            </li>
+            <li [class.valid]="/[0-9]/.test(password?.value || '')">
+              <i class="fas fa-check" *ngIf="/[0-9]/.test(password?.value || '')"></i>
+              <i class="fas fa-times" *ngIf="!/[0-9]/.test(password?.value || '')"></i>
+              At least one number
+            </li>
+            <li [class.valid]="/[#?!@$%^&*-]/.test(password?.value || '')">
+              <i class="fas fa-check" *ngIf="/[#?!@$%^&*-]/.test(password?.value || '')"></i>
+              <i class="fas fa-times" *ngIf="!/[#?!@$%^&*-]/.test(password?.value || '')"></i>
+              At least one special character
+            </li>
+            <li [class.valid]="(password?.value || '').length >= 8">
+              <i class="fas fa-check" *ngIf="(password?.value || '').length >= 8"></i>
+              <i class="fas fa-times" *ngIf="(password?.value || '').length < 8"></i>
+              At least 8 characters long
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Confirm Password Field -->
+      <div class="form-group">
+        <label for="confirmPassword" class="form-label">
+          <i class="fas fa-lock"></i>
+          Confirm Password *
+        </label>
+        <div class="password-input-group">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('confirmPassword')"
+            [class.is-valid]="isFieldValid('confirmPassword')"
+            placeholder="Confirm your password"
+            [disabled]="isLoading"
+            autocomplete="new-password"
+          >
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="toggleConfirmPasswordVisibility()"
+            [disabled]="isLoading"
+            [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'"
+          >
+            <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+        <div class="invalid-feedback" *ngIf="isFieldInvalid('confirmPassword')">
+          {{ getFieldErrorMessage('confirmPassword') }}
+        </div>
+      </div>
+
+      <!-- Terms and Privacy Checkboxes -->
+      <div class="form-agreements">
+        <div class="form-check">
+          <input
+            type="checkbox"
+            id="acceptTerms"
+            formControlName="acceptTerms"
+            class="form-check-input"
+            [class.is-invalid]="isFieldInvalid('acceptTerms')"
+            [disabled]="isLoading"
+          >
+          <label for="acceptTerms" class="form-check-label">
+            I agree to the 
+            <a href="/terms" target="_blank" class="link">Terms of Service</a> *
+          </label>
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('acceptTerms')">
+            {{ getFieldErrorMessage('acceptTerms') }}
+          </div>
+        </div>
+
+        <div class="form-check">
+          <input
+            type="checkbox"
+            id="acceptPrivacy"
+            formControlName="acceptPrivacy"
+            class="form-check-input"
+            [class.is-invalid]="isFieldInvalid('acceptPrivacy')"
+            [disabled]="isLoading"
+          >
+          <label for="acceptPrivacy" class="form-check-label">
+            I agree to the 
+            <a href="/privacy" target="_blank" class="link">Privacy Policy</a> *
+          </label>
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('acceptPrivacy')">
+            {{ getFieldErrorMessage('acceptPrivacy') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn btn-primary btn-register"
+        [disabled]="registerForm.invalid || isLoading"
+      >
+        <span class="spinner-border" *ngIf="isLoading" role="status" aria-hidden="true"></span>
+        <span *ngIf="!isLoading">Create Account</span>
+        <span *ngIf="isLoading">Creating Account...</span>
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="divider">
+      <span>or</span>
+    </div>
+
+    <!-- Social Registration -->
+    <div class="social-registration">
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-social"
+        (click)="registerWithGoogle()"
+        [disabled]="isLoading"
+      >
+        <i class="fab fa-google"></i>
+        Sign up with Google
+      </button>
+      
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-social"
+        (click)="registerWithMicrosoft()"
+        [disabled]="isLoading"
+      >
+        <i class="fab fa-microsoft"></i>
+        Sign up with Microsoft
+      </button>
+    </div>
+
+    <!-- Login Link -->
+    <div class="login-link">
+      <p>
+        Already have an account?
+        <button
+          type="button"
+          class="link-button"
+          (click)="navigateToLogin()"
+          [disabled]="isLoading"
+        >
+          Sign in here
+        </button>
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="register-footer">
+    <p>&copy; 2024 RJ BUSINESS SOLUTIONS - Rick Jefferson Credit Solutions. All rights reserved. Made by RJ BUSINESS SOLUTIONS.</p>
+    <div class="footer-links">
+      <a href="/terms" class="footer-link">Terms of Service</a>
+      <a href="/privacy" class="footer-link">Privacy Policy</a>
+      <a href="/support" class="footer-link">Support</a>
+    </div>
+  </div>
+</div>

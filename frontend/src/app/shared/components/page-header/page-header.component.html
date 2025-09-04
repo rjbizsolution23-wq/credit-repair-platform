@@ -1,0 +1,232 @@
+<div [class]="getHeaderClasses()">
+  
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumb-nav" *ngIf="hasBreadcrumbs()" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li *ngFor="let breadcrumb of breadcrumbs; trackBy: trackByBreadcrumb" 
+          [class]="getBreadcrumbClasses(breadcrumb)">
+        
+        <a *ngIf="breadcrumb.url && !breadcrumb.active && !breadcrumb.disabled" 
+           [href]="breadcrumb.url"
+           [routerLink]="breadcrumb.routerLink"
+           [title]="breadcrumb.tooltip"
+           (click)="onBreadcrumbClick(breadcrumb, $event)">
+          <i *ngIf="breadcrumb.icon" [class]="breadcrumb.icon" aria-hidden="true"></i>
+          {{ breadcrumb.label }}
+        </a>
+        
+        <span *ngIf="!breadcrumb.url || breadcrumb.active || breadcrumb.disabled"
+              [title]="breadcrumb.tooltip">
+          <i *ngIf="breadcrumb.icon" [class]="breadcrumb.icon" aria-hidden="true"></i>
+          {{ breadcrumb.label }}
+        </span>
+        
+      </li>
+    </ol>
+  </nav>
+  
+  <!-- Header Content -->
+  <div class="header-content">
+    
+    <!-- Left Section -->
+    <div class="header-left">
+      
+      <!-- Navigation Buttons -->
+      <div class="header-navigation" *ngIf="hasNavigation()">
+        
+        <!-- Back Button -->
+        <button *ngIf="config.showBackButton" 
+                type="button" 
+                class="btn btn-outline-secondary btn-sm"
+                [disabled]="loading"
+                [title]="'Go back'"
+                (click)="onBackClick($event)">
+          <i class="feather icon-arrow-left" aria-hidden="true"></i>
+          <span class="visually-hidden">Go back</span>
+        </button>
+        
+        <!-- Refresh Button -->
+        <button *ngIf="config.showRefreshButton" 
+                type="button" 
+                class="btn btn-outline-secondary btn-sm"
+                [disabled]="loading"
+                [title]="'Refresh page'"
+                (click)="onRefreshClick($event)">
+          <i class="feather icon-refresh-cw" 
+             [class.spin]="loading" 
+             aria-hidden="true"></i>
+          <span class="visually-hidden">Refresh page</span>
+        </button>
+        
+        <!-- Help Button -->
+        <button *ngIf="config.showHelpButton" 
+                type="button" 
+                class="btn btn-outline-secondary btn-sm"
+                [disabled]="loading"
+                [title]="'Get help'"
+                (click)="onHelpClick($event)">
+          <i class="feather icon-help-circle" aria-hidden="true"></i>
+          <span class="visually-hidden">Get help</span>
+        </button>
+        
+      </div>
+      
+      <!-- Title Section -->
+      <div class="header-title-section">
+        
+        <!-- Icon -->
+        <div class="header-icon" *ngIf="icon">
+          <i [class]="icon" aria-hidden="true"></i>
+        </div>
+        
+        <!-- Title and Subtitle -->
+        <div class="header-text">
+          <h1 class="header-title" *ngIf="title">
+            {{ title }}
+            <app-loading-spinner *ngIf="loading" 
+                                 type="border" 
+                                 size="sm" 
+                                 color="secondary"
+                                 [show]="true">
+            </app-loading-spinner>
+          </h1>
+          
+          <p class="header-subtitle" *ngIf="subtitle">
+            {{ subtitle }}
+          </p>
+          
+          <p class="header-description" *ngIf="description">
+            {{ description }}
+          </p>
+        </div>
+        
+      </div>
+      
+    </div>
+    
+    <!-- Right Section - Actions -->
+    <div class="header-right" *ngIf="hasActions()">
+      
+      <div class="header-actions">
+        
+        <ng-container *ngFor="let action of actions; trackBy: trackByAction">
+          
+          <!-- Regular Button -->
+          <button *ngIf="action.type === 'button' && isActionVisible(action)" 
+                  type="button"
+                  [class]="getActionClasses(action)"
+                  [disabled]="action.disabled || loading"
+                  [title]="getActionTooltip(action)"
+                  (click)="onActionClick(action, $event)">
+            
+            <i *ngIf="action.icon && !action.loading" 
+               [class]="action.icon" 
+               aria-hidden="true"></i>
+            
+            <app-loading-spinner *ngIf="action.loading" 
+                                 type="border" 
+                                 size="sm" 
+                                 color="light"
+                                 [show]="true">
+            </app-loading-spinner>
+            
+            <span *ngIf="action.label" [class.visually-hidden]="action.iconOnly">
+              {{ action.label }}
+            </span>
+            
+          </button>
+          
+          <!-- Link Button -->
+          <a *ngIf="action.type === 'link' && isActionVisible(action)" 
+             [href]="action.url"
+             [routerLink]="action.routerLink"
+             [class]="getActionClasses(action)"
+             [title]="getActionTooltip(action)"
+             [attr.target]="action.target"
+             [attr.rel]="action.target === '_blank' ? 'noopener noreferrer' : null"
+             (click)="onActionClick(action, $event)">
+            
+            <i *ngIf="action.icon" [class]="action.icon" aria-hidden="true"></i>
+            
+            <span *ngIf="action.label" [class.visually-hidden]="action.iconOnly">
+              {{ action.label }}
+            </span>
+            
+          </a>
+          
+          <!-- Dropdown Button -->
+          <div *ngIf="action.type === 'dropdown' && isActionVisible(action)" 
+               class="btn-group" 
+               ngbDropdown 
+               placement="bottom-right">
+            
+            <button type="button" 
+                    [class]="getActionClasses(action)"
+                    [disabled]="action.disabled || loading"
+                    [title]="getActionTooltip(action)"
+                    ngbDropdownToggle>
+              
+              <i *ngIf="action.icon" [class]="action.icon" aria-hidden="true"></i>
+              
+              <span *ngIf="action.label" [class.visually-hidden]="action.iconOnly">
+                {{ action.label }}
+              </span>
+              
+            </button>
+            
+            <div class="dropdown-menu" ngbDropdownMenu>
+              
+              <ng-container *ngFor="let item of action.items">
+                
+                <button *ngIf="item.type === 'button'" 
+                        type="button"
+                        class="dropdown-item"
+                        [disabled]="item.disabled"
+                        [title]="item.tooltip"
+                        (click)="onActionClick(item, $event)">
+                  
+                  <i *ngIf="item.icon" [class]="item.icon" aria-hidden="true"></i>
+                  {{ item.label }}
+                  
+                </button>
+                
+                <a *ngIf="item.type === 'link'" 
+                   [href]="item.url"
+                   [routerLink]="item.routerLink"
+                   class="dropdown-item"
+                   [title]="item.tooltip"
+                   [attr.target]="item.target"
+                   [attr.rel]="item.target === '_blank' ? 'noopener noreferrer' : null"
+                   (click)="onActionClick(item, $event)">
+                  
+                  <i *ngIf="item.icon" [class]="item.icon" aria-hidden="true"></i>
+                  {{ item.label }}
+                  
+                </a>
+                
+                <div *ngIf="item.type === 'divider'" class="dropdown-divider"></div>
+                
+                <h6 *ngIf="item.type === 'header'" class="dropdown-header">
+                  {{ item.label }}
+                </h6>
+                
+              </ng-container>
+              
+            </div>
+            
+          </div>
+          
+        </ng-container>
+        
+      </div>
+      
+    </div>
+    
+  </div>
+  
+  <!-- Custom Content Slot -->
+  <div class="header-custom-content" *ngIf="hasCustomContent()">
+    <ng-content></ng-content>
+  </div>
+  
+</div>

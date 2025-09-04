@@ -1,0 +1,440 @@
+<div class="compliance-overview">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">
+          <i class="fas fa-shield-alt"></i>
+          Compliance Overview
+        </h1>
+        <p class="page-subtitle">Monitor regulatory compliance, audits, and risk management</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          class="btn btn-outline-primary"
+          (click)="onRefresh()"
+          [disabled]="loading"
+          title="Refresh Data">
+          <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+          Refresh
+        </button>
+        <button 
+          class="btn btn-primary"
+          (click)="onCreateAudit()"
+          title="Create New Audit">
+          <i class="fas fa-plus"></i>
+          New Audit
+        </button>
+        <button 
+          class="btn btn-warning"
+          (click)="onReportViolation()"
+          title="Report Violation">
+          <i class="fas fa-exclamation-triangle"></i>
+          Report Violation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading compliance data...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-message">
+      <i class="fas fa-exclamation-circle"></i>
+      <h3>Error Loading Data</h3>
+      <p>{{ error }}</p>
+      <button class="btn btn-primary" (click)="onRefresh()">
+        <i class="fas fa-retry"></i>
+        Try Again
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error" class="main-content">
+    <!-- Statistics Cards -->
+    <div class="statistics-section">
+      <div class="row">
+        <!-- Compliance Score -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+          <div class="stat-card compliance-score">
+            <div class="stat-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ statistics.complianceScore }}%</div>
+              <div class="stat-label">Compliance Score</div>
+              <div class="stat-meta">
+                <span class="badge" [ngClass]="'badge-' + getRiskLevelColor(statistics.riskLevel)">
+                  {{ statistics.riskLevel }} Risk
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Audits -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+          <div class="stat-card audits">
+            <div class="stat-icon">
+              <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ statistics.totalAudits }}</div>
+              <div class="stat-label">Total Audits</div>
+              <div class="stat-meta">
+                <span class="text-success">{{ statistics.completedAudits }} completed</span>
+                <span class="text-warning" *ngIf="statistics.overdueAudits > 0">
+                  {{ statistics.overdueAudits }} overdue
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Open Violations -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+          <div class="stat-card violations">
+            <div class="stat-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ statistics.openViolations }}</div>
+              <div class="stat-label">Open Violations</div>
+              <div class="stat-meta">
+                <span class="text-danger" *ngIf="statistics.criticalViolations > 0">
+                  {{ statistics.criticalViolations }} critical
+                </span>
+                <span class="text-success">{{ statistics.resolvedViolations }} resolved</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Trainings -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+          <div class="stat-card trainings">
+            <div class="stat-icon">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ statistics.activeTrainings }}</div>
+              <div class="stat-label">Active Trainings</div>
+              <div class="stat-meta">
+                <span class="text-success">{{ statistics.completedTrainings }} completed</span>
+                <span class="text-warning" *ngIf="statistics.overdueTrainings > 0">
+                  {{ statistics.overdueTrainings }} overdue
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="row">
+        <!-- Audit Status Chart -->
+        <div class="col-xl-4 col-lg-6 col-md-12">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">
+                <i class="fas fa-chart-pie"></i>
+                Audits by Status
+              </h3>
+            </div>
+            <div class="chart-content">
+              <!-- Chart component would go here -->
+              <div class="chart-placeholder">
+                <i class="fas fa-chart-pie"></i>
+                <p>Audit Status Distribution</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Violation Trends Chart -->
+        <div class="col-xl-4 col-lg-6 col-md-12">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">
+                <i class="fas fa-chart-line"></i>
+                Violation Trends
+              </h3>
+            </div>
+            <div class="chart-content">
+              <!-- Chart component would go here -->
+              <div class="chart-placeholder">
+                <i class="fas fa-chart-line"></i>
+                <p>Violation Trends Over Time</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compliance Score Trend -->
+        <div class="col-xl-4 col-lg-12 col-md-12">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">
+                <i class="fas fa-chart-area"></i>
+                Compliance Score Trend
+              </h3>
+            </div>
+            <div class="chart-content">
+              <!-- Chart component would go here -->
+              <div class="chart-placeholder">
+                <i class="fas fa-chart-area"></i>
+                <p>Compliance Score Over Time</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-sections">
+      <div class="row">
+        <!-- Recent Audits -->
+        <div class="col-xl-6 col-lg-12">
+          <div class="content-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-clipboard-check"></i>
+                Recent Audits
+              </h3>
+              <button class="btn btn-sm btn-outline-primary" (click)="onViewAudits()">
+                View All
+              </button>
+            </div>
+            <div class="card-content">
+              <div *ngIf="recentAudits.length === 0" class="empty-state">
+                <i class="fas fa-clipboard-check"></i>
+                <p>No recent audits found</p>
+              </div>
+              <div *ngFor="let audit of recentAudits" class="list-item">
+                <div class="item-icon">
+                  <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="item-content">
+                  <div class="item-title">{{ audit.title }}</div>
+                  <div class="item-meta">
+                    <span class="badge" [ngClass]="'badge-' + getProgressColor(audit.findings?.length || 0)">
+                      {{ audit.status }}
+                    </span>
+                    <span class="item-date">{{ formatDate(audit.plannedDate || audit.startDate) }}</span>
+                  </div>
+                  <div class="item-description">{{ audit.description }}</div>
+                </div>
+                <div class="item-actions">
+                  <button class="btn btn-sm btn-outline-primary" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Critical Alerts -->
+        <div class="col-xl-6 col-lg-12">
+          <div class="content-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-bell"></i>
+                Critical Alerts
+              </h3>
+              <button class="btn btn-sm btn-outline-primary" (click)="onViewAlerts()">
+                View All
+              </button>
+            </div>
+            <div class="card-content">
+              <div *ngIf="criticalAlerts.length === 0" class="empty-state">
+                <i class="fas fa-bell"></i>
+                <p>No critical alerts</p>
+              </div>
+              <div *ngFor="let alert of criticalAlerts" class="list-item alert-item">
+                <div class="item-icon" [ngClass]="'icon-' + alert.severity.toLowerCase()">
+                  <i class="fas fa-bell"></i>
+                </div>
+                <div class="item-content">
+                  <div class="item-title">{{ alert.title }}</div>
+                  <div class="item-meta">
+                    <span class="badge" [ngClass]="'badge-' + alert.severity.toLowerCase()">
+                      {{ alert.severity }}
+                    </span>
+                    <span class="item-date">{{ getTimeAgo(alert.metadata.createdAt) }}</span>
+                  </div>
+                  <div class="item-description">{{ alert.description }}</div>
+                </div>
+                <div class="item-actions">
+                  <button class="btn btn-sm btn-outline-primary" title="Acknowledge">
+                    <i class="fas fa-check"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Recent Violations -->
+        <div class="col-xl-6 col-lg-12">
+          <div class="content-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                Recent Violations
+              </h3>
+              <button class="btn btn-sm btn-outline-primary" (click)="onViewViolations()">
+                View All
+              </button>
+            </div>
+            <div class="card-content">
+              <div *ngIf="recentViolations.length === 0" class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>No recent violations found</p>
+              </div>
+              <div *ngFor="let violation of recentViolations" class="list-item violation-item">
+                <div class="item-icon" [ngClass]="'icon-' + (violation.riskAssessment?.riskLevel?.toLowerCase() || 'low')">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="item-content">
+                  <div class="item-title">{{ violation.title }}</div>
+                  <div class="item-meta">
+                    <span class="badge" [ngClass]="getRiskLevelBadgeClass(violation)">
+                      {{ violation.riskAssessment && violation.riskAssessment.riskLevel ? violation.riskAssessment.riskLevel : 'Low' }}
+                    </span>
+                    <span class="item-date">{{ formatDate(violation.discoveredDate) }}</span>
+                  </div>
+                  <div class="item-description">{{ violation.description }}</div>
+                </div>
+                <div class="item-actions">
+                  <button class="btn btn-sm btn-outline-primary" title="View Details">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-xl-6 col-lg-12">
+          <div class="content-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-history"></i>
+                Recent Activity
+              </h3>
+            </div>
+            <div class="card-content">
+              <div *ngIf="recentActivity.length === 0" class="empty-state">
+                <i class="fas fa-history"></i>
+                <p>No recent activity</p>
+              </div>
+              <div class="activity-timeline">
+                <div *ngFor="let activity of recentActivity" 
+                     class="activity-item"
+                     (click)="onActivityClick(activity)">
+                  <div class="activity-icon" [style.color]="activity.color">
+                    <i [class]="activity.icon"></i>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-title">{{ activity.title }}</div>
+                    <div class="activity-description">{{ activity.description }}</div>
+                    <div class="activity-meta">
+                      <span class="activity-time">{{ getTimeAgo(activity.timestamp) }}</span>
+                      <span *ngIf="activity.user" class="activity-user">by {{ activity.user }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="fas fa-bolt"></i>
+          Quick Actions
+        </h2>
+      </div>
+      <div class="actions-grid">
+        <button class="action-card" (click)="onCreateAudit()">
+          <div class="action-icon">
+            <i class="fas fa-clipboard-check"></i>
+          </div>
+          <div class="action-content">
+            <div class="action-title">Create Audit</div>
+            <div class="action-description">Schedule a new compliance audit</div>
+          </div>
+        </button>
+
+        <button class="action-card" (click)="onCreatePolicy()">
+          <div class="action-icon">
+            <i class="fas fa-file-contract"></i>
+          </div>
+          <div class="action-content">
+            <div class="action-title">Create Policy</div>
+            <div class="action-description">Draft a new compliance policy</div>
+          </div>
+        </button>
+
+        <button class="action-card" (click)="onReportViolation()">
+          <div class="action-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="action-content">
+            <div class="action-title">Report Violation</div>
+            <div class="action-description">Report a compliance violation</div>
+          </div>
+        </button>
+
+        <button class="action-card" (click)="onCreateTraining()">
+          <div class="action-icon">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <div class="action-content">
+            <div class="action-title">Create Training</div>
+            <div class="action-description">Set up compliance training</div>
+          </div>
+        </button>
+
+        <button class="action-card" (click)="onViewReports()">
+          <div class="action-icon">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <div class="action-content">
+            <div class="action-title">View Reports</div>
+            <div class="action-description">Generate compliance reports</div>
+          </div>
+        </button>
+
+        <button class="action-card" (click)="onViewMonitoring()">
+          <div class="action-icon">
+            <i class="fas fa-monitor-heart-rate"></i>
+          </div>
+          <div class="action-content">
+            <div class="action-title">Monitoring</div>
+            <div class="action-description">Real-time compliance monitoring</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

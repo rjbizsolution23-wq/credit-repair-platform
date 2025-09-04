@@ -1,0 +1,296 @@
+<div class="page-content">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+    <div>
+      <h4 class="mb-3 mb-md-0">Disputes Overview</h4>
+      <nav class="page-breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Disputes</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="d-flex align-items-center flex-wrap text-nowrap">
+      <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" (click)="onRefresh()">
+        <i data-feather="refresh-cw" class="btn-icon-prepend"></i>
+        Refresh
+      </button>
+      <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0" routerLink="/disputes/generator">
+        <i data-feather="plus" class="btn-icon-prepend"></i>
+        Generate Dispute
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i data-feather="alert-circle" class="me-2"></i>
+    {{ error }}
+    <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="onRefresh()">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error">
+    <!-- Statistics Cards -->
+    <div class="row">
+      <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Total Disputes</h6>
+              <div class="dropdown mb-2">
+                <i data-feather="file-text" class="text-primary icon-lg"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 col-md-12 col-xl-5">
+                <h3 class="mb-2">{{ stats.total | number }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-success">
+                    <span>All time</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Active Disputes</h6>
+              <div class="dropdown mb-2">
+                <i data-feather="clock" class="text-warning icon-lg"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 col-md-12 col-xl-5">
+                <h3 class="mb-2">{{ stats.active | number }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-warning">
+                    <span>In progress</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Pending Response</h6>
+              <div class="dropdown mb-2">
+                <i data-feather="mail" class="text-info icon-lg"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 col-md-12 col-xl-5">
+                <h3 class="mb-2">{{ stats.pending | number }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-info">
+                    <span>Awaiting</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Success Rate</h6>
+              <div class="dropdown mb-2">
+                <i data-feather="trending-up" class="text-success icon-lg"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 col-md-12 col-xl-5">
+                <h3 class="mb-2">{{ stats.success_rate | number:'1.1-1' }}%</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-success">
+                    <span>Overall</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts and Recent Activity -->
+    <div class="row">
+      <!-- Chart Section -->
+      <div class="col-lg-8 col-xl-8 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline mb-2">
+              <h6 class="card-title mb-0">Dispute Trends</h6>
+              <div class="dropdown">
+                <button class="btn btn-link p-0" type="button" id="dropdownMenuButton7" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i data-feather="more-horizontal" class="icon-lg text-muted pb-3px"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton7">
+                  <a class="dropdown-item d-flex align-items-center" href="javascript:;"><i data-feather="eye" class="icon-sm me-2"></i> <span class="">View</span></a>
+                  <a class="dropdown-item d-flex align-items-center" href="javascript:;"><i data-feather="edit-2" class="icon-sm me-2"></i> <span class="">Edit</span></a>
+                  <a class="dropdown-item d-flex align-items-center" href="javascript:;"><i data-feather="download" class="icon-sm me-2"></i> <span class="">Download</span></a>
+                </div>
+              </div>
+            </div>
+            <p class="text-muted">Dispute submission and resolution trends over time</p>
+            <div id="disputeTrendsChart" style="height: 300px;">
+              <!-- Chart will be rendered here -->
+              <div class="d-flex justify-content-center align-items-center h-100">
+                <p class="text-muted">Chart data loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="col-lg-4 col-xl-4 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline mb-2">
+              <h6 class="card-title mb-0">Quick Actions</h6>
+            </div>
+            <div class="d-flex flex-column">
+              <a *ngFor="let action of quickActions" 
+                 [routerLink]="action.route" 
+                 class="d-flex align-items-center border-bottom py-3 text-decoration-none">
+                <div class="me-3">
+                  <i [attr.data-feather]="action.icon" [class]="'icon-md text-' + action.color"></i>
+                </div>
+                <div class="w-100">
+                  <div class="d-flex justify-content-between">
+                    <h6 class="text-body mb-1">{{ action.title }}</h6>
+                  </div>
+                  <p class="tx-12 text-muted">{{ action.description }}</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Disputes -->
+    <div class="row">
+      <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline mb-2">
+              <h6 class="card-title mb-0">Recent Disputes</h6>
+              <a routerLink="/disputes/active" class="btn btn-link p-0">
+                View All
+                <i data-feather="arrow-right" class="icon-sm ms-1"></i>
+              </a>
+            </div>
+            
+            <div class="table-responsive" *ngIf="recentDisputes.length > 0; else noDisputes">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Client</th>
+                    <th>Type</th>
+                    <th>Bureau</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Due Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let dispute of recentDisputes">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="me-2">
+                          <div class="avatar avatar-sm">
+                            <span class="avatar-title bg-light text-dark rounded-circle">
+                              {{ dispute.client_name.charAt(0).toUpperCase() }}
+                            </span>
+                          </div>
+                        </div>
+                        <span>{{ dispute.client_name }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark">{{ getDisputeTypeLabel(dispute.type) }}</span>
+                    </td>
+                    <td>{{ getCreditBureauLabel(dispute.bureau) }}</td>
+                    <td>
+                      <span [class]="'badge bg-' + getDisputeStatusColor(dispute.status)">
+                        {{ getDisputeStatusLabel(dispute.status) }}
+                      </span>
+                    </td>
+                    <td>{{ formatDate(dispute.created_date) }}</td>
+                    <td>
+                      <span [class]="isOverdue(dispute.due_date) ? 'text-danger' : 'text-muted'">
+                        {{ formatDate(dispute.due_date) }}
+                        <small *ngIf="isOverdue(dispute.due_date)" class="d-block">
+                          {{ Math.abs(getDaysUntilDue(dispute.due_date)) }} days overdue
+                        </small>
+                        <small *ngIf="!isOverdue(dispute.due_date)" class="d-block">
+                          {{ getDaysUntilDue(dispute.due_date) }} days left
+                        </small>
+                      </span>
+                    </td>
+                    <td>
+                      <div class="dropdown">
+                        <button class="btn btn-link p-0" type="button" [id]="'dropdownMenuButton' + dispute.id" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <i data-feather="more-horizontal" class="icon-sm text-muted"></i>
+                        </button>
+                        <div class="dropdown-menu" [attr.aria-labelledby]="'dropdownMenuButton' + dispute.id">
+                          <a class="dropdown-item d-flex align-items-center" [routerLink]="['/disputes/view', dispute.id]">
+                            <i data-feather="eye" class="icon-sm me-2"></i> View
+                          </a>
+                          <a class="dropdown-item d-flex align-items-center" [routerLink]="['/disputes/edit', dispute.id]">
+                            <i data-feather="edit-2" class="icon-sm me-2"></i> Edit
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item d-flex align-items-center text-danger" href="javascript:;">
+                            <i data-feather="trash-2" class="icon-sm me-2"></i> Delete
+                          </a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <ng-template #noDisputes>
+              <div class="text-center py-4">
+                <i data-feather="file-text" class="icon-lg text-muted mb-3"></i>
+                <h6 class="text-muted">No disputes found</h6>
+                <p class="text-muted">Start by creating your first dispute</p>
+                <button type="button" class="btn btn-primary" routerLink="/disputes/generator">
+                  <i data-feather="plus" class="btn-icon-prepend"></i>
+                  Generate Dispute
+                </button>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

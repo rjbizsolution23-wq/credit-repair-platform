@@ -1,0 +1,197 @@
+<!-- Client Dashboard - Rick Jefferson Solutions -->
+<div class="client-dashboard" [class.loading]="isLoading">
+  <!-- Header Section -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="client-info">
+        <h1>Welcome back, {{clientData?.firstName}}!</h1>
+        <p class="tagline">Your Credit Freedom Journey with Rick Jefferson Solutions</p>
+      </div>
+      <div class="contact-info">
+        <span class="phone">📞 877-763-8587</span>
+        <span class="email">✉️ info@rickjeffersonsolutions.com</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Credit Score Overview -->
+  <section class="credit-overview">
+    <div class="score-cards">
+      <div class="score-card experian">
+        <div class="bureau-logo">Experian</div>
+        <div class="score">{{creditScores?.experian || '---'}}</div>
+        <div class="change" [class.positive]="scoreChanges?.experian > 0" [class.negative]="scoreChanges?.experian < 0">
+          <span *ngIf="scoreChanges?.experian">{{scoreChanges.experian > 0 ? '+' : ''}}{{scoreChanges.experian}}</span>
+          <span *ngIf="!scoreChanges?.experian">No change</span>
+        </div>
+      </div>
+      <div class="score-card equifax">
+        <div class="bureau-logo">Equifax</div>
+        <div class="score">{{creditScores?.equifax || '---'}}</div>
+        <div class="change" [class.positive]="scoreChanges?.equifax > 0" [class.negative]="scoreChanges?.equifax < 0">
+          <span *ngIf="scoreChanges?.equifax">{{scoreChanges.equifax > 0 ? '+' : ''}}{{scoreChanges.equifax}}</span>
+          <span *ngIf="!scoreChanges?.equifax">No change</span>
+        </div>
+      </div>
+      <div class="score-card transunion">
+        <div class="bureau-logo">TransUnion</div>
+        <div class="score">{{creditScores?.transunion || '---'}}</div>
+        <div class="change" [class.positive]="scoreChanges?.transunion > 0" [class.negative]="scoreChanges?.transunion < 0">
+          <span *ngIf="scoreChanges?.transunion">{{scoreChanges.transunion > 0 ? '+' : ''}}{{scoreChanges.transunion}}</span>
+          <span *ngIf="!scoreChanges?.transunion">No change</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 Step Total Enforcement Chain Progress -->
+  <section class="enforcement-chain">
+    <h2>10 Step Total Enforcement Chain™ Progress</h2>
+    <div class="progress-steps">
+      <div class="step" *ngFor="let step of enforcementSteps; let i = index" 
+           [class.completed]="step.status === 'completed'"
+           [class.active]="step.status === 'active'"
+           [class.pending]="step.status === 'pending'">
+        <div class="step-number">{{i + 1}}</div>
+        <div class="step-content">
+          <h3>{{step.title}}</h3>
+          <p>{{step.description}}</p>
+          <div class="step-status">{{step.statusText}}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Active Disputes -->
+  <section class="active-disputes">
+    <div class="section-header">
+      <h2>Active Disputes</h2>
+      <span class="count">{{activeDisputes?.length || 0}} items</span>
+    </div>
+    <div class="disputes-grid" *ngIf="activeDisputes?.length; else noDisputes">
+      <div class="dispute-card" *ngFor="let dispute of activeDisputes">
+        <div class="dispute-header">
+          <span class="creditor">{{dispute.creditor}}</span>
+          <span class="status" [class]="dispute.status">{{dispute.statusText}}</span>
+        </div>
+        <div class="dispute-details">
+          <p class="account">Account: ****{{dispute.accountNumber?.slice(-4)}}</p>
+          <p class="reason">Reason: {{dispute.disputeReason}}</p>
+          <p class="deadline">Response Due: {{dispute.responseDeadline | date:'MMM d, y'}}</p>
+        </div>
+        <div class="dispute-actions">
+          <button class="btn-secondary" (click)="viewDisputeDetails(dispute.id)">View Details</button>
+        </div>
+      </div>
+    </div>
+    <ng-template #noDisputes>
+      <div class="empty-state">
+        <p>No active disputes at this time.</p>
+        <button class="btn-primary" (click)="startNewDispute()">Start New Dispute</button>
+      </div>
+    </ng-template>
+  </section>
+
+  <!-- Credit Accounts Summary -->
+  <section class="accounts-summary">
+    <h2>Credit Accounts Overview</h2>
+    <div class="accounts-stats">
+      <div class="stat-card">
+        <div class="stat-value">{{accountStats?.total || 0}}</div>
+        <div class="stat-label">Total Accounts</div>
+      </div>
+      <div class="stat-card positive">
+        <div class="stat-value">{{accountStats?.positive || 0}}</div>
+        <div class="stat-label">Positive Accounts</div>
+      </div>
+      <div class="stat-card negative">
+        <div class="stat-value">{{accountStats?.negative || 0}}</div>
+        <div class="stat-label">Negative Items</div>
+      </div>
+      <div class="stat-card disputed">
+        <div class="stat-value">{{accountStats?.disputed || 0}}</div>
+        <div class="stat-label">Items Disputed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Activity -->
+  <section class="recent-activity">
+    <h2>Recent Activity</h2>
+    <div class="activity-timeline">
+      <div class="activity-item" *ngFor="let activity of recentActivity">
+        <div class="activity-icon" [class]="activity.type"></div>
+        <div class="activity-content">
+          <h4>{{activity.title}}</h4>
+          <p>{{activity.description}}</p>
+          <span class="activity-date">{{activity.date | date:'MMM d, y h:mm a'}}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+      <button class="action-card" (click)="uploadCreditReport()">
+        <div class="action-icon upload"></div>
+        <h3>Upload Credit Report</h3>
+        <p>Import your latest credit reports for analysis</p>
+      </button>
+      <button class="action-card" (click)="startNewDispute()">
+        <div class="action-icon dispute"></div>
+        <h3>Start New Dispute</h3>
+        <p>Begin disputing inaccurate items</p>
+      </button>
+      <button class="action-card" (click)="scheduleConsultation()">
+        <div class="action-icon consultation"></div>
+        <h3>Schedule Consultation</h3>
+        <p>Book a call with our credit experts</p>
+      </button>
+      <button class="action-card" (click)="viewEducation()">
+        <div class="action-icon education"></div>
+        <h3>Credit Education</h3>
+        <p>Access our comprehensive learning center</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- Progress Chart -->
+  <section class="progress-chart">
+    <h2>Credit Score Progress</h2>
+    <div class="chart-container">
+      <canvas #progressChart width="800" height="400"></canvas>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="dashboard-footer">
+    <div class="footer-content">
+      <div class="brand-info">
+        <h3>Rick Jefferson Solutions</h3>
+        <p>THE Credit Repair & Wealth Management Authority</p>
+        <p>Trusted by NFL & Dallas Cowboys</p>
+      </div>
+      <div class="contact-details">
+        <p><strong>Phone:</strong> 877-763-8587</p>
+        <p><strong>Email:</strong> info@rickjeffersonsolutions.com</p>
+        <p><strong>Website:</strong> rickjeffersonsolutions.com</p>
+        <p><strong>Hours:</strong> Mon-Fri, 9-5 CST</p>
+      </div>
+      <div class="offices">
+        <p><strong>Offices:</strong></p>
+        <p>Frisco HQ • Dallas • Milwaukee</p>
+      </div>
+    </div>
+    <div class="legal-disclaimer">
+      <p><small>Results vary. No outcome is guaranteed. Accurate information cannot be removed. Rick Jefferson Solutions operates in compliance with FCRA, FDCPA, and all applicable federal and state laws.</small></p>
+    </div>
+  </footer>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading your credit data...</p>
+  </div>
+</div>

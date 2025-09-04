@@ -1,0 +1,499 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+  <div>
+    <h4 class="mb-3 mb-md-0">Client Portal & Management</h4>
+    <p class="text-muted">Comprehensive client management and communication hub</p>
+  </div>
+  <div class="d-flex align-items-center flex-wrap text-nowrap">
+    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" (click)="refreshData()">
+      <i class="feather icon-refresh-cw btn-icon-prepend"></i>
+      Refresh
+    </button>
+    <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0" (click)="exportClientData()">
+      <i class="feather icon-download btn-icon-prepend"></i>
+      Export Data
+    </button>
+  </div>
+</div>
+
+<!-- Statistics Overview -->
+<div class="row">
+  <div class="col-12 col-xl-12 stretch-card">
+    <div class="row flex-grow-1">
+      <div class="col-md-2 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Total Clients</h6>
+              <div class="dropdown mb-2">
+                <i class="feather icon-users text-primary"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h3 class="mb-2">{{ stats.totalClients }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-success">
+                    <span>+12%</span>
+                    <i class="feather icon-arrow-up icon-sm ms-1"></i>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Active Clients</h6>
+              <div class="dropdown mb-2">
+                <i class="feather icon-user-check text-success"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h3 class="mb-2">{{ stats.activeClients }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-success">
+                    <span>{{ ((stats.activeClients / stats.totalClients) * 100).toFixed(1) }}%</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Pending Disputes</h6>
+              <div class="dropdown mb-2">
+                <i class="feather icon-clock text-warning"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h3 class="mb-2">{{ stats.pendingDisputes }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-warning">
+                    <span>Requires attention</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Avg Score Gain</h6>
+              <div class="dropdown mb-2">
+                <i class="feather icon-trending-up text-success"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h3 class="mb-2">+{{ stats.avgScoreImprovement }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-success">
+                    <span>points</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Monthly Revenue</h6>
+              <div class="dropdown mb-2">
+                <i class="feather icon-dollar-sign text-primary"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h3 class="mb-2">${{ stats.monthlyRevenue.toFixed(2) }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-success">
+                    <span>+8%</span>
+                    <i class="feather icon-arrow-up icon-sm ms-1"></i>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Unread Messages</h6>
+              <div class="dropdown mb-2">
+                <i class="feather icon-message-circle text-info"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h3 class="mb-2">{{ stats.unreadMessages }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-info">
+                    <span>New messages</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Client Management Section -->
+<div class="row">
+  <div class="col-12 col-lg-8 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="card-title">Client Management</h6>
+          <div class="d-flex align-items-center">
+            <!-- Search and Filters -->
+            <div class="input-group me-3" style="width: 250px;">
+              <input type="text" class="form-control" placeholder="Search clients..." 
+                     [(ngModel)]="searchTerm" (ngModelChange)="filterClients()">
+              <span class="input-group-text">
+                <i class="feather icon-search"></i>
+              </span>
+            </div>
+            <select class="form-select me-2" style="width: 120px;" 
+                    [(ngModel)]="statusFilter" (ngModelChange)="filterClients()">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="pending">Pending</option>
+            </select>
+            <select class="form-select" style="width: 120px;" 
+                    [(ngModel)]="planFilter" (ngModelChange)="filterClients()">
+              <option value="all">All Plans</option>
+              <option value="Basic">Basic</option>
+              <option value="Standard">Standard</option>
+              <option value="Premium">Premium</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3 text-muted">Loading client data...</p>
+        </div>
+        
+        <!-- Client Table -->
+        <div *ngIf="!isLoading" class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Contact</th>
+                <th>Status</th>
+                <th>Credit Score</th>
+                <th>Disputes</th>
+                <th>Plan</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let client of getPaginatedClients()" (click)="selectClient(client)" 
+                  [class.table-active]="selectedClient?.id === client.id">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-sm me-3">
+                      <div class="avatar-title bg-primary rounded-circle">
+                        {{ client.firstName.charAt(0) }}{{ client.lastName.charAt(0) }}
+                      </div>
+                    </div>
+                    <div>
+                      <h6 class="mb-0">{{ client.firstName }} {{ client.lastName }}</h6>
+                      <small class="text-muted">Joined {{ client.joinDate | date:'MMM dd, yyyy' }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <p class="mb-0">{{ client.email }}</p>
+                    <small class="text-muted">{{ client.phone }}</small>
+                  </div>
+                </td>
+                <td>
+                  <span [ngClass]="getStatusClass(client.status)">{{ client.status | titlecase }}</span>
+                </td>
+                <td>
+                  <div>
+                    <h6 class="mb-0">{{ client.creditScore.current }}</h6>
+                    <small [ngClass]="getScoreChangeClass(client.creditScore.change)">
+                      <i class="feather" 
+                         [ngClass]="{
+                           'icon-arrow-up': client.creditScore.change > 0,
+                           'icon-arrow-down': client.creditScore.change < 0,
+                           'icon-minus': client.creditScore.change === 0
+                         }"></i>
+                      {{ client.creditScore.change > 0 ? '+' : '' }}{{ client.creditScore.change }}
+                    </small>
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <span class="badge bg-warning me-1">{{ client.disputes.pending }}</span>
+                    <span class="badge bg-success">{{ client.disputes.resolved }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <span class="badge" 
+                          [ngClass]="{
+                            'bg-primary': client.subscription.plan === 'Premium',
+                            'bg-info': client.subscription.plan === 'Standard',
+                            'bg-secondary': client.subscription.plan === 'Basic'
+                          }">
+                      {{ client.subscription.plan }}
+                    </span>
+                    <br>
+                    <small class="text-muted">${{ client.subscription.amount }}/mo</small>
+                  </div>
+                </td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-link p-0" type="button" data-bs-toggle="dropdown">
+                      <i class="feather icon-more-horizontal"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="javascript:;" (click)="viewClientDetails(client)">
+                        <i class="feather icon-eye me-2"></i>View Details</a></li>
+                      <li><a class="dropdown-item" href="javascript:;" (click)="sendMessage(client.id)">
+                        <i class="feather icon-message-circle me-2"></i>Send Message</a></li>
+                      <li><a class="dropdown-item" href="javascript:;" (click)="createDispute(client)">
+                        <i class="feather icon-file-text me-2"></i>Create Dispute</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item text-danger" href="javascript:;">
+                        <i class="feather icon-user-x me-2"></i>Suspend Account</a></li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div *ngIf="!isLoading && totalPages > 1" class="d-flex justify-content-between align-items-center mt-3">
+          <div>
+            <small class="text-muted">
+              Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to 
+              {{ Math.min(currentPage * itemsPerPage, filteredClients.length) }} of 
+              {{ filteredClients.length }} clients
+            </small>
+          </div>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" href="javascript:;" (click)="previousPage()">
+                  <i class="feather icon-chevron-left"></i>
+                </a>
+              </li>
+              <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index" 
+                  [class.active]="currentPage === i + 1">
+                <a class="page-link" href="javascript:;" (click)="goToPage(i + 1)">{{ i + 1 }}</a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" href="javascript:;" (click)="nextPage()">
+                  <i class="feather icon-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Recent Messages -->
+  <div class="col-12 col-lg-4 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Recent Messages</h6>
+        <p class="text-muted mb-3">Latest client communications</p>
+        
+        <!-- Loading State -->
+        <div *ngIf="isLoadingMessages" class="text-center py-3">
+          <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+        
+        <!-- Messages List -->
+        <div *ngIf="!isLoadingMessages">
+          <div *ngFor="let message of messages" class="d-flex align-items-start border-bottom pb-3 mb-3">
+            <div class="avatar-sm me-3">
+              <div class="avatar-title bg-secondary rounded-circle">
+                <i class="feather icon-message-circle"></i>
+              </div>
+            </div>
+            <div class="flex-grow-1">
+              <div class="d-flex justify-content-between align-items-start">
+                <h6 class="mb-1" [class.fw-bold]="!message.isRead">{{ message.subject }}</h6>
+                <span [ngClass]="getPriorityClass(message.priority)">{{ message.priority }}</span>
+              </div>
+              <p class="text-muted mb-1 small">{{ message.content | slice:0:80 }}...</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">{{ message.timestamp | date:'MMM dd, HH:mm' }}</small>
+                <span class="badge bg-light text-dark">{{ message.type }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-center">
+            <button class="btn btn-outline-primary btn-sm">
+              <i class="feather icon-message-circle me-1"></i>
+              View All Messages
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Analytics Charts -->
+<div class="row">
+  <div class="col-12 col-lg-6 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Client Growth</h6>
+        <p class="text-muted mb-3">Monthly new client acquisitions</p>
+        <apx-chart
+          [series]="clientGrowthChart.series"
+          [chart]="clientGrowthChart.chart"
+          [xaxis]="clientGrowthChart.xaxis"
+          [colors]="clientGrowthChart.colors">
+        </apx-chart>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-12 col-lg-6 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Score Improvement Trends</h6>
+        <p class="text-muted mb-3">Average credit score improvements</p>
+        <apx-chart
+          [series]="scoreImprovementChart.series"
+          [chart]="scoreImprovementChart.chart"
+          [xaxis]="scoreImprovementChart.xaxis"
+          [colors]="scoreImprovementChart.colors">
+        </apx-chart>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Documents -->
+<div class="row">
+  <div class="col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Recent Document Uploads</h6>
+        <p class="text-muted mb-3">Latest client document submissions</p>
+        
+        <!-- Loading State -->
+        <div *ngIf="isLoadingDocuments" class="text-center py-3">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+        
+        <!-- Documents Table -->
+        <div *ngIf="!isLoadingDocuments" class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>Client</th>
+                <th>Category</th>
+                <th>Size</th>
+                <th>Upload Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let document of documents">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <i class="feather icon-file-text text-primary me-2"></i>
+                    <span>{{ document.name }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span>{{ clients.find(c => c.id === document.clientId)?.firstName }} 
+                        {{ clients.find(c => c.id === document.clientId)?.lastName }}</span>
+                </td>
+                <td>
+                  <span class="badge" 
+                        [ngClass]="{
+                          'bg-primary': document.category === 'identity',
+                          'bg-success': document.category === 'income',
+                          'bg-warning': document.category === 'dispute',
+                          'bg-info': document.category === 'legal',
+                          'bg-secondary': document.category === 'other'
+                        }">
+                    {{ document.category | titlecase }}
+                  </span>
+                </td>
+                <td>{{ formatFileSize(document.size) }}</td>
+                <td>{{ document.uploadDate | date:'MMM dd, yyyy' }}</td>
+                <td>
+                  <span class="badge" 
+                        [ngClass]="{
+                          'bg-success': document.status === 'approved',
+                          'bg-warning': document.status === 'pending',
+                          'bg-danger': document.status === 'rejected'
+                        }">
+                    {{ document.status | titlecase }}
+                  </span>
+                </td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-link p-0" type="button" data-bs-toggle="dropdown">
+                      <i class="feather icon-more-horizontal"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="javascript:;">
+                        <i class="feather icon-eye me-2"></i>View</a></li>
+                      <li><a class="dropdown-item" href="javascript:;">
+                        <i class="feather icon-download me-2"></i>Download</a></li>
+                      <li><a class="dropdown-item" href="javascript:;">
+                        <i class="feather icon-check me-2"></i>Approve</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item text-danger" href="javascript:;">
+                        <i class="feather icon-x me-2"></i>Reject</a></li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

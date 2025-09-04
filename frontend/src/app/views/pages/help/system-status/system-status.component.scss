@@ -1,0 +1,185 @@
+// System Status Component Styles
+// Rick Jefferson Solutions Brand Colors
+$primary-teal: #14B8A6;
+$navy-blue: #1E3A8A;
+$success-green: #059669;
+$warning-orange: #D97706;
+$error-red: #DC2626;
+$accent-teal: #0F766E;
+
+.container-fluid {
+  padding: 1.5rem;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border-radius: 0.5rem;
+
+  .card-header {
+    background-color: $navy-blue;
+    color: white;
+    border-radius: 0.5rem 0.5rem 0 0;
+    padding: 1.25rem;
+
+    .card-title {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-weight: bold;
+      color: white;
+    }
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+// Status indicators
+.alert {
+  border-radius: 0.5rem;
+  border: none;
+  
+  &.alert-success {
+    background-color: rgba($success-green, 0.1);
+    border-left: 4px solid $success-green;
+    color: $success-green;
+  }
+  
+  &.alert-warning {
+    background-color: rgba($warning-orange, 0.1);
+    border-left: 4px solid $warning-orange;
+    color: $warning-orange;
+  }
+  
+  &.alert-danger {
+    background-color: rgba($error-red, 0.1);
+    border-left: 4px solid $error-red;
+    color: $error-red;
+  }
+  
+  &.alert-info {
+    background-color: rgba($primary-teal, 0.1);
+    border-left: 4px solid $primary-teal;
+    color: $navy-blue;
+  }
+}
+
+// Table styling
+.table {
+  th {
+    font-family: 'Montserrat', Arial Black, sans-serif;
+    font-weight: 600;
+    color: $navy-blue;
+    border-bottom: 2px solid $primary-teal;
+    padding: 1rem 0.75rem;
+  }
+  
+  td {
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+  }
+  
+  tbody tr {
+    &:hover {
+      background-color: rgba($primary-teal, 0.05);
+    }
+  }
+}
+
+// Status text colors
+.text-success {
+  color: $success-green !important;
+}
+
+.text-warning {
+  color: $warning-orange !important;
+}
+
+.text-danger {
+  color: $error-red !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+// Badges
+.badge {
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  
+  &.bg-light {
+    background-color: #f8f9fa !important;
+    color: $navy-blue !important;
+  }
+  
+  &.bg-success {
+    background-color: $success-green !important;
+  }
+  
+  &.bg-warning {
+    background-color: $warning-orange !important;
+  }
+  
+  &.bg-danger {
+    background-color: $error-red !important;
+  }
+}
+
+// Incident cards
+.card .card {
+  border: 1px solid rgba($primary-teal, 0.2);
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .card-title {
+    font-family: 'Montserrat', Arial Black, sans-serif;
+    font-weight: 600;
+    color: $navy-blue;
+    margin-bottom: 0.5rem;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 1rem;
+  }
+  
+  .card .card-header {
+    padding: 1rem;
+  }
+  
+  .card .card-body {
+    padding: 1rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+}
+
+// Status icons
+.fs-4 {
+  font-size: 1.5rem !important;
+}
+
+// Contact info styling
+.alert-info {
+  .alert-heading {
+    font-family: 'Montserrat', Arial Black, sans-serif;
+    font-weight: 600;
+    color: $navy-blue;
+  }
+  
+  strong {
+    color: $navy-blue;
+  }
+}

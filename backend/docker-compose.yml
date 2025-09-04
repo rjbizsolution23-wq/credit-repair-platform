@@ -1,0 +1,71 @@
+# Rick Jefferson Solutions - Docker Compose Configuration
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: rjs-postgres
+    environment:
+      POSTGRES_DB: rick_jefferson_db
+      POSTGRES_USER: rick_jefferson
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_password_2024}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rjs-network
+    restart: unless-stopped
+
+  # Rick Jefferson API Backend
+  api:
+    build: .
+    container_name: rjs-api
+    environment:
+      - DATABASE_URL=postgresql://rick_jefferson:${DB_PASSWORD:-secure_password_2024}@postgres:5432/rick_jefferson_db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-rick_jefferson_supreme_secret_2024}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - ENVIRONMENT=production
+      - CORS_ORIGINS=https://rickjeffersonsolutions.com,https://app.rickjeffersonsolutions.com
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - rjs-network
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: rjs-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - rjs-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  rjs-network:
+    driver: bridge

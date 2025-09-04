@@ -1,0 +1,776 @@
+// Disputes Component Styles
+.disputes-page {
+  padding: 0;
+
+  // Page Header
+  .page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0.5rem;
+
+    .page-header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 0 1.5rem;
+    }
+
+    .page-title {
+      h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 600;
+      }
+
+      .breadcrumb {
+        margin: 0.5rem 0 0 0;
+        background: transparent;
+        padding: 0;
+
+        .breadcrumb-item {
+          color: rgba(255, 255, 255, 0.8);
+
+          a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+
+            &:hover {
+              color: white;
+            }
+          }
+
+          &.active {
+            color: white;
+          }
+
+          &::before {
+            color: rgba(255, 255, 255, 0.6);
+          }
+        }
+      }
+    }
+
+    .page-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+
+      .btn {
+        border-color: rgba(255, 255, 255, 0.3);
+        color: white;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        &.btn-primary {
+          background-color: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.3);
+
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+          }
+        }
+      }
+    }
+  }
+
+  // Filter Panel
+  .filter-panel {
+    margin-bottom: 1.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+
+    &.show {
+      max-height: 500px;
+    }
+
+    .card {
+      border: 1px solid var(--bs-border-color);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+
+      .card-header {
+        background-color: var(--bs-light);
+        border-bottom: 1px solid var(--bs-border-color);
+        padding: 1rem 1.5rem;
+
+        .card-title {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: var(--bs-dark);
+          font-weight: 600;
+        }
+      }
+
+      .card-body {
+        padding: 1.5rem;
+      }
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 1rem;
+      border-top: 1px solid var(--bs-border-color);
+    }
+  }
+
+  // Bulk Actions
+  .bulk-actions {
+    background-color: var(--bs-primary);
+    color: white;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+    .bulk-actions-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .bulk-actions-info {
+      font-weight: 500;
+    }
+
+    .bulk-actions-buttons {
+      display: flex;
+      gap: 0.5rem;
+
+      .btn {
+        border-color: rgba(255, 255, 255, 0.3);
+        color: white;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        &.btn-success {
+          background-color: var(--bs-success);
+          border-color: var(--bs-success);
+
+          &:hover {
+            background-color: rgba(var(--bs-success-rgb), 0.8);
+          }
+        }
+
+        &.btn-warning {
+          background-color: var(--bs-warning);
+          border-color: var(--bs-warning);
+          color: var(--bs-dark);
+
+          &:hover {
+            background-color: rgba(var(--bs-warning-rgb), 0.8);
+          }
+        }
+
+        &.btn-danger {
+          background-color: var(--bs-danger);
+          border-color: var(--bs-danger);
+
+          &:hover {
+            background-color: rgba(var(--bs-danger-rgb), 0.8);
+          }
+        }
+      }
+    }
+  }
+
+  // Loading State
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    flex-direction: column;
+
+    .loading-spinner {
+      text-align: center;
+
+      .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .loading-text {
+        color: var(--bs-secondary);
+        margin: 0;
+      }
+    }
+  }
+
+  // Disputes Table
+  .disputes-table-container {
+    .card {
+      border: 1px solid var(--bs-border-color);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+
+      .card-header {
+        background-color: var(--bs-light);
+        border-bottom: 1px solid var(--bs-border-color);
+        padding: 1rem 1.5rem;
+
+        .table-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 1rem;
+
+          .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--bs-dark);
+            font-weight: 600;
+          }
+
+          .table-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+
+            .page-size-selector {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              font-size: 0.875rem;
+
+              label {
+                margin: 0;
+                color: var(--bs-secondary);
+              }
+
+              .form-select {
+                width: auto;
+                min-width: 80px;
+              }
+            }
+          }
+        }
+      }
+
+      .table {
+        margin: 0;
+
+        th {
+          border-top: none;
+          font-weight: 600;
+          color: var(--bs-dark);
+          background-color: var(--bs-light);
+          position: sticky;
+          top: 0;
+          z-index: 10;
+
+          &.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+              background-color: var(--bs-secondary);
+              color: white;
+            }
+
+            i {
+              margin-left: 0.5rem;
+              opacity: 0.5;
+              transition: opacity 0.2s ease;
+            }
+
+            &:hover i {
+              opacity: 1;
+            }
+          }
+
+          &.select-column {
+            width: 50px;
+            text-align: center;
+          }
+
+          &.actions-column {
+            width: 100px;
+            text-align: center;
+          }
+        }
+
+        td {
+          vertical-align: middle;
+          border-color: var(--bs-border-color);
+
+          &.select-column {
+            text-align: center;
+          }
+
+          &.account-column {
+            .account-info {
+              .account-name {
+                font-weight: 600;
+                color: var(--bs-dark);
+                margin-bottom: 0.25rem;
+              }
+
+              .account-number {
+                font-size: 0.875rem;
+                color: var(--bs-secondary);
+                font-family: monospace;
+              }
+            }
+          }
+
+          &.type-column {
+            .type-info {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              font-size: 0.875rem;
+
+              i {
+                width: 16px;
+                text-align: center;
+                color: var(--bs-primary);
+              }
+            }
+          }
+
+          &.bureau-column {
+            .badge {
+              font-size: 0.75rem;
+            }
+          }
+
+          &.status-column {
+            .badge {
+              font-size: 0.75rem;
+              display: flex;
+              align-items: center;
+              gap: 0.25rem;
+              width: fit-content;
+
+              i {
+                font-size: 0.7rem;
+              }
+            }
+
+            .status-info {
+              margin-top: 0.25rem;
+
+              small {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                font-weight: 500;
+              }
+            }
+          }
+
+          &.date-column {
+            .date-info {
+              .date {
+                font-weight: 500;
+                color: var(--bs-dark);
+                margin-bottom: 0.25rem;
+              }
+
+              .age,
+              .days-until {
+                font-size: 0.75rem;
+                font-weight: 500;
+              }
+            }
+          }
+
+          &.actions-column {
+            text-align: center;
+
+            .dropdown-toggle {
+              border: none;
+              background: transparent;
+              color: var(--bs-secondary);
+
+              &:hover {
+                color: var(--bs-primary);
+                background-color: var(--bs-light);
+              }
+
+              &:focus {
+                box-shadow: none;
+              }
+            }
+
+            .dropdown-menu {
+              border: 1px solid var(--bs-border-color);
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+              min-width: 150px;
+
+              .dropdown-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+
+                i {
+                  width: 16px;
+                  text-align: center;
+                }
+
+                &:hover {
+                  background-color: var(--bs-light);
+                }
+
+                &.text-warning {
+                  color: var(--bs-warning);
+
+                  &:hover {
+                    background-color: rgba(var(--bs-warning-rgb), 0.1);
+                  }
+                }
+
+                &.text-danger {
+                  color: var(--bs-danger);
+
+                  &:hover {
+                    background-color: rgba(var(--bs-danger-rgb), 0.1);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        .table-row-selected {
+          background-color: rgba(var(--bs-primary-rgb), 0.05);
+          border-left: 3px solid var(--bs-primary);
+        }
+      }
+
+      // Empty State
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--bs-secondary);
+
+        i {
+          font-size: 4rem;
+          margin-bottom: 1.5rem;
+          opacity: 0.5;
+        }
+
+        h5 {
+          margin-bottom: 1rem;
+          color: var(--bs-dark);
+        }
+
+        p {
+          margin-bottom: 2rem;
+          max-width: 400px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+
+      // Pagination
+      .card-footer {
+        background-color: var(--bs-light);
+        border-top: 1px solid var(--bs-border-color);
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+
+        .pagination {
+          margin: 0;
+
+          .page-link {
+            color: var(--bs-primary);
+            border-color: var(--bs-border-color);
+            padding: 0.375rem 0.75rem;
+
+            &:hover {
+              background-color: var(--bs-light);
+              border-color: var(--bs-primary);
+            }
+
+            &:focus {
+              box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+            }
+          }
+
+          .page-item {
+            &.active .page-link {
+              background-color: var(--bs-primary);
+              border-color: var(--bs-primary);
+            }
+
+            &.disabled .page-link {
+              color: var(--bs-secondary);
+              background-color: var(--bs-light);
+              border-color: var(--bs-border-color);
+            }
+          }
+        }
+
+        .pagination-info {
+          font-size: 0.875rem;
+          color: var(--bs-secondary);
+        }
+      }
+    }
+  }
+
+  // Badge Variants
+  .badge {
+    &.badge-primary {
+      background-color: var(--bs-primary);
+      color: white;
+    }
+
+    &.badge-secondary {
+      background-color: var(--bs-secondary);
+      color: white;
+    }
+
+    &.badge-success {
+      background-color: var(--bs-success);
+      color: white;
+    }
+
+    &.badge-danger {
+      background-color: var(--bs-danger);
+      color: white;
+    }
+
+    &.badge-warning {
+      background-color: var(--bs-warning);
+      color: var(--bs-dark);
+    }
+
+    &.badge-info {
+      background-color: var(--bs-info);
+      color: white;
+    }
+
+    &.badge-dark {
+      background-color: var(--bs-dark);
+      color: white;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .disputes-page {
+    .page-header {
+      .page-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .page-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+    }
+
+    .bulk-actions {
+      .bulk-actions-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .bulk-actions-buttons {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+    }
+
+    .disputes-table-container {
+      .card-header {
+        .table-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
+      .table-responsive {
+        font-size: 0.875rem;
+      }
+
+      .card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .pagination {
+          order: 2;
+        }
+
+        .pagination-info {
+          order: 1;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .disputes-page {
+    .disputes-table-container {
+      .table {
+        th,
+        td {
+          padding: 0.5rem 0.25rem;
+          font-size: 0.8rem;
+        }
+
+        .account-column {
+          .account-info {
+            .account-name {
+              font-size: 0.8rem;
+            }
+
+            .account-number {
+              font-size: 0.7rem;
+            }
+          }
+        }
+
+        .type-column {
+          .type-info {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+          }
+        }
+
+        .date-column {
+          .date-info {
+            .date {
+              font-size: 0.75rem;
+            }
+
+            .age,
+            .days-until {
+              font-size: 0.7rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .disputes-page {
+    .filter-panel .card,
+    .disputes-table-container .card {
+      background-color: var(--bs-dark);
+      border-color: var(--bs-border-color-dark);
+      color: var(--bs-light);
+
+      .card-header,
+      .card-footer {
+        background-color: var(--bs-secondary);
+        border-color: var(--bs-border-color-dark);
+      }
+
+      .table {
+        color: var(--bs-light);
+
+        th {
+          background-color: var(--bs-secondary);
+          color: var(--bs-light);
+        }
+
+        td {
+          border-color: var(--bs-border-color-dark);
+        }
+
+        .table-row-selected {
+          background-color: rgba(var(--bs-primary-rgb), 0.2);
+        }
+      }
+    }
+
+    .empty-state {
+      color: var(--bs-light);
+
+      h5 {
+        color: var(--bs-light);
+      }
+    }
+  }
+}
+
+// Print Styles
+@media print {
+  .disputes-page {
+    .page-actions,
+    .filter-panel,
+    .bulk-actions,
+    .actions-column {
+      display: none;
+    }
+
+    .disputes-table-container .card {
+      box-shadow: none;
+      border: 1px solid #ddd;
+    }
+
+    .table {
+      font-size: 0.8rem;
+
+      th,
+      td {
+        padding: 0.25rem;
+      }
+    }
+  }
+}
+
+// High Contrast Mode
+@media (prefers-contrast: high) {
+  .disputes-page {
+    .filter-panel .card,
+    .disputes-table-container .card {
+      border-width: 2px;
+    }
+
+    .table {
+      th,
+      td {
+        border-width: 2px;
+      }
+
+      .table-row-selected {
+        border-left-width: 5px;
+      }
+    }
+
+    .badge {
+      border: 1px solid currentColor;
+    }
+
+    .btn {
+      border-width: 2px;
+    }
+  }
+}

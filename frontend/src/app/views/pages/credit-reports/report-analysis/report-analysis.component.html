@@ -1,0 +1,608 @@
+<div class="page-content">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+    <div>
+      <h4 class="mb-3 mb-md-0">Credit Report Analysis</h4>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+          <li class="breadcrumb-item"><a routerLink="/credit-reports">Credit Reports</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Analysis</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="d-flex align-items-center flex-wrap text-nowrap">
+      <button type="button" class="btn btn-outline-secondary btn-icon-text me-2 mb-2 mb-md-0" 
+              (click)="onBack()">
+        <i data-feather="arrow-left" class="btn-icon-prepend"></i>
+        Back to Reports
+      </button>
+      <div class="dropdown me-2 mb-2 mb-md-0">
+        <button class="btn btn-outline-primary dropdown-toggle" type="button" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+          <i data-feather="more-horizontal" class="btn-icon-prepend"></i>
+          Actions
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#" (click)="onEditReport(); $event.preventDefault()">
+            <i data-feather="edit" class="me-2"></i>Edit Report
+          </a></li>
+          <li><a class="dropdown-item" href="#" (click)="onReprocessReport(); $event.preventDefault()">
+            <i data-feather="refresh-cw" class="me-2"></i>Reprocess
+          </a></li>
+          <li><a class="dropdown-item" href="#" (click)="onExportReport(); $event.preventDefault()">
+            <i data-feather="download" class="me-2"></i>Export PDF
+          </a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item text-danger" href="#" (click)="onDeleteReport(); $event.preventDefault()">
+            <i data-feather="trash-2" class="me-2"></i>Delete Report
+          </a></li>
+        </ul>
+      </div>
+      <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0" 
+              (click)="onRefresh()" [disabled]="loading">
+        <i data-feather="refresh-cw" class="btn-icon-prepend"></i>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading credit report analysis...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger">
+    <i data-feather="alert-circle" class="me-2"></i>
+    {{ error }}
+  </div>
+
+  <!-- Report Content -->
+  <div *ngIf="report && !loading" class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8 col-xl-9">
+      <!-- Report Header -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <h5 class="mb-2">{{ report?.personalInfo?.names?.[0]?.firstName }} {{ report?.personalInfo?.names?.[0]?.lastName }}</h5>
+                <p class="text-muted mb-1">Report Date: {{ formatDate(report?.reportDate) }}</p>
+                <p class="text-muted mb-0">Report ID: {{ report?.id }}</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <span class="badge" [class]="'badge-' + getBureauColor(report?.bureau)">
+                <i [attr.data-feather]="getBureauIcon(report?.bureau)" class="me-1"></i>
+                {{ report?.bureau | titlecase }}
+              </span>
+              <span class="badge badge-outline-secondary ms-2">
+                {{ report?.reportType | titlecase }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <ul class="nav nav-tabs nav-fill mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" [class.active]="activeTab === 'overview'" 
+                  (click)="onTabChange('overview')" type="button">
+            <i data-feather="pie-chart" class="me-2"></i>
+            Overview
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" [class.active]="activeTab === 'accounts'" 
+                  (click)="onTabChange('accounts')" type="button">
+            <i data-feather="credit-card" class="me-2"></i>
+            Accounts
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" [class.active]="activeTab === 'inquiries'" 
+                  (click)="onTabChange('inquiries')" type="button">
+            <i data-feather="search" class="me-2"></i>
+            Inquiries
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" [class.active]="activeTab === 'negative'" 
+                  (click)="onTabChange('negative')" type="button">
+            <i data-feather="alert-triangle" class="me-2"></i>
+            Negative Items
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" [class.active]="activeTab === 'recommendations'" 
+                  (click)="onTabChange('recommendations')" type="button">
+            <i data-feather="lightbulb" class="me-2"></i>
+            Recommendations
+          </button>
+        </li>
+      </ul>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Overview Tab -->
+        <div *ngIf="activeTab === 'overview'" class="tab-pane fade show active">
+          <!-- Credit Score Section -->
+          <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Credit Score</h6>
+              <button class="btn btn-sm btn-outline-secondary" 
+                      (click)="toggleSection('creditScore')">
+                <i [attr.data-feather]="expandedSections['creditScore'] ? 'chevron-up' : 'chevron-down'"></i>
+              </button>
+            </div>
+            <div class="card-body" *ngIf="expandedSections['creditScore']">
+              <div class="row text-center">
+                <div class="col-md-4">
+                  <div class="score-circle" [class]="'score-' + getScoreColor(report?.score)">
+                    <span class="score-number">{{ report?.score }}</span>
+                    <span class="score-grade">{{ getScoreGrade(report?.score) }}</span>
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <div class="score-factors" *ngIf="scoreFactors.length > 0">
+                    <h6>Score Factors</h6>
+                    <div class="factor-item" *ngFor="let factor of scoreFactors">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span>{{ factor.description }}</span>
+                        <span class="badge" [class]="'badge-' + getImpactColor(factor.impact)">
+                          {{ factor.impact | titlecase }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary Statistics -->
+          <div class="row mb-4" *ngIf="summary">
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <i data-feather="credit-card" class="icon-lg text-primary mb-2"></i>
+                  <h4 class="mb-1">{{ summary?.totalAccounts || 0 }}</h4>
+                  <p class="text-muted mb-0">Total Accounts</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <i data-feather="dollar-sign" class="icon-lg text-success mb-2"></i>
+                  <h4 class="mb-1">{{ formatCurrency(summary?.availableCredit || 0) }}</h4>
+                  <p class="text-muted mb-0">Total Credit</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <i data-feather="percent" class="icon-lg" [class]="'text-' + getUtilizationColor(summary?.creditUtilization || 0)" class="mb-2"></i>
+                <h4 class="mb-1">{{ formatPercentage(summary?.creditUtilization || 0) }}</h4>
+                  <p class="text-muted mb-0">Utilization</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <i data-feather="calendar" class="icon-lg text-info mb-2"></i>
+                  <h4 class="mb-1">{{ summary?.averageAccountAge || 0 }} mo</h4>
+                  <p class="text-muted mb-0">Avg Age</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal Information -->
+          <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Personal Information</h6>
+              <button class="btn btn-sm btn-outline-secondary" 
+                      (click)="toggleSection('personalInfo')">
+                <i [attr.data-feather]="expandedSections['personalInfo'] ? 'chevron-up' : 'chevron-down'"></i>
+              </button>
+            </div>
+            <div class="card-body" *ngIf="expandedSections['personalInfo']">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Name:</strong> {{ report?.personalInfo?.names?.[0]?.firstName }} {{ report?.personalInfo?.names?.[0]?.lastName }}</p>
+                  <p><strong>Date of Birth:</strong> {{ formatDate(report?.personalInfo?.dateOfBirth) }}</p>
+                  <p><strong>SSN:</strong> ***-**-{{ report?.personalInfo?.ssn?.slice(-4) }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Address:</strong></p>
+                  <p class="ms-3">
+                    {{ report?.personalInfo?.addresses?.[0]?.street }}<br>
+                    {{ report?.personalInfo?.addresses?.[0]?.city }}, {{ report?.personalInfo?.addresses?.[0]?.state }} {{ report?.personalInfo?.addresses?.[0]?.zipCode }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accounts Tab -->
+        <div *ngIf="activeTab === 'accounts'" class="tab-pane fade show active">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Credit Accounts</h6>
+              
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Account</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th>Balance</th>
+                      <th>Limit</th>
+                      <th>Payment</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let account of report.accounts">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i [attr.data-feather]="getAccountTypeIcon(account.accountType)" class="me-2"></i>
+                          <div>
+                            <div class="fw-bold">{{ account.creditorName }}</div>
+                            <small class="text-muted">{{ account.accountNumber }}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{{ account.accountType | titlecase }}</td>
+                      <td>
+                        <span class="badge" [class]="'badge-' + getPaymentStatusColor(account.paymentStatus)">
+                          {{ account.paymentStatus | titlecase }}
+                        </span>
+                      </td>
+                      <td>{{ formatCurrency(account.currentBalance) }}</td>
+                      <td>{{ formatCurrency(account.creditLimit) }}</td>
+                      <td>{{ formatCurrency(account.monthlyPayment) }}</td>
+                      <td>
+                        <div class="dropdown">
+                          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                  type="button" data-bs-toggle="dropdown">
+                            Actions
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" 
+                                   (click)="onCreateDispute(account); $event.preventDefault()">
+                              <i data-feather="file-text" class="me-2"></i>Create Dispute
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" 
+                                   (click)="onGenerateLetter(account); $event.preventDefault()">
+                              <i data-feather="mail" class="me-2"></i>Generate Letter
+                            </a></li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inquiries Tab -->
+        <div *ngIf="activeTab === 'inquiries'" class="tab-pane fade show active">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Credit Inquiries</h6>
+              
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Creditor</th>
+                      <th>Type</th>
+                      <th>Date</th>
+                      <th>Purpose</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let inquiry of report.inquiries">
+                      <td>{{ inquiry.creditorName }}</td>
+                      <td>
+                        <span class="badge" [class]="inquiry.type === InquiryType.HARD ? 'badge-warning' : 'badge-info'">
+                          {{ inquiry.type | titlecase }}
+                        </span>
+                      </td>
+                      <td>{{ formatDate(inquiry.inquiryDate) }}</td>
+                      <td>{{ inquiry.purpose || 'Not specified' }}</td>
+                      <td>
+                        <div class="dropdown" *ngIf="inquiry.type === InquiryType.HARD">
+                          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                  type="button" data-bs-toggle="dropdown">
+                            Actions
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" 
+                                   (click)="onCreateDispute(inquiry); $event.preventDefault()">
+                              <i data-feather="file-text" class="me-2"></i>Create Dispute
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" 
+                                   (click)="onGenerateLetter(inquiry); $event.preventDefault()">
+                              <i data-feather="mail" class="me-2"></i>Generate Letter
+                            </a></li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Negative Items Tab -->
+        <div *ngIf="activeTab === 'negative'" class="tab-pane fade show active">
+          <div class="row">
+            <!-- Public Records -->
+            <div class="col-12 mb-4" *ngIf="report.publicRecords.length > 0">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="card-title text-danger">
+                    <i data-feather="alert-triangle" class="me-2"></i>
+                    Public Records
+                  </h6>
+                  
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Type</th>
+                          <th>Court</th>
+                          <th>Amount</th>
+                          <th>Date Filed</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let record of report.publicRecords">
+                          <td>
+                            <span class="badge badge-danger">
+                              {{ record.type | titlecase }}
+                            </span>
+                          </td>
+                          <td>{{ record.court }}</td>
+                          <td>{{ formatCurrency(record.amount) }}</td>
+                          <td>{{ formatDate(record.dateFiled) }}</td>
+                          <td>{{ record.status | titlecase }}</td>
+                          <td>
+                            <div class="dropdown">
+                              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                      type="button" data-bs-toggle="dropdown">
+                                Actions
+                              </button>
+                              <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" 
+                                       (click)="onCreateDispute(record); $event.preventDefault()">
+                                  <i data-feather="file-text" class="me-2"></i>Create Dispute
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" 
+                                       (click)="onGenerateLetter(record); $event.preventDefault()">
+                                  <i data-feather="mail" class="me-2"></i>Generate Letter
+                                </a></li>
+                              </ul>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Collections -->
+            <div class="col-12" *ngIf="report.collections.length > 0">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="card-title text-warning">
+                    <i data-feather="dollar-sign" class="me-2"></i>
+                    Collections
+                  </h6>
+                  
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Agency</th>
+                          <th>Original Creditor</th>
+                          <th>Amount</th>
+                          <th>Date Opened</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let collection of report.collections">
+                          <td>{{ collection.agencyName }}</td>
+                          <td>{{ collection.originalCreditor }}</td>
+                          <td>{{ formatCurrency(collection.amount) }}</td>
+                          <td>{{ formatDate(collection.dateOpened) }}</td>
+                          <td>
+                            <span class="badge badge-warning">
+                              {{ collection.status | titlecase }}
+                            </span>
+                          </td>
+                          <td>
+                            <div class="dropdown">
+                              <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                      type="button" data-bs-toggle="dropdown">
+                                Actions
+                              </button>
+                              <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" 
+                                       (click)="onCreateDispute(collection); $event.preventDefault()">
+                                  <i data-feather="file-text" class="me-2"></i>Create Dispute
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" 
+                                       (click)="onGenerateLetter(collection); $event.preventDefault()">
+                                  <i data-feather="mail" class="me-2"></i>Generate Letter
+                                </a></li>
+                              </ul>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommendations Tab -->
+        <div *ngIf="activeTab === 'recommendations'" class="tab-pane fade show active">
+          <div class="row">
+            <div class="col-md-6 mb-4" *ngFor="let recommendation of recommendations">
+              <div class="card h-100">
+                <div class="card-body">
+                  <div class="d-flex align-items-start">
+                    <div class="recommendation-icon me-3">
+                      <i [attr.data-feather]="recommendation.icon" 
+                         [class]="'text-' + recommendation.priority"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                      <h6 class="mb-2">{{ recommendation.title }}</h6>
+                      <p class="text-muted mb-3">{{ recommendation.description }}</p>
+                      
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge" [class]="'badge-' + recommendation.priority">
+                          {{ recommendation.priority | titlecase }} Priority
+                        </span>
+                        <small class="text-muted">{{ recommendation.estimatedImpact }}</small>
+                      </div>
+                      
+                      <div class="mt-3" *ngIf="recommendation.actions">
+                        <button class="btn btn-sm btn-outline-primary me-2" 
+                                *ngFor="let action of recommendation.actions"
+                                (click)="action.handler()">
+                          {{ action.label }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4 col-xl-3">
+      <!-- Quick Actions -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h6 class="card-title">Quick Actions</h6>
+          
+          <div class="d-grid gap-2">
+            <button type="button" class="btn btn-primary btn-sm" 
+                    (click)="navigateToCreateDispute()">
+              <i data-feather="file-text" class="btn-icon-prepend"></i>
+              Create Dispute
+            </button>
+            
+            <button type="button" class="btn btn-info btn-sm" 
+                    (click)="navigateToLetterGenerate()">
+              <i data-feather="mail" class="btn-icon-prepend"></i>
+              Generate Letter
+            </button>
+            
+            <button type="button" class="btn btn-success btn-sm" 
+                    routerLink="/credit-reports/monitoring">
+              <i data-feather="activity" class="btn-icon-prepend"></i>
+              Setup Monitoring
+            </button>
+            
+            <button type="button" class="btn btn-warning btn-sm" 
+                    (click)="navigateToComparison()">
+              <i data-feather="bar-chart-2" class="btn-icon-prepend"></i>
+              Compare Reports
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Summary -->
+      <div class="card mb-4" *ngIf="summary">
+        <div class="card-body">
+          <h6 class="card-title">Report Summary</h6>
+          
+          <div class="summary-item">
+            <div class="d-flex justify-content-between">
+              <span>Negative Items:</span>
+              <span class="text-danger fw-bold">{{ summary?.negativeAccounts || 0 }}</span>
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="d-flex justify-content-between">
+              <span>Positive Items:</span>
+              <span class="text-success fw-bold">{{ (summary?.totalAccounts || 0) - (summary?.negativeAccounts || 0) }}</span>
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="d-flex justify-content-between">
+              <span>Hard Inquiries:</span>
+              <span class="text-warning fw-bold">{{ summary?.hardInquiries || 0 }}</span>
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="d-flex justify-content-between">
+              <span>Public Records:</span>
+              <span class="text-danger fw-bold">{{ summary?.publicRecords || 0 }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Help & Resources -->
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">Help & Resources</h6>
+          
+          <div class="d-grid gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm">
+              <i data-feather="help-circle" class="btn-icon-prepend"></i>
+              Credit Report Guide
+            </button>
+            
+            <button type="button" class="btn btn-outline-secondary btn-sm">
+              <i data-feather="book" class="btn-icon-prepend"></i>
+              Dispute Process
+            </button>
+            
+            <button type="button" class="btn btn-outline-secondary btn-sm">
+              <i data-feather="message-circle" class="btn-icon-prepend"></i>
+              Contact Support
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

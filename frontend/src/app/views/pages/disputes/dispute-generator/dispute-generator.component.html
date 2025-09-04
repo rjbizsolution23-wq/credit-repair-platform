@@ -1,0 +1,504 @@
+<div class="dispute-generator">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="btn btn-ghost" (click)="goBack()">
+          <i class="fas fa-arrow-left"></i>
+          Back to Disputes
+        </button>
+        <div class="header-title">
+          <h1>Dispute Generator</h1>
+          <p>Create automated dispute letters for credit report items</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline" (click)="resetForm()" [disabled]="generating">
+          <i class="fas fa-refresh"></i>
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="progress-steps">
+    <div class="steps-container">
+      <div 
+        class="step" 
+        [class.active]="step === i" 
+        [class.completed]="step > i"
+        *ngFor="let s of [1,2,3,4]; let i = index"
+        (click)="goToStep(i + 1)"
+      >
+        <div class="step-number">
+          <i class="fas fa-check" *ngIf="step > i + 1"></i>
+          <span *ngIf="step <= i + 1">{{ i + 1 }}</span>
+        </div>
+        <div class="step-content">
+          <div class="step-title">{{ getStepTitle(i + 1) }}</div>
+          <div class="step-description">{{ getStepDescription(i + 1) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading data...</p>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <div class="form-container" *ngIf="!loading">
+    <div class="dispute-form">
+      
+      <!-- Step 1: Client & Dispute Type -->
+      <div class="step-content" *ngIf="step === 1">
+        <div class="step-header">
+          <h2>Select Client & Dispute Type</h2>
+          <p>Choose the client and specify what type of dispute you're creating</p>
+        </div>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="clientId">Client *</label>
+            <select 
+              id="clientId" 
+              formControlName="clientId" 
+              class="form-control"
+              (change)="onClientChange()"
+            >
+              <option value="">Select a client...</option>
+              <option *ngFor="let client of clients" [value]="client.id">
+                {{ client.firstName }} {{ client.lastName }} - {{ client.email }}
+              </option>
+            </select>
+            <div class="form-error" *ngIf="disputeForm.get('clientId')?.invalid && disputeForm.get('clientId')?.touched">
+              Please select a client
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="disputeType">Dispute Type *</label>
+            <select 
+              id="disputeType" 
+              formControlName="disputeType" 
+              class="form-control"
+            >
+              <option *ngFor="let type of [DisputeType.INACCURATE_INFORMATION, DisputeType.IDENTITY_THEFT, DisputeType.MIXED_FILES, DisputeType.OUTDATED_INFORMATION, DisputeType.UNAUTHORIZED_INQUIRY]" [value]="type">
+                {{ getDisputeTypeLabel(type) }}
+              </option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Client Preview -->
+        <div class="client-preview" *ngIf="selectedClient">
+          <h3>Selected Client</h3>
+          <div class="client-card">
+            <div class="client-info">
+              <div class="client-name">
+                <i class="fas fa-user"></i>
+                {{ selectedClient?.firstName }} {{ selectedClient?.lastName }}
+              </div>
+              <div class="client-details">
+                <div class="detail">
+                  <i class="fas fa-envelope"></i>
+                  {{ selectedClient?.email }}
+                </div>
+                <div class="detail">
+                  <i class="fas fa-phone"></i>
+                  {{ selectedClient?.phone }}
+                </div>
+                <div class="detail">
+                  <i class="fas fa-map-marker-alt"></i>
+                  {{ selectedClient?.address?.street }}, {{ selectedClient?.address?.city }}, {{ selectedClient?.address?.state }} {{ selectedClient?.address?.zipCode }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Step 2: Select Items to Dispute -->
+      <div class="step-content" *ngIf="step === 2">
+        <div class="step-header">
+          <h2>Select Items to Dispute</h2>
+          <p>Choose which credit report items you want to dispute</p>
+        </div>
+        
+        <!-- Credit Items List -->
+        <div class="credit-items" *ngIf="creditItems.length > 0">
+          <div class="items-header">
+            <h3>Credit Report Items</h3>
+            <div class="selection-summary">
+              {{ selectedItemsArray.length }} of {{ creditItems.length }} items selected
+            </div>
+          </div>
+          
+          <div class="items-list">
+            <div 
+              class="credit-item" 
+              [class.selected]="isItemSelected(item)"
+              *ngFor="let item of creditItems"
+            >
+              <div class="item-header">
+                <div class="item-checkbox">
+                  <input 
+                    type="checkbox" 
+                    [checked]="isItemSelected(item)"
+                    (change)="onItemSelect(item, $any($event.target).checked)"
+                    [id]="'item-' + item.id"
+                  />
+                  <label [for]="'item-' + item.id"></label>
+                </div>
+                <div class="item-info">
+                  <div class="item-name">{{ item.accountName }}</div>
+                  <div class="item-details">
+                    <span class="account-number">{{ item.accountNumber }}</span>
+                    <span class="bureau" [class]="'bureau-' + item.bureau.toLowerCase()">
+                      {{ getCreditBureauLabel(item.bureau) }}
+                    </span>
+                    <span class="balance" *ngIf="item.balance > 0">
+                      {{ formatCurrency(item.balance) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Dispute Reasons (shown when selected) -->
+              <div class="item-dispute-options" *ngIf="isItemSelected(item) && getSelectedItemControl(item)">
+                  <label>Dispute Reasons *</label>
+                  <div class="reasons-grid">
+                    <div 
+                      class="reason-option" 
+                      *ngFor="let reason of item.disputeReasons"
+                    >
+                      <input 
+                        type="checkbox" 
+                        [value]="reason"
+                        [id]="'reason-' + item.id + '-' + reason"
+                        (change)="onReasonChange(item, reason, $event)"
+                      />
+                      <label [for]="'reason-' + item.id + '-' + reason">
+                        {{ getDisputeReasonLabel(reason) }}
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <div class="custom-reason">
+                    <label for="customReason-{{ item.id }}">Custom Reason</label>
+                    <textarea 
+                      [id]="'customReason-' + item.id"
+                      formControlName="customReason"
+                      class="form-control"
+                      placeholder="Enter custom dispute reason..."
+                      rows="2"
+                    ></textarea>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- No Items Message -->
+        <div class="no-items" *ngIf="creditItems.length === 0 && !loading">
+          <div class="no-items-content">
+            <i class="fas fa-file-alt"></i>
+            <h3>No Credit Items Found</h3>
+            <p>No credit report items were found for this client. Please ensure the client has a credit report on file.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Step 3: Choose Template & Customize -->
+      <div class="step-content" *ngIf="step === 3">
+        <div class="step-header">
+          <h2>Choose Template & Customize</h2>
+          <p>Select a letter template and customize the content</p>
+        </div>
+        
+        <!-- Template Selection -->
+        <div class="template-selection">
+          <h3>Letter Templates</h3>
+          <div class="templates-grid">
+            <div 
+              class="template-card" 
+              [class.selected]="selectedTemplate?.id === template.id"
+              *ngFor="let template of templates"
+              (click)="disputeForm.patchValue({templateId: template.id}); onTemplateChange()"
+            >
+              <div class="template-header">
+                <div class="template-title">{{ template.name }}</div>
+                <div class="template-type" [class]="'type-' + template.type.toLowerCase()">
+                  {{ getDisputeTypeLabel(template.type) }}
+                </div>
+              </div>
+              <div class="template-description">
+                {{ template.description }}
+              </div>
+              <div class="template-stats">
+                <div class="stat">
+                  <i class="fas fa-star"></i>
+                  {{ template.effectiveness }}% effective
+                </div>
+                <div class="stat">
+                  <i class="fas fa-clock"></i>
+                  {{ template.averageResponseTime }} days
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Template Preview -->
+        <div class="template-preview" *ngIf="selectedTemplate">
+          <h3>Template Preview</h3>
+          <div class="preview-content">
+            <div class="preview-text">{{ selectedTemplate?.content }}</div>
+          </div>
+        </div>
+        
+        <!-- Customization Options -->
+        <div class="customization-options" formGroupName="personalizations">
+          <h3>Customization Options</h3>
+          <div class="options-grid">
+            <div class="option-group">
+              <h4>Letter Elements</h4>
+              <div class="checkbox-group">
+                <div class="checkbox-item">
+                  <input type="checkbox" id="includeSignature" formControlName="includeClientSignature" />
+                  <label for="includeSignature">Include client signature</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="includeDate" formControlName="includeDate" />
+                  <label for="includeDate">Include current date</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="includeAccountDetails" formControlName="includeAccountDetails" />
+                  <label for="includeAccountDetails">Include account details</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="option-group">
+              <h4>Additional Options</h4>
+              <div class="form-group">
+                <label for="customClosing">Custom Closing</label>
+                <input 
+                  type="text" 
+                  id="customClosing" 
+                  formControlName="customClosing"
+                  class="form-control"
+                  placeholder="e.g., Sincerely, Best regards..."
+                >
+              </div>
+              <div class="form-group">
+                <label for="additionalRequests">Additional Requests</label>
+                <textarea 
+                  id="additionalRequests" 
+                  formControlName="additionalRequests"
+                  class="form-control"
+                  placeholder="Any additional requests or instructions..."
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Delivery Options -->
+        <div class="delivery-options">
+          <h3>Delivery Options</h3>
+          <div class="options-grid">
+            <div class="form-group">
+              <label for="requestMethod">Delivery Method</label>
+              <select id="requestMethod" formControlName="requestMethod" class="form-control">
+                <option value="certified_mail">Certified Mail</option>
+                <option value="regular_mail">Regular Mail</option>
+                <option value="email">Email</option>
+                <option value="fax">Fax</option>
+              </select>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="includeDocumentation" formControlName="includeDocumentation" />
+              <label for="includeDocumentation">Include supporting documentation</label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Custom Instructions -->
+        <div class="custom-instructions">
+          <div class="form-group">
+            <label for="customInstructions">Custom Instructions</label>
+            <textarea 
+              id="customInstructions" 
+              formControlName="customInstructions"
+              class="form-control"
+              placeholder="Any special instructions or modifications to the template..."
+              rows="4"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Step 4: Review & Generate -->
+      <div class="step-content" *ngIf="step === 4">
+        <div class="step-header">
+          <h2>Review & Generate Letters</h2>
+          <p>Review your selections and generate the dispute letters</p>
+        </div>
+        
+        <!-- Generation Status -->
+        <div class="generation-status" *ngIf="generating">
+          <div class="status-content">
+            <i class="fas fa-spinner fa-spin"></i>
+            <h3>Generating Letters...</h3>
+            <p>Please wait while we create your dispute letters</p>
+          </div>
+        </div>
+        
+        <!-- Review Summary -->
+        <div class="review-summary" *ngIf="!generating">
+          <div class="summary-section">
+            <h3>Summary</h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <div class="summary-label">Client</div>
+                <div class="summary-value">{{ selectedClient?.firstName }} {{ selectedClient?.lastName }}</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Dispute Type</div>
+                <div class="summary-value">{{ getDisputeTypeLabel(disputeForm.get('disputeType')?.value) }}</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Template</div>
+                <div class="summary-value">{{ selectedTemplate?.name }}</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Items to Dispute</div>
+                <div class="summary-value">{{ selectedItemsArray.length }} items</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Delivery Method</div>
+                <div class="summary-value">{{ getFormattedRequestMethod() }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Generated Letters -->
+        <div class="generated-letters" *ngIf="generatedLetters.length > 0">
+          <div class="letters-header">
+            <h3>Generated Letters ({{ generatedLetters.length }})</h3>
+            <div class="letters-actions">
+              <button class="btn btn-outline" (click)="downloadAllLetters()">
+                <i class="fas fa-download"></i>
+                Download All
+              </button>
+            </div>
+          </div>
+          
+          <div class="letters-list">
+            <div class="letter-item" *ngFor="let letter of generatedLetters">
+              <div class="letter-info">
+                <div class="letter-title">{{ letter.title }}</div>
+                <div class="letter-details">
+                  <span class="bureau" [class]="'bureau-' + letter.bureau.toLowerCase()">
+                    {{ getCreditBureauLabel(letter.bureau) }}
+                  </span>
+                  <span class="pages">{{ letter.pageCount }} pages</span>
+                </div>
+              </div>
+              <div class="letter-actions">
+                <button class="btn btn-sm btn-ghost" (click)="showPreview(letter)">
+                  <i class="fas fa-eye"></i>
+                  Preview
+                </button>
+                <button class="btn btn-sm btn-ghost" (click)="editLetter(letter)">
+                  <i class="fas fa-edit"></i>
+                  Edit
+                </button>
+                <button class="btn btn-sm btn-ghost" (click)="downloadLetter(letter)">
+                  <i class="fas fa-download"></i>
+                  Download
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Letter Preview -->
+        <div class="letter-preview" *ngIf="previewLetter">
+          <div class="preview-header">
+            <h3>Letter Preview: {{ previewLetter?.subject }}</h3>
+            <button class="btn btn-ghost" (click)="previewLetter = null">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="preview-content">
+            <div class="preview-text" [innerHTML]="previewLetter?.content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+
+    <!-- Navigation Footer -->
+  <div class="navigation-footer" *ngIf="!loading">
+    <div class="footer-content">
+      <div class="footer-left">
+        <button 
+          class="btn btn-outline" 
+          (click)="previousStep()" 
+          [disabled]="step === 1 || generating"
+        >
+          <i class="fas fa-arrow-left"></i>
+          Previous
+        </button>
+      </div>
+      
+      <div class="footer-center">
+        <div class="step-indicator">
+          Step {{ step }} of {{ maxSteps }}
+        </div>
+      </div>
+      
+      <div class="footer-right">
+        <button 
+          class="btn btn-primary" 
+          (click)="nextStep()" 
+          [disabled]="!canProceed() || generating"
+          *ngIf="step < maxSteps"
+        >
+          Next
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        
+        <button 
+          class="btn btn-primary" 
+          (click)="generateLetters()" 
+          [disabled]="!canProceed() || generating"
+          *ngIf="step === maxSteps && generatedLetters.length === 0"
+        >
+          <i class="fas fa-magic"></i>
+          Generate Letters
+        </button>
+        
+        <button 
+          class="btn btn-success" 
+          *ngIf="step === maxSteps && generatedLetters.length > 0"
+          (click)="saveAndSendLetters()" 
+          [disabled]="generating"
+        >
+          <i class="fas fa-paper-plane"></i>
+          Save & Send Letters
+        </button>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>

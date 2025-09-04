@@ -1,0 +1,216 @@
+<div class="contact-support-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <h1 class="page-title">Contact Support</h1>
+    <p class="page-subtitle">
+      Get help from our expert team. We're here to assist you with any questions or issues.
+    </p>
+  </div>
+
+  <!-- Contact Methods -->
+  <div class="contact-methods">
+    <h2>Get in Touch</h2>
+    <div class="methods-grid">
+      <div class="method-card" *ngFor="let method of contactMethods">
+        <div class="method-icon">
+          <i [class]="'feather-' + method.icon"></i>
+        </div>
+        <div class="method-info">
+          <h3>{{ method.title }}</h3>
+          <p class="method-value" (click)="copyToClipboard(method.value)">{{ method.value }}</p>
+          <p class="method-description">{{ method.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Support Form -->
+  <div class="support-form-section">
+    <h2>Submit a Support Request</h2>
+    
+    <!-- Success Message -->
+    <div class="alert alert-success" *ngIf="submitSuccess">
+      <i class="feather-check-circle"></i>
+      <span>Your support request has been submitted successfully. We'll get back to you soon!</span>
+    </div>
+
+    <!-- Error Message -->
+    <div class="alert alert-error" *ngIf="submitError">
+      <i class="feather-alert-circle"></i>
+      <span>{{ submitError }}</span>
+    </div>
+
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="support-form">
+      <!-- Personal Information -->
+      <div class="form-section">
+        <h3>Personal Information</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input
+              type="text"
+              id="name"
+              formControlName="name"
+              placeholder="Enter your full name"
+              [class.error]="getFieldError('name')"
+            >
+            <div class="error-message" *ngIf="getFieldError('name')">{{ getFieldError('name') }}</div>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input
+              type="email"
+              id="email"
+              formControlName="email"
+              placeholder="Enter your email address"
+              [class.error]="getFieldError('email')"
+            >
+            <div class="error-message" *ngIf="getFieldError('email')">{{ getFieldError('email') }}</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              formControlName="phone"
+              placeholder="Enter your phone number"
+              [class.error]="getFieldError('phone')"
+            >
+            <div class="error-message" *ngIf="getFieldError('phone')">{{ getFieldError('phone') }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Request Details -->
+      <div class="form-section">
+        <h3>Request Details</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="category">Category *</label>
+            <select
+              id="category"
+              formControlName="category"
+              [class.error]="getFieldError('category')"
+            >
+              <option value="">Select a category</option>
+              <option *ngFor="let category of supportCategories" [value]="category.value">
+                {{ category.label }}
+              </option>
+            </select>
+            <div class="error-message" *ngIf="getFieldError('category')">{{ getFieldError('category') }}</div>
+          </div>
+          <div class="form-group">
+            <label for="priority">Priority *</label>
+            <select
+              id="priority"
+              formControlName="priority"
+              [class.error]="getFieldError('priority')"
+            >
+              <option *ngFor="let priority of priorityLevels" [value]="priority.value">
+                {{ priority.label }}
+              </option>
+            </select>
+            <div class="error-message" *ngIf="getFieldError('priority')">{{ getFieldError('priority') }}</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="subject">Subject *</label>
+            <input
+              type="text"
+              id="subject"
+              formControlName="subject"
+              placeholder="Brief description of your issue"
+              [class.error]="getFieldError('subject')"
+            >
+            <div class="error-message" *ngIf="getFieldError('subject')">{{ getFieldError('subject') }}</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="message">Message *</label>
+            <textarea
+              id="message"
+              formControlName="message"
+              rows="6"
+              placeholder="Please provide detailed information about your issue or question"
+              [class.error]="getFieldError('message')"
+            ></textarea>
+            <div class="error-message" *ngIf="getFieldError('message')">{{ getFieldError('message') }}</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="attachments">Attachments</label>
+            <input
+              type="file"
+              id="attachments"
+              (change)="onFileSelect($event)"
+              multiple
+              accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg"
+            >
+            <div class="file-help">Supported formats: PDF, DOC, DOCX, TXT, PNG, JPG (Max 10MB each)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="contactForm.invalid || isSubmitting"
+        >
+          <span *ngIf="isSubmitting" class="spinner"></span>
+          {{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Additional Resources -->
+  <div class="additional-resources">
+    <h2>Additional Resources</h2>
+    <div class="resources-grid">
+      <div class="resource-card">
+        <i class="feather-book-open"></i>
+        <h3>Documentation</h3>
+        <p>Browse our comprehensive guides and documentation</p>
+        <a routerLink="/help/documentation" class="resource-link">View Documentation</a>
+      </div>
+      <div class="resource-card">
+        <i class="feather-help-circle"></i>
+        <h3>FAQ</h3>
+        <p>Find answers to frequently asked questions</p>
+        <a routerLink="/help/faq" class="resource-link">Browse FAQ</a>
+      </div>
+      <div class="resource-card">
+        <i class="feather-play-circle"></i>
+        <h3>Video Guides</h3>
+        <p>Watch step-by-step video tutorials</p>
+        <a routerLink="/help/video-guides" class="resource-link">Watch Videos</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Business Hours -->
+  <div class="business-hours">
+    <h2>Business Hours</h2>
+    <div class="hours-info">
+      <div class="hours-item">
+        <span class="day">Monday - Friday</span>
+        <span class="time">9:00 AM - 5:00 PM CST</span>
+      </div>
+      <div class="hours-item">
+        <span class="day">Saturday - Sunday</span>
+        <span class="time">Closed</span>
+      </div>
+    </div>
+    <p class="hours-note">
+      <i class="feather-info"></i>
+      Emergency support is available 24/7 for critical issues affecting system availability.
+    </p>
+  </div>
+</div>

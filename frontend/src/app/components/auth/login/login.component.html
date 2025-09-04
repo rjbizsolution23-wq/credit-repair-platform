@@ -1,0 +1,310 @@
+<!-- Rick Jefferson Solutions - Login Component -->
+<!-- Secure authentication interface with brand-compliant design -->
+<!-- Implements 2FA support and comprehensive user experience -->
+
+<div class="login-container">
+  <!-- Background Elements -->
+  <div class="background-pattern"></div>
+  <div class="background-overlay"></div>
+
+  <!-- Main Login Card -->
+  <div class="login-card">
+    <!-- Header Section -->
+    <div class="login-header">
+      <div class="brand-logo">
+        <img src="assets/images/rjs-logo.svg" alt="Rick Jefferson Solutions" class="logo">
+      </div>
+      <h1 class="brand-title">Rick Jefferson Solutions</h1>
+      <p class="brand-tagline">Your Credit Freedom Starts Here</p>
+      <div class="trust-indicators">
+        <span class="trust-badge">Trusted by NFL & Dallas Cowboys</span>
+        <span class="trust-badge">10 Step Total Enforcement Chain™</span>
+      </div>
+    </div>
+
+    <!-- Login Form Section -->
+    <div class="login-form-section" *ngIf="!showTwoFactor">
+      <div class="form-header">
+        <h2>Sign In to Your Account</h2>
+        <p>Access your credit repair dashboard and track your progress</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email" class="form-label">
+            Email Address
+            <span class="required">*</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              type="email"
+              id="email"
+              formControlName="email"
+              class="form-input"
+              [class.error]="isFieldInvalid('email')"
+              placeholder="Enter your email address"
+              autocomplete="email"
+              [attr.aria-describedby]="getAriaDescribedBy('email')"
+              [attr.aria-invalid]="isFieldInvalid('email')"
+            >
+            <i class="input-icon fas fa-envelope"></i>
+          </div>
+          <div 
+            *ngIf="isFieldInvalid('email')" 
+            class="error-message" 
+            [id]="'email-error'"
+            role="alert"
+          >
+            {{ getFieldError('email') }}
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="password" class="form-label">
+            Password
+            <span class="required">*</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              class="form-input"
+              [class.error]="isFieldInvalid('password')"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              [attr.aria-describedby]="getAriaDescribedBy('password')"
+              [attr.aria-invalid]="isFieldInvalid('password')"
+            >
+            <i class="input-icon fas fa-lock"></i>
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          <div 
+            *ngIf="isFieldInvalid('password')" 
+            class="error-message" 
+            [id]="'password-error'"
+            role="alert"
+          >
+            {{ getFieldError('password') }}
+          </div>
+        </div>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="form-options">
+          <label class="checkbox-wrapper">
+            <input
+              type="checkbox"
+              formControlName="rememberMe"
+              class="checkbox-input"
+            >
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-label">Remember me</span>
+          </label>
+          <button
+            type="button"
+            class="link-button"
+            (click)="navigateToForgotPassword()"
+          >
+            Forgot Password?
+          </button>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="submit-button"
+          [disabled]="isLoading || loginForm.invalid"
+          [class.loading]="isLoading"
+        >
+          <span *ngIf="!isLoading">Sign In</span>
+          <span *ngIf="isLoading" class="loading-content">
+            <i class="fas fa-spinner fa-spin"></i>
+            Signing In...
+          </span>
+        </button>
+      </form>
+
+      <!-- Registration Link -->
+      <div class="register-section">
+        <p>Don't have an account?</p>
+        <button
+          type="button"
+          class="register-button"
+          (click)="navigateToRegister()"
+        >
+          Create Account
+        </button>
+      </div>
+    </div>
+
+    <!-- Two-Factor Authentication Section -->
+    <div class="two-factor-section" *ngIf="showTwoFactor">
+      <div class="form-header">
+        <h2>Two-Factor Authentication</h2>
+        <p>Enter the verification code sent to your {{ getTwoFactorMethodDisplay() }}</p>
+      </div>
+
+      <form [formGroup]="twoFactorForm" (ngSubmit)="onTwoFactorSubmit()" class="two-factor-form">
+        <!-- Verification Code Field -->
+        <div class="form-group">
+          <label for="code" class="form-label">
+            Verification Code
+            <span class="required">*</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="code"
+              formControlName="code"
+              class="form-input code-input"
+              [class.error]="isFieldInvalid('code', twoFactorForm)"
+              placeholder="000000"
+              maxlength="6"
+              autocomplete="one-time-code"
+              [attr.aria-describedby]="getAriaDescribedBy('code')"
+              [attr.aria-invalid]="isFieldInvalid('code', twoFactorForm)"
+            >
+            <i class="input-icon fas fa-shield-alt"></i>
+          </div>
+          <div 
+            *ngIf="isFieldInvalid('code', twoFactorForm)" 
+            class="error-message" 
+            [id]="'code-error'"
+            role="alert"
+          >
+            {{ getFieldError('code', twoFactorForm) }}
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="two-factor-actions">
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="isLoading || twoFactorForm.invalid"
+            [class.loading]="isLoading"
+          >
+            <span *ngIf="!isLoading">Verify</span>
+            <span *ngIf="isLoading" class="loading-content">
+              <i class="fas fa-spinner fa-spin"></i>
+              Verifying...
+            </span>
+          </button>
+          
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="resendTwoFactorCode()"
+            [disabled]="isLoading"
+          >
+            Resend Code
+          </button>
+          
+          <button
+            type="button"
+            class="link-button"
+            (click)="backToLogin()"
+          >
+            Back to Login
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Messages Section -->
+    <div class="messages-section" *ngIf="errorMessage || successMessage">
+      <div 
+        *ngIf="errorMessage" 
+        class="alert alert-error" 
+        role="alert"
+        aria-live="polite"
+      >
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+      
+      <div 
+        *ngIf="successMessage" 
+        class="alert alert-success" 
+        role="alert"
+        aria-live="polite"
+      >
+        <i class="fas fa-check-circle"></i>
+        {{ successMessage }}
+      </div>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="login-footer">
+      <div class="contact-info">
+        <div class="contact-item">
+          <i class="fas fa-phone"></i>
+          <span>{{ brandInfo.phone }}</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-envelope"></i>
+          <span>{{ brandInfo.email }}</span>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-globe"></i>
+          <span>{{ brandInfo.website }}</span>
+        </div>
+      </div>
+      
+      <div class="business-hours">
+        <p><strong>Business Hours:</strong> Mon-Fri, 9-5 CST</p>
+        <p><strong>Offices:</strong> Frisco HQ • Dallas • Milwaukee</p>
+      </div>
+      
+      <div class="legal-links">
+        <a href="/privacy-policy" class="legal-link">Privacy Policy</a>
+        <a href="/terms-of-service" class="legal-link">Terms of Service</a>
+        <a href="/compliance" class="legal-link">Compliance</a>
+      </div>
+      
+      <div class="copyright">
+        <p>&copy; {{ new Date().getFullYear() }} Rick Jefferson Solutions. All rights reserved.</p>
+        <p class="disclaimer">Licensed Credit Repair Organization</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Features Notice -->
+  <div class="security-notice">
+    <div class="security-features">
+      <div class="security-item">
+        <i class="fas fa-shield-alt"></i>
+        <span>256-bit SSL Encryption</span>
+      </div>
+      <div class="security-item">
+        <i class="fas fa-lock"></i>
+        <span>Two-Factor Authentication</span>
+      </div>
+      <div class="security-item">
+        <i class="fas fa-user-shield"></i>
+        <span>FCRA Compliant</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="loading-spinner">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Processing...</p>
+  </div>
+</div>
+
+<!-- Rick Jefferson Solutions - Login Template -->
+<!-- Professional authentication interface with comprehensive UX -->
+<!-- Implements accessibility standards and security best practices -->

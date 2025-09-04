@@ -1,0 +1,1070 @@
+<div class="client-portal-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button 
+          type="button" 
+          class="btn btn-link back-btn" 
+          routerLink="/clients"
+          [attr.aria-label]="'Back to clients'"
+        >
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-text">
+          <h1 class="page-title">Client Portal Management</h1>
+          <p class="page-subtitle">Manage client portal access, documents, milestones, and analytics</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="onRefresh()"
+          [attr.aria-label]="'Refresh portal data'"
+        >
+          <i class="fas fa-sync-alt"></i>
+          Refresh
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="onOpenSettings()"
+        >
+          <i class="fas fa-cog"></i>
+          Settings
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="onInviteUser()"
+        >
+          <i class="fas fa-user-plus"></i>
+          Invite User
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container text-center py-5" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading portal data...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !isLoading">
+    <div class="alert alert-danger">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{ error }}</span>
+      <button 
+        type="button" 
+        class="btn btn-sm btn-outline-danger"
+        (click)="onRefresh()"
+      >
+        <i class="fas fa-redo"></i>
+        Retry
+      </button>
+    </div>
+  </div>
+
+  <!-- Portal Content -->
+  <div class="portal-content" *ngIf="!isLoading && !error">
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <nav class="nav nav-tabs">
+        <button 
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab === 'overview'"
+          (click)="setActiveTab('overview')"
+        >
+          <i class="fas fa-tachometer-alt"></i>
+          Overview
+        </button>
+        <button 
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab === 'users'"
+          (click)="setActiveTab('users')"
+        >
+          <i class="fas fa-users"></i>
+          Portal Users
+          <span class="badge">{{ portalUsers.length }}</span>
+        </button>
+        <button 
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab === 'invitations'"
+          (click)="setActiveTab('invitations')"
+        >
+          <i class="fas fa-envelope"></i>
+          Invitations
+          <span class="badge">{{ invitations.length }}</span>
+        </button>
+        <button 
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab === 'documents'"
+          (click)="setActiveTab('documents')"
+        >
+          <i class="fas fa-file-alt"></i>
+          Documents
+          <span class="badge">{{ documents.length }}</span>
+        </button>
+        <button 
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab === 'milestones'"
+          (click)="setActiveTab('milestones')"
+        >
+          <i class="fas fa-flag-checkered"></i>
+          Milestones
+          <span class="badge">{{ milestones.length }}</span>
+        </button>
+        <button 
+          type="button"
+          class="nav-link"
+          [class.active]="activeTab === 'analytics'"
+          (click)="setActiveTab('analytics')"
+        >
+          <i class="fas fa-chart-bar"></i>
+          Analytics
+        </button>
+      </nav>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="filter-bar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input 
+          type="text" 
+          class="form-control"
+          placeholder="Search users or invitations..."
+          [(ngModel)]="searchTerm"
+        >
+      </div>
+      <div class="filter-controls">
+        <select class="form-select" [(ngModel)]="statusFilter">
+          <option value="all">All Status</option>
+          <option value="active" *ngIf="activeTab === 'users'">Active</option>
+          <option value="inactive" *ngIf="activeTab === 'users'">Inactive</option>
+          <option value="pending" *ngIf="activeTab === 'invitations'">Pending</option>
+          <option value="accepted" *ngIf="activeTab === 'invitations'">Accepted</option>
+          <option value="expired" *ngIf="activeTab === 'invitations'">Expired</option>
+          <option value="revoked" *ngIf="activeTab === 'invitations'">Revoked</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Overview Tab -->
+      <div class="tab-pane" [class.active]="activeTab === 'overview'">
+        <div class="overview-dashboard" *ngIf="analytics">
+          <!-- Statistics Cards -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <div class="stat-card">
+                <div class="stat-icon bg-primary">
+                  <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                  <h3>{{ analytics.totalUsers }}</h3>
+                  <p>Total Users</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-card">
+                <div class="stat-icon bg-success">
+                  <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-content">
+                  <h3>{{ analytics.activeUsers }}</h3>
+                  <p>Active Users</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-card">
+                <div class="stat-icon bg-info">
+                  <i class="fas fa-file-upload"></i>
+                </div>
+                <div class="stat-content">
+                  <h3>{{ analytics.documentStats.totalUploads }}</h3>
+                  <p>Documents Uploaded</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-card">
+                <div class="stat-icon bg-warning">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                  <h3>{{ analytics.documentStats.pendingReview }}</h3>
+                  <p>Pending Review</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Login Statistics -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">Login Statistics</h5>
+                </div>
+                <div class="card-body">
+                  <div class="login-stats">
+                    <div class="stat-item">
+                      <span class="label">Daily Logins:</span>
+                      <span class="value">{{ analytics.loginStats.daily }}</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="label">Weekly Logins:</span>
+                      <span class="value">{{ analytics.loginStats.weekly }}</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="label">Monthly Logins:</span>
+                      <span class="value">{{ analytics.loginStats.monthly }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">Feature Usage</h5>
+                </div>
+                <div class="card-body">
+                  <div class="feature-usage">
+                    <div class="usage-item" *ngFor="let item of analytics.engagementMetrics.featureUsage | keyvalue">
+                      <div class="usage-label">{{ item.key | titlecase }}</div>
+                      <div class="usage-bar">
+                        <div class="usage-fill" [style.width.%]="(item.value / analytics.totalUsers) * 100"></div>
+                      </div>
+                      <div class="usage-value">{{ item.value }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="row">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                  <div class="quick-actions">
+                    <button class="btn btn-primary" (click)="onInviteUser()">
+                      <i class="fas fa-user-plus"></i>
+                      Invite New User
+                    </button>
+                    <button class="btn btn-success" (click)="onUploadDocument()">
+                      <i class="fas fa-upload"></i>
+                      Upload Document
+                    </button>
+                    <button class="btn btn-info" (click)="onCreateMilestone()">
+                      <i class="fas fa-flag"></i>
+                      Create Milestone
+                    </button>
+                    <button class="btn btn-secondary" (click)="setActiveTab('analytics')">
+                      <i class="fas fa-chart-line"></i>
+                      View Analytics
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Tab -->
+      <div class="tab-pane" [class.active]="activeTab === 'users'">
+        <div class="users-grid" *ngIf="getFilteredUsers().length > 0; else noUsers">
+          <div 
+            class="user-card"
+            *ngFor="let user of getFilteredUsers()"
+          >
+            <div class="user-header">
+              <div class="user-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="user-info">
+                <h4 class="user-name">{{ getFullName(user) }}</h4>
+                <p class="user-email">{{ user.email }}</p>
+                <span [class]="getUserStatusBadgeClass(user.isActive)">
+                  {{ user.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+              <div class="user-actions">
+                <div class="dropdown">
+                  <button 
+                    type="button" 
+                    class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <button 
+                        type="button" 
+                        class="dropdown-item"
+                        (click)="onEditUser(user)"
+                      >
+                        <i class="fas fa-edit"></i>
+                        Edit User
+                      </button>
+                    </li>
+                    <li>
+                      <button 
+                        type="button" 
+                        class="dropdown-item"
+                        (click)="onToggleUserStatus(user)"
+                      >
+                        <i class="fas" [class.fa-play]="!user.isActive" [class.fa-pause]="user.isActive"></i>
+                        {{ user.isActive ? 'Deactivate' : 'Activate' }}
+                      </button>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <button 
+                        type="button" 
+                        class="dropdown-item text-danger"
+                        (click)="onDeleteUser(user)"
+                      >
+                        <i class="fas fa-trash"></i>
+                        Delete User
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div class="user-details">
+              <div class="detail-row" *ngIf="user.phone">
+                <span class="detail-label">Phone:</span>
+                <span class="detail-value">{{ user.phone }}</span>
+              </div>
+              <div class="detail-row" *ngIf="user.lastLogin">
+                <span class="detail-label">Last Login:</span>
+                <span class="detail-value">{{ getFormattedDateTime(user.lastLogin) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Permissions:</span>
+                <span class="detail-value">{{ getGrantedPermissionsCount(user.permissions) }} granted</span>
+              </div>
+            </div>
+            
+            <div class="user-permissions">
+              <h5>Granted Permissions</h5>
+              <div class="permissions-list">
+                <span 
+                  class="permission-badge"
+                  *ngFor="let permission of user.permissions"
+                  [class.granted]="permission.isGranted"
+                >
+                  {{ permission.name }}
+                </span>
+                <span class="no-permissions" *ngIf="hasNoGrantedPermissions(user.permissions)">
+                  No permissions granted
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <ng-template #noUsers>
+          <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <h3>No Portal Users Found</h3>
+            <p>No users match your current search criteria.</p>
+            <button 
+              type="button" 
+              class="btn btn-primary"
+              (click)="onInviteUser()"
+            >
+              <i class="fas fa-user-plus"></i>
+              Invite First User
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Invitations Tab -->
+      <div class="tab-pane" [class.active]="activeTab === 'invitations'">
+        <div class="invitations-list" *ngIf="getFilteredInvitations().length > 0; else noInvitations">
+          <div 
+            class="invitation-card"
+            *ngFor="let invitation of getFilteredInvitations()"
+          >
+            <div class="invitation-header">
+              <div class="invitation-info">
+                <h4 class="invitation-email">{{ invitation.email }}</h4>
+                <p class="invitation-client">{{ invitation.clientName }}</p>
+                <span [class]="getStatusBadgeClass(invitation.status)">
+                  {{ invitation.status | titlecase }}
+                </span>
+              </div>
+              <div class="invitation-actions">
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="onResendInvitation(invitation)"
+                  *ngIf="invitation.status === 'pending' || invitation.status === 'expired'"
+                >
+                  <i class="fas fa-paper-plane"></i>
+                  {{ invitation.status === 'expired' ? 'Resend' : 'Resend' }}
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="onRevokeInvitation(invitation)"
+                  *ngIf="invitation.status === 'pending'"
+                >
+                  <i class="fas fa-times"></i>
+                  Revoke
+                </button>
+              </div>
+            </div>
+            
+            <div class="invitation-details">
+              <div class="detail-row">
+                <span class="detail-label">Invited By:</span>
+                <span class="detail-value">{{ invitation.invitedBy }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Invited Date:</span>
+                <span class="detail-value">{{ getFormattedDateTime(invitation.invitedDate) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Expires:</span>
+                <span class="detail-value" [class.text-danger]="isInvitationExpired(invitation)">
+                  {{ getFormattedDateTime(invitation.expiresDate) }}
+                  <span *ngIf="isInvitationExpired(invitation)" class="expired-label">(Expired)</span>
+                </span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Permissions:</span>
+                <span class="detail-value">{{ getPermissionNames(invitation.permissions) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <ng-template #noInvitations>
+          <div class="empty-state">
+            <i class="fas fa-envelope"></i>
+            <h3>No Invitations Found</h3>
+            <p>No invitations match your current search criteria.</p>
+            <button 
+              type="button" 
+              class="btn btn-primary"
+              (click)="onInviteUser()"
+            >
+              <i class="fas fa-user-plus"></i>
+              Send First Invitation
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Documents Tab -->
+      <div class="tab-pane" [class.active]="activeTab === 'documents'">
+        <div class="documents-section">
+          <!-- Documents Header -->
+          <div class="section-header">
+            <div class="header-content">
+              <h4>Document Management</h4>
+              <p class="text-muted">Manage client documents and uploads</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-primary" (click)="onUploadDocument()">
+                <i class="fas fa-upload"></i>
+                Upload Document
+              </button>
+            </div>
+          </div>
+
+          <!-- Documents Filters -->
+          <div class="filters-section mb-3">
+            <div class="row">
+              <div class="col-md-4">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Search documents..." 
+                  [(ngModel)]="searchTerm">
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" [(ngModel)]="documentTypeFilter">
+                  <option value="all">All Types</option>
+                  <option value="identity">Identity</option>
+                  <option value="financial">Financial</option>
+                  <option value="dispute">Dispute</option>
+                  <option value="legal">Legal</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documents List -->
+          <div class="documents-list">
+            <div class="card" *ngFor="let document of documents">
+              <div class="card-body">
+                <div class="document-item">
+                  <div class="document-icon">
+                    <i class="fas fa-file-alt"></i>
+                  </div>
+                  <div class="document-info">
+                    <h6>{{ document.name }}</h6>
+                    <p class="text-muted">{{ document.type }}</p>
+                    <div class="document-meta">
+                      <span class="badge badge-info">{{ document.type }}</span>
+                      <span class="text-muted ms-2">{{ formatFileSize(document.size) }}</span>
+                      <span class="text-muted ms-2">{{ getFormattedDate(document.uploadDate) }}</span>
+                    </div>
+                  </div>
+                  <div class="document-actions">
+                    <button class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="documents.length === 0">
+              <i class="fas fa-file-alt"></i>
+              <h5>No Documents Found</h5>
+              <p class="text-muted">Upload documents to get started</p>
+              <button class="btn btn-primary" (click)="onUploadDocument()">
+                <i class="fas fa-upload"></i>
+                Upload First Document
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Milestones Tab -->
+      <div class="tab-pane" [class.active]="activeTab === 'milestones'">
+        <div class="milestones-section">
+          <!-- Milestones Header -->
+          <div class="section-header">
+            <div class="header-content">
+              <h4>Milestone Management</h4>
+              <p class="text-muted">Track client progress and achievements</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-primary" (click)="onCreateMilestone()">
+                <i class="fas fa-plus"></i>
+                Create Milestone
+              </button>
+            </div>
+          </div>
+
+          <!-- Milestones Filters -->
+          <div class="filters-section mb-3">
+            <div class="row">
+              <div class="col-md-4">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Search milestones..." 
+                  [(ngModel)]="searchTerm">
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" [(ngModel)]="milestoneStatusFilter">
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="overdue">Overdue</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Milestones List -->
+          <div class="milestones-list">
+            <div class="card" *ngFor="let milestone of milestones">
+              <div class="card-body">
+                <div class="milestone-item">
+                  <div class="milestone-status">
+                    <div class="status-indicator" [class]="'status-' + milestone.status"></div>
+                  </div>
+                  <div class="milestone-content">
+                    <h6>{{ milestone.title }}</h6>
+                    <p class="text-muted">{{ milestone.description }}</p>
+                    <div class="milestone-meta">
+                      <span class="badge" [class]="getStatusBadgeClass(milestone.status)">{{ milestone.status | titlecase }}</span>
+                      <span class="text-muted ms-2" *ngIf="milestone.targetDate">Due: {{ getFormattedDate(milestone.targetDate) }}</span>
+                    </div>
+                    <div class="progress mt-2" *ngIf="milestone.progress !== undefined">
+                      <div class="progress-bar" [style.width.%]="milestone.progress"></div>
+                    </div>
+                  </div>
+                  <div class="milestone-actions">
+                    <button class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="milestones.length === 0">
+              <i class="fas fa-flag-checkered"></i>
+              <h5>No Milestones Found</h5>
+              <p class="text-muted">Create milestones to track client progress</p>
+              <button class="btn btn-primary" (click)="onCreateMilestone()">
+                <i class="fas fa-plus"></i>
+                Create First Milestone
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Tab -->
+      <div class="tab-pane" [class.active]="activeTab === 'analytics'">
+        <div class="analytics-section" *ngIf="analytics">
+          <!-- Analytics Header -->
+          <div class="section-header">
+            <div class="header-content">
+              <h4>Portal Analytics</h4>
+              <p class="text-muted">Detailed insights and metrics</p>
+            </div>
+          </div>
+
+          <!-- Detailed Analytics -->
+          <div class="row">
+            <div class="col-md-8">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">Engagement Metrics</h5>
+                </div>
+                <div class="card-body">
+                  <div class="engagement-metrics">
+                    <div class="metric-item">
+                      <div class="metric-label">Average Session Time</div>
+                      <div class="metric-value">{{ (analytics.engagementMetrics.averageSessionTime / 60) | number:'1.0-0' }} minutes</div>
+                    </div>
+                    <div class="metric-item">
+                      <div class="metric-label">Total Page Views</div>
+                      <div class="metric-value">{{ analytics.engagementMetrics.pageViews | number }}</div>
+                    </div>
+                    <div class="metric-item">
+                      <div class="metric-label">Documents Approved Today</div>
+                      <div class="metric-value">{{ analytics.documentStats.approvedToday }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">User Activity</h5>
+                </div>
+                <div class="card-body">
+                  <div class="activity-chart">
+                    <!-- Chart placeholder - integrate with your preferred charting library -->
+                    <div class="chart-placeholder">
+                      <i class="fas fa-chart-pie"></i>
+                      <p>Activity Chart</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invite User Modal -->
+  <div class="modal fade" [class.show]="showInviteModal" [style.display]="showInviteModal ? 'block' : 'none'" *ngIf="showInviteModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form [formGroup]="inviteForm" (ngSubmit)="onSubmitInvite()">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-user-plus"></i>
+              Invite Portal User
+            </h5>
+            <button 
+              type="button" 
+              class="btn-close" 
+              (click)="closeModal()"
+              [disabled]="isSubmitting"
+            ></button>
+          </div>
+          
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email Address *</label>
+                  <input 
+                    type="email" 
+                    id="email"
+                    class="form-control"
+                    formControlName="email"
+                    [class.is-invalid]="inviteForm.get('email')?.invalid && inviteForm.get('email')?.touched"
+                  >
+                  <div class="invalid-feedback" *ngIf="inviteForm.get('email')?.invalid && inviteForm.get('email')?.touched">
+                    Please enter a valid email address.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="phone" class="form-label">Phone Number</label>
+                  <input 
+                    type="tel" 
+                    id="phone"
+                    class="form-control"
+                    formControlName="phone"
+                    placeholder="(555) 123-4567"
+                  >
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="firstName" class="form-label">First Name *</label>
+                  <input 
+                    type="text" 
+                    id="firstName"
+                    class="form-control"
+                    formControlName="firstName"
+                    [class.is-invalid]="inviteForm.get('firstName')?.invalid && inviteForm.get('firstName')?.touched"
+                  >
+                  <div class="invalid-feedback" *ngIf="inviteForm.get('firstName')?.invalid && inviteForm.get('firstName')?.touched">
+                    First name is required (minimum 2 characters).
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="lastName" class="form-label">Last Name *</label>
+                  <input 
+                    type="text" 
+                    id="lastName"
+                    class="form-control"
+                    formControlName="lastName"
+                    [class.is-invalid]="inviteForm.get('lastName')?.invalid && inviteForm.get('lastName')?.touched"
+                  >
+                  <div class="invalid-feedback" *ngIf="inviteForm.get('lastName')?.invalid && inviteForm.get('lastName')?.touched">
+                    Last name is required (minimum 2 characters).
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Permissions</label>
+              <div class="permissions-grid">
+                <div 
+                  class="permission-item"
+                  *ngFor="let permission of availablePermissions"
+                >
+                  <div class="form-check">
+                    <input 
+                      type="checkbox" 
+                      class="form-check-input"
+                      [id]="'perm-' + permission.id"
+                      [checked]="isPermissionSelected(permission.id)"
+                      (change)="onPermissionChange(permission.id, $event)"
+                    >
+                    <label class="form-check-label" [for]="'perm-' + permission.id">
+                      <strong>{{ permission.name }}</strong>
+                      <small class="text-muted d-block">{{ permission.description }}</small>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="expiresInDays" class="form-label">Invitation Expires In (Days) *</label>
+                  <input 
+                    type="number" 
+                    id="expiresInDays"
+                    class="form-control"
+                    formControlName="expiresInDays"
+                    min="1"
+                    max="30"
+                    [class.is-invalid]="inviteForm.get('expiresInDays')?.invalid && inviteForm.get('expiresInDays')?.touched"
+                  >
+                  <div class="invalid-feedback" *ngIf="inviteForm.get('expiresInDays')?.invalid && inviteForm.get('expiresInDays')?.touched">
+                    Please enter a value between 1 and 30 days.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <div class="form-check mt-4">
+                    <input 
+                      type="checkbox" 
+                      id="sendWelcomeEmail"
+                      class="form-check-input"
+                      formControlName="sendWelcomeEmail"
+                    >
+                    <label class="form-check-label" for="sendWelcomeEmail">
+                      Send welcome email with login instructions
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button 
+              type="button" 
+              class="btn btn-secondary"
+              (click)="closeModal()"
+              [disabled]="isSubmitting"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              class="btn btn-primary"
+              [disabled]="inviteForm.invalid || isSubmitting"
+            >
+              <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+              <i class="fas fa-paper-plane" *ngIf="!isSubmitting"></i>
+              {{ isSubmitting ? 'Sending...' : 'Send Invitation' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade" [class.show]="showInviteModal" *ngIf="showInviteModal"></div>
+
+  <!-- Settings Modal -->
+  <div class="modal fade" [class.show]="showSettingsModal" [style.display]="showSettingsModal ? 'block' : 'none'" *ngIf="showSettingsModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form [formGroup]="settingsForm" (ngSubmit)="onSubmitSettings()">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-cog"></i>
+              Portal Settings
+            </h5>
+            <button 
+              type="button" 
+              class="btn-close" 
+              (click)="closeModal()"
+              [disabled]="isSubmitting"
+            ></button>
+          </div>
+          
+          <div class="modal-body">
+            <div class="settings-section">
+              <h6>Access Control</h6>
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  id="allowSelfRegistration"
+                  class="form-check-input"
+                  formControlName="allowSelfRegistration"
+                >
+                <label class="form-check-label" for="allowSelfRegistration">
+                  Allow self-registration for new users
+                </label>
+              </div>
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  id="requireEmailVerification"
+                  class="form-check-input"
+                  formControlName="requireEmailVerification"
+                >
+                <label class="form-check-label" for="requireEmailVerification">
+                  Require email verification for new accounts
+                </label>
+              </div>
+            </div>
+            
+            <div class="settings-section">
+              <h6>Security Settings</h6>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="sessionTimeout" class="form-label">Session Timeout (minutes)</label>
+                    <input 
+                      type="number" 
+                      id="sessionTimeout"
+                      class="form-control"
+                      formControlName="sessionTimeout"
+                      min="5"
+                      max="480"
+                    >
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="maxLoginAttempts" class="form-label">Max Login Attempts</label>
+                    <input 
+                      type="number" 
+                      id="maxLoginAttempts"
+                      class="form-control"
+                      formControlName="maxLoginAttempts"
+                      min="3"
+                      max="10"
+                    >
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="passwordMinLength" class="form-label">Minimum Password Length</label>
+                <input 
+                  type="number" 
+                  id="passwordMinLength"
+                  class="form-control"
+                  formControlName="passwordMinLength"
+                  min="6"
+                  max="20"
+                >
+              </div>
+              
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  id="requireTwoFactor"
+                  class="form-check-input"
+                  formControlName="requireTwoFactor"
+                >
+                <label class="form-check-label" for="requireTwoFactor">
+                  Require two-factor authentication
+                </label>
+              </div>
+              
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  id="allowPasswordReset"
+                  class="form-check-input"
+                  formControlName="allowPasswordReset"
+                >
+                <label class="form-check-label" for="allowPasswordReset">
+                  Allow password reset via email
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button 
+              type="button" 
+              class="btn btn-secondary"
+              (click)="closeModal()"
+              [disabled]="isSubmitting"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              class="btn btn-primary"
+              [disabled]="settingsForm.invalid || isSubmitting"
+            >
+              <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+              <i class="fas fa-save" *ngIf="!isSubmitting"></i>
+              {{ isSubmitting ? 'Saving...' : 'Save Settings' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade" [class.show]="showSettingsModal" *ngIf="showSettingsModal"></div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" [class.show]="showDeleteConfirm" [style.display]="showDeleteConfirm ? 'block' : 'none'" *ngIf="showDeleteConfirm">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-exclamation-triangle text-danger"></i>
+            Confirm {{ selectedUser ? 'Delete' : 'Revoke' }}
+          </h5>
+          <button 
+            type="button" 
+            class="btn-close" 
+            (click)="cancelDelete()"
+            [disabled]="isDeleting"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <p *ngIf="selectedUser">
+            Are you sure you want to delete <strong>{{ getFullName(selectedUser) }}</strong>?
+          </p>
+          <p *ngIf="selectedInvitation">
+            Are you sure you want to revoke the invitation for <strong>{{ selectedInvitation.email }}</strong>?
+          </p>
+          <p class="text-danger">
+            <i class="fas fa-warning"></i>
+            This action cannot be undone.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="cancelDelete()"
+            [disabled]="isDeleting"
+          >
+            Cancel
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-danger"
+            (click)="selectedUser ? confirmDeleteUser() : confirmRevokeInvitation()"
+            [disabled]="isDeleting"
+          >
+            <i class="fas fa-spinner fa-spin" *ngIf="isDeleting"></i>
+            <i class="fas fa-trash" *ngIf="!isDeleting && selectedUser"></i>
+            <i class="fas fa-times" *ngIf="!isDeleting && selectedInvitation"></i>
+            {{ isDeleting ? (selectedUser ? 'Deleting...' : 'Revoking...') : (selectedUser ? 'Delete User' : 'Revoke Invitation') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade" [class.show]="showDeleteConfirm" *ngIf="showDeleteConfirm"></div>
+</div>

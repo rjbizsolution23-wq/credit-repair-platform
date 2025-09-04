@@ -1,0 +1,118 @@
+<div [class]="getContainerClasses()" *ngIf="isVisible" role="status" [attr.aria-label]="getAriaLabel()">
+  
+  <!-- Spinner Element -->
+  <div [class]="getSpinnerClasses()" [attr.aria-hidden]="true">
+    
+    <!-- Border Spinner -->
+    <div *ngIf="type === 'border'" class="spinner-border" role="status">
+      <span class="visually-hidden">{{ getAriaLabel() }}</span>
+    </div>
+    
+    <!-- Grow Spinner -->
+    <div *ngIf="type === 'grow'" class="spinner-grow" role="status">
+      <span class="visually-hidden">{{ getAriaLabel() }}</span>
+    </div>
+    
+    <!-- Dots Spinner -->
+    <div *ngIf="type === 'dots'" class="spinner-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    
+    <!-- Pulse Spinner -->
+    <div *ngIf="type === 'pulse'" class="spinner-pulse">
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+    </div>
+    
+    <!-- Ripple Spinner -->
+    <div *ngIf="type === 'ripple'" class="spinner-ripple">
+      <div></div>
+      <div></div>
+    </div>
+    
+    <!-- Ring Spinner -->
+    <div *ngIf="type === 'ring'" class="spinner-ring">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    
+    <!-- Dual Ring Spinner -->
+    <div *ngIf="type === 'dual-ring'" class="spinner-dual-ring"></div>
+    
+    <!-- Heart Spinner -->
+    <div *ngIf="type === 'heart'" class="spinner-heart">
+      <div></div>
+    </div>
+    
+    <!-- Hourglass Spinner -->
+    <div *ngIf="type === 'hourglass'" class="spinner-hourglass"></div>
+    
+    <!-- Ellipsis Spinner -->
+    <div *ngIf="type === 'ellipsis'" class="spinner-ellipsis">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    
+    <!-- Grid Spinner -->
+    <div *ngIf="type === 'grid'" class="spinner-grid">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    
+    <!-- Roller Spinner -->
+    <div *ngIf="type === 'roller'" class="spinner-roller">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    
+    <!-- Facebook Spinner -->
+    <div *ngIf="type === 'facebook'" class="spinner-facebook">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    
+    <!-- Spinner Spinner -->
+    <div *ngIf="type === 'spinner'" class="spinner-spinner">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    
+  </div>
+  
+  <!-- Loading Text -->
+  <div class="spinner-text" *ngIf="text">
+    {{ text }}
+  </div>
+  
+</div>

@@ -1,0 +1,223 @@
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header">
+      <h4 class="card-title mb-1">Video Tutorials & Guides</h4>
+      <p class="text-muted mb-0">Step-by-step tutorials to help you master credit repair</p>
+    </div>
+    
+    <div class="card-body p-0">
+      <div class="row g-0">
+        <!-- Tutorial List Sidebar -->
+        <div class="col-md-4 tutorials-sidebar">
+          <div class="sidebar-content">
+            <h5 class="sidebar-title">Available Tutorials</h5>
+            
+            <div class="tutorial-list">
+              <div 
+                *ngFor="let tutorial of tutorials" 
+                class="tutorial-item"
+                [class.active]="selectedTutorial?.id === tutorial.id"
+                (click)="selectTutorial(tutorial)">
+                
+                <div class="tutorial-icon">{{ getCategoryIcon(tutorial.category) }}</div>
+                
+                <div class="tutorial-info">
+                  <h6 class="tutorial-title">{{ tutorial.title }}</h6>
+                  <p class="tutorial-description">{{ tutorial.description }}</p>
+                  
+                  <div class="tutorial-meta">
+                    <span class="badge" [class]="getDifficultyClass(tutorial.difficulty)">{{ tutorial.difficulty }}</span>
+                    <span class="duration">⏱️ {{ tutorial.duration }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tutorial Content Area -->
+        <div class="col-md-8 tutorial-content">
+          <div class="content-area" *ngIf="selectedTutorial; else noSelection">
+            <!-- Tutorial Header -->
+            <div class="content-header">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h3 class="content-title">{{ selectedTutorial.title }}</h3>
+                  <p class="content-description">{{ selectedTutorial.description }}</p>
+                </div>
+                <div class="tutorial-badges">
+                  <span class="badge" [class]="getDifficultyClass(selectedTutorial.difficulty)">{{ selectedTutorial.difficulty }}</span>
+                  <span class="badge badge-info">{{ selectedTutorial.duration }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-section">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="progress-label">Progress</span>
+                <span class="progress-text">Step {{ currentStep + 1 }} of {{ selectedTutorial.steps.length }}</span>
+              </div>
+              <div class="progress">
+                <div 
+                  class="progress-bar" 
+                  role="progressbar" 
+                  [style.width.%]="((currentStep + 1) / selectedTutorial.steps.length) * 100"
+                  [attr.aria-valuenow]="currentStep + 1"
+                  [attr.aria-valuemax]="selectedTutorial.steps.length">
+                </div>
+              </div>
+            </div>
+            
+            <!-- Tutorial Steps -->
+            <div class="tutorial-steps">
+              <div class="step-navigation">
+                <div class="step-indicators">
+                  <div 
+                    *ngFor="let step of selectedTutorial.steps; let i = index"
+                    class="step-indicator"
+                    [class.active]="i === currentStep"
+                    [class.completed]="i < currentStep"
+                    (click)="goToStep(i)">
+                    <span class="step-number">{{ i + 1 }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="current-step">
+                <div class="step-content">
+                  <h5 class="step-title">Step {{ currentStep + 1 }}: {{ selectedTutorial.steps[currentStep] }}</h5>
+                  
+                  <!-- Dynamic content based on step -->
+                  <div class="step-details" [ngSwitch]="selectedTutorial.id">
+                    <!-- Tutorial 1 Content -->
+                    <div *ngSwitchCase="1">
+                      <div [ngSwitch]="currentStep">
+                        <div *ngSwitchCase="0">
+                          <p>Welcome to Rick Jefferson Solutions! Let's start by setting up your account properly.</p>
+                          <div class="alert alert-info">
+                            <strong>Important:</strong> Complete profile information helps us provide better credit repair strategies.
+                          </div>
+                          <ul class="process-list">
+                            <li>Navigate to your profile settings</li>
+                            <li>Fill in all required personal information</li>
+                            <li>Verify your contact details</li>
+                            <li>Set your communication preferences</li>
+                          </ul>
+                        </div>
+                        <div *ngSwitchCase="1">
+                          <p>Upload your credit reports from all three bureaus for comprehensive analysis.</p>
+                          <div class="feature-steps">
+                            <div class="step-item">
+                              <div class="step-number">1</div>
+                              <div class="step-content">
+                                <h6>Obtain Your Reports</h6>
+                                <p>Get free reports from annualcreditreport.com</p>
+                              </div>
+                            </div>
+                            <div class="step-item">
+                              <div class="step-number">2</div>
+                              <div class="step-content">
+                                <h6>Upload Securely</h6>
+                                <p>Use our secure upload feature in the Documents section</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div *ngSwitchCase="2">
+                          <p>Our AI-powered system analyzes your credit reports to identify potential issues.</p>
+                          <div class="alert alert-warning">
+                            <strong>Review Carefully:</strong> Understanding your analysis helps you make informed decisions.
+                          </div>
+                        </div>
+                        <div *ngSwitchCase="3">
+                          <p>Learn about our 10 Step Total Enforcement Chain™ methodology for effective credit repair.</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Tutorial 2 Content -->
+                    <div *ngSwitchCase="2">
+                      <div [ngSwitch]="currentStep">
+                        <div *ngSwitchCase="0">
+                          <p>The 10 Step Total Enforcement Chain™ is our proprietary methodology trusted by NFL athletes and Dallas Cowboys.</p>
+                          <div class="methodology-overview">
+                            <h6>Key Principles:</h6>
+                            <ul class="legal-points">
+                              <li>FCRA compliance in all communications</li>
+                              <li>Strategic dispute timing and escalation</li>
+                              <li>Comprehensive documentation</li>
+                              <li>Legal enforcement when necessary</li>
+                            </ul>
+                          </div>
+                        </div>
+                        <div *ngSwitchDefault>
+                          <p>Detailed content for step {{ currentStep + 1 }} of the 10 Step Total Enforcement Chain™.</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Default Content -->
+                    <div *ngSwitchDefault>
+                      <p>This is step {{ currentStep + 1 }} of the tutorial: {{ selectedTutorial.steps[currentStep] }}</p>
+                      <div class="alert alert-info">
+                        <strong>Tip:</strong> Take your time to understand each step before proceeding.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="step-navigation-buttons">
+                  <button 
+                    class="btn btn-outline-secondary"
+                    [disabled]="currentStep === 0"
+                    (click)="previousStep()">
+                    <i class="fas fa-chevron-left"></i> Previous
+                  </button>
+                  
+                  <button 
+                    class="btn btn-primary"
+                    [disabled]="currentStep === selectedTutorial.steps.length - 1"
+                    (click)="nextStep()">
+                    Next <i class="fas fa-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- No Selection State -->
+          <ng-template #noSelection>
+            <div class="no-selection">
+              <div class="text-center">
+                <div class="empty-state-icon">📚</div>
+                <h5>Select a Tutorial</h5>
+                <p class="text-muted">Choose a tutorial from the sidebar to get started with your credit repair education.</p>
+                
+                <div class="help-contact">
+                  <h6>Need Personal Guidance?</h6>
+                  <p>Our credit repair experts are here to help you succeed.</p>
+                  <div class="contact-options">
+                    <div class="contact-item">
+                      <strong>Phone:</strong> 877-763-8587
+                    </div>
+                    <div class="contact-item">
+                      <strong>Email:</strong> info&#64;rickjeffersonsolutions.com
+                    </div>
+                    <div class="contact-item">
+                      <strong>SMS:</strong> Text "credit repair" to 945-308-8003
+                    </div>
+                    <div class="contact-item">
+                      <strong>Hours:</strong> Mon-Fri, 9-5 CST
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

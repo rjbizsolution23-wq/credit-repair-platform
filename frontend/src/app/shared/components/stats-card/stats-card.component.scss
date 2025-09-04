@@ -1,0 +1,489 @@
+// Variables
+$stats-card-bg: #ffffff;
+$stats-card-border: #e0e6ed;
+$stats-card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+$stats-card-radius: 8px;
+$stats-card-padding: 1.5rem;
+$stats-card-compact-padding: 1rem;
+
+// Color variants
+$color-variants: (
+  primary: #007bff,
+  secondary: #6c757d,
+  success: #28a745,
+  danger: #dc3545,
+  warning: #ffc107,
+  info: #17a2b8,
+  light: #f8f9fa,
+  dark: #343a40
+);
+
+// Base styles
+.stats-card {
+  background: $stats-card-bg;
+  border-radius: $stats-card-radius;
+  padding: $stats-card-padding;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 120px;
+
+  // Bordered variant
+  &.stats-card-bordered {
+    border: 1px solid $stats-card-border;
+    box-shadow: $stats-card-shadow;
+  }
+
+  // Compact variant
+  &.stats-card-compact {
+    padding: $stats-card-compact-padding;
+    min-height: 80px;
+
+    .stats-title {
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .stats-value {
+      font-size: 1.5rem;
+    }
+
+    .stats-subtitle {
+      font-size: 0.75rem;
+    }
+  }
+
+  // Clickable variant
+  &.stats-card-clickable {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:focus {
+      outline: 2px solid #007bff;
+      outline-offset: 2px;
+    }
+  }
+
+  // Animated variant
+  &.stats-card-animated {
+    .stats-value {
+      transition: all 0.3s ease;
+    }
+
+    .stats-icon {
+      transition: transform 0.3s ease;
+    }
+
+    &:hover .stats-icon {
+      transform: scale(1.1);
+    }
+  }
+
+  // Loading state
+  &.stats-card-loading {
+    .stats-content {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  }
+
+  // Error state
+  &.stats-card-error {
+    border-color: map-get($color-variants, danger);
+    background: rgba(map-get($color-variants, danger), 0.05);
+  }
+}
+
+// Color variants
+@each $name, $color in $color-variants {
+  .stats-card-#{$name} {
+    .stats-icon {
+      color: $color;
+    }
+
+    .stats-value {
+      color: $color;
+    }
+
+    .trend-up {
+      color: map-get($color-variants, success);
+    }
+
+    .trend-down {
+      color: map-get($color-variants, danger);
+    }
+
+    .trend-neutral {
+      color: map-get($color-variants, secondary);
+    }
+
+    &.stats-card-clickable:hover {
+      border-color: $color;
+    }
+  }
+}
+
+// Loading overlay
+.stats-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: $stats-card-radius;
+}
+
+// Error state
+.stats-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100%;
+  min-height: 80px;
+  color: map-get($color-variants, danger);
+  text-align: center;
+
+  .stats-error-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stats-error-message {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+// Content
+.stats-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// Header
+.stats-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.stats-icon-container {
+  flex-shrink: 0;
+}
+
+.stats-icon {
+  font-size: 1.5rem;
+  color: #6c757d;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.stats-title-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.stats-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #343a40;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.2;
+  word-wrap: break-word;
+}
+
+.stats-subtitle {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin: 0;
+  line-height: 1.3;
+  word-wrap: break-word;
+}
+
+.stats-trend-container {
+  flex-shrink: 0;
+}
+
+.stats-trend {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.05);
+
+  &.trend-up {
+    color: map-get($color-variants, success);
+    background: rgba(map-get($color-variants, success), 0.1);
+  }
+
+  &.trend-down {
+    color: map-get($color-variants, danger);
+    background: rgba(map-get($color-variants, danger), 0.1);
+  }
+
+  &.trend-neutral {
+    color: map-get($color-variants, secondary);
+    background: rgba(map-get($color-variants, secondary), 0.1);
+  }
+
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+// Value
+.stats-value-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.stats-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #343a40;
+  line-height: 1;
+  word-break: break-all;
+  transition: all 0.3s ease;
+
+  &.loading {
+    opacity: 0.5;
+  }
+}
+
+// Trend label
+.stats-trend-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: auto;
+  text-align: right;
+}
+
+// Click indicator
+.stats-click-indicator {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  color: #6c757d;
+  font-size: 0.875rem;
+
+  .stats-card-clickable:hover & {
+    opacity: 1;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .stats-card {
+    padding: 1rem;
+    min-height: 100px;
+
+    &.stats-card-compact {
+      padding: 0.75rem;
+      min-height: 70px;
+    }
+  }
+
+  .stats-header {
+    margin-bottom: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .stats-value {
+    font-size: 2rem;
+  }
+
+  .stats-title {
+    font-size: 0.875rem;
+  }
+
+  .stats-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .stats-icon {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-card {
+    padding: 0.75rem;
+    min-height: 80px;
+  }
+
+  .stats-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .stats-trend-container {
+    align-self: flex-end;
+  }
+
+  .stats-value {
+    font-size: 1.75rem;
+  }
+
+  .stats-title {
+    font-size: 0.8rem;
+  }
+}
+
+// Dark theme
+@media (prefers-color-scheme: dark) {
+  .stats-card {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+
+    .stats-title {
+      color: #e2e8f0;
+    }
+
+    .stats-subtitle {
+      color: #a0aec0;
+    }
+
+    .stats-value {
+      color: #e2e8f0;
+    }
+
+    .stats-trend-label {
+      color: #a0aec0;
+    }
+
+    .stats-loading-overlay {
+      background: rgba(45, 55, 72, 0.8);
+    }
+
+    .stats-trend {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &.stats-card-clickable:hover {
+      background: #374151;
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .stats-card {
+    border: 2px solid #000;
+    
+    .stats-title,
+    .stats-value {
+      color: #000;
+      font-weight: 700;
+    }
+
+    .stats-subtitle,
+    .stats-trend-label {
+      color: #333;
+      font-weight: 600;
+    }
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .stats-card,
+  .stats-value,
+  .stats-icon {
+    transition: none;
+  }
+
+  .stats-card-clickable:hover {
+    transform: none;
+  }
+
+  .stats-card-animated:hover .stats-icon {
+    transform: none;
+  }
+}
+
+// Print styles
+@media print {
+  .stats-card {
+    background: white !important;
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+
+    .stats-loading-overlay,
+    .stats-click-indicator {
+      display: none !important;
+    }
+
+    .stats-title,
+    .stats-value {
+      color: #000 !important;
+    }
+
+    .stats-subtitle,
+    .stats-trend-label {
+      color: #333 !important;
+    }
+  }
+}
+
+// Accessibility
+.stats-card {
+  &:focus-visible {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+  }
+}
+
+// RTL support
+[dir="rtl"] {
+  .stats-header {
+    direction: rtl;
+  }
+
+  .stats-trend-label {
+    text-align: left;
+  }
+
+  .stats-click-indicator {
+    right: auto;
+    left: 0.75rem;
+    
+    i {
+      transform: scaleX(-1);
+    }
+  }
+}

@@ -1,0 +1,734 @@
+<!-- Page Header -->
+<div class="page-header">
+  <div class="header-content">
+    <div class="header-left">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/dashboard">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a routerLink="/disputes">Disputes</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Bulk Create</li>
+        </ol>
+      </nav>
+      <h1 class="page-title">
+        <i class="fas fa-layer-group"></i>
+        Bulk Create Disputes
+      </h1>
+      <p class="page-description">Create multiple disputes at once using templates</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
+        <i class="fas fa-times"></i>
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="loading-text">Loading data...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+  <i class="fas fa-exclamation-triangle"></i>
+  {{ error }}
+  <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="loadData()">
+    Try Again
+  </button>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading && !error" class="main-content">
+  <!-- Progress Steps -->
+  <div class="steps-container">
+    <div class="steps-header">
+      <div class="step" 
+           *ngFor="let step of [1, 2, 3, 4]; let i = index"
+           [class.active]="currentStep === step"
+           [class.completed]="currentStep > step"
+           (click)="goToStep(step)">
+        <div class="step-number">
+          <span *ngIf="currentStep > step" class="step-check">
+            <i class="fas fa-check"></i>
+          </span>
+          <span *ngIf="currentStep <= step">{{ step }}</span>
+        </div>
+        <div class="step-title">{{ getStepTitle(step) }}</div>
+      </div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="((currentStep - 1) / (totalSteps - 1)) * 100"></div>
+    </div>
+  </div>
+
+  <form [formGroup]="bulkForm">
+    <!-- Step 1: Client Selection -->
+    <div class="step-content" *ngIf="currentStep === 1">
+      <div class="step-header">
+        <h2>Select Clients</h2>
+        <p>Choose the clients for whom you want to create disputes</p>
+      </div>
+
+      <!-- Client Filters -->
+      <div class="filters-section">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fas fa-search"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search clients..."
+                [value]="clientFilters.searchTerm"
+                (input)="onClientSearch($any($event.target).value)">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select
+              class="form-select"
+              [value]="clientFilters.status"
+              (change)="onClientStatusFilter($any($event.target).value)">
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="selectAllClients"
+                formControlName="clientSelection.selectAll"
+                (change)="toggleAllClients()">
+              <label class="form-check-label" for="selectAllClients">
+                Select All ({{ filteredClients.length }})
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected Clients Summary -->
+      <div class="selection-summary" *ngIf="selectedClients.length > 0">
+        <div class="summary-content">
+          <i class="fas fa-users"></i>
+          <span>{{ selectedClients.length }} client(s) selected</span>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="selectedClients = []; updateClientSelectionForm()">
+          Clear Selection
+        </button>
+      </div>
+
+      <!-- Clients List -->
+      <div class="clients-list" *ngIf="filteredClients.length > 0">
+        <div class="list-header">
+          <div class="header-cell">Client</div>
+          <div class="header-cell">Contact</div>
+          <div class="header-cell">Status</div>
+          <div class="header-cell">Select</div>
+        </div>
+        <div class="list-body">
+          <div 
+            class="list-row"
+            *ngFor="let client of filteredClients; trackBy: trackByClientId"
+            [class.selected]="isClientSelected(client)">
+            <div class="cell client-info">
+              <div class="client-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="client-details">
+                <div class="client-name">{{ client.firstName }} {{ client.lastName }}</div>
+                <div class="client-id">ID: {{ client.id }}</div>
+              </div>
+            </div>
+            <div class="cell contact-info">
+              <div class="contact-item">
+                <i class="fas fa-envelope"></i>
+                <span>{{ client.email }}</span>
+              </div>
+              <div class="contact-item" *ngIf="client.phone">
+                <i class="fas fa-phone"></i>
+                <span>{{ client.phone }}</span>
+              </div>
+            </div>
+            <div class="cell status-info">
+              <span class="badge" [ngClass]="'badge-' + client.status">
+                {{ client.status | titlecase }}
+              </span>
+            </div>
+            <div class="cell select-info">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [id]="'client-' + client.id"
+                  [checked]="isClientSelected(client)"
+                  (change)="toggleClientSelection(client)">
+                <label class="form-check-label" [for]="'client-' + client.id">
+                  <span class="visually-hidden">Select {{ client.firstName }} {{ client.lastName }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="filteredClients.length === 0">
+        <div class="empty-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h3>No Clients Found</h3>
+        <p>No clients match your current filters.</p>
+      </div>
+    </div>
+
+    <!-- Step 2: Template Selection -->
+    <div class="step-content" *ngIf="currentStep === 2">
+      <div class="step-header">
+        <h2>Choose Template</h2>
+        <p>Select a dispute template to use for all selected clients</p>
+      </div>
+
+      <!-- Template Filters -->
+      <div class="filters-section">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fas fa-search"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search templates..."
+                [value]="templateFilters.searchTerm"
+                (input)="onTemplateSearch($any($event.target).value)">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select
+              class="form-select"
+              [value]="templateFilters.category"
+              (change)="onTemplateFilter('category', $any($event.target).value)">
+              <option value="all">All Categories</option>
+              <option value="credit_report">Credit Report</option>
+              <option value="identity_theft">Identity Theft</option>
+              <option value="debt_validation">Debt Validation</option>
+              <option value="goodwill">Goodwill</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select
+              class="form-select"
+              [value]="templateFilters.type"
+              (change)="onTemplateFilter('type', $any($event.target).value)">
+              <option value="all">All Types</option>
+              <option value="inaccurate_info">Inaccurate Information</option>
+              <option value="identity_theft">Identity Theft</option>
+              <option value="mixed_files">Mixed Files</option>
+              <option value="outdated_info">Outdated Information</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected Template Summary -->
+      <div class="selection-summary" *ngIf="selectedTemplate">
+        <div class="summary-content">
+          <i class="fas fa-file-alt"></i>
+          <span>Template: {{ selectedTemplate.name }}</span>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="selectedTemplate = null">
+          Clear Selection
+        </button>
+      </div>
+
+      <!-- Templates Grid -->
+      <div class="templates-grid" *ngIf="filteredTemplates.length > 0">
+        <div class="row g-4">
+          <div 
+            class="col-lg-6 col-xl-4"
+            *ngFor="let template of filteredTemplates; trackBy: trackByTemplateId">
+            <div 
+              class="template-card"
+              [class.selected]="selectedTemplate?.id === template.id"
+              (click)="selectTemplate(template)">
+              <div class="card-header">
+                <div class="template-icon">
+                  <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="template-info">
+                  <h5 class="template-name">{{ template.name }}</h5>
+                  <p class="template-type">{{ template.type | titlecase }}</p>
+                </div>
+                <div class="selection-indicator" *ngIf="selectedTemplate?.id === template.id">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="template-meta">
+                  <span class="badge badge-primary">{{ template.type | titlecase }}</span>
+                </div>
+                <p class="template-subject">{{ template.subject }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="filteredTemplates.length === 0">
+        <div class="empty-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <h3>No Templates Found</h3>
+        <p>No templates match your current filters.</p>
+      </div>
+    </div>
+
+    <!-- Step 3: Dispute Configuration -->
+    <div class="step-content" *ngIf="currentStep === 3" formGroupName="disputeConfig">
+      <div class="step-header">
+        <h2>Configure Disputes</h2>
+        <p>Set the dispute details that will apply to all selected clients</p>
+      </div>
+
+      <div class="config-form">
+        <div class="row g-4">
+          <!-- Basic Configuration -->
+          <div class="col-md-6">
+            <div class="form-section">
+              <h4>Basic Information</h4>
+              
+              <div class="mb-3">
+                <label for="disputeType" class="form-label">Dispute Type *</label>
+                <select id="disputeType" class="form-select" formControlName="type">
+                  <option value="">Select dispute type</option>
+                  <option *ngFor="let option of disputeTypes" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+                <div class="invalid-feedback" *ngIf="bulkForm.get('disputeConfig.type')?.invalid && bulkForm.get('disputeConfig.type')?.touched">
+                  Dispute type is required
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="disputePriority" class="form-label">Priority *</label>
+                <select id="disputePriority" class="form-select" formControlName="priority">
+                  <option *ngFor="let option of priorityOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label class="form-label">Credit Bureaus *</label>
+                <div class="checkbox-group">
+                  <div class="form-check" *ngFor="let bureau of creditBureauOptions">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [id]="'bureau-' + bureau.value"
+                      [value]="bureau.value"
+                      [checked]="bulkForm.get('disputeConfig.creditBureaus')?.value?.includes(bureau.value)"
+                      (change)="onCreditBureauChange(bureau.value, $any($event.target).checked)">
+                    <label class="form-check-label" [for]="'bureau-' + bureau.value">
+                      {{ bureau.label }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="disputeDueDate" class="form-label">Due Date *</label>
+                <input
+                  type="date"
+                  id="disputeDueDate"
+                  class="form-control"
+                  formControlName="dueDate">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Dispute Details -->
+          <div class="col-md-6">
+            <div class="form-section">
+              <h4>Dispute Details</h4>
+              
+              <div class="mb-3">
+                <label for="disputeReason" class="form-label">Reason *</label>
+                <textarea
+                  id="disputeReason"
+                  class="form-control"
+                  rows="3"
+                  formControlName="reason"
+                  placeholder="Enter the reason for the dispute"></textarea>
+                <div class="invalid-feedback" *ngIf="bulkForm.get('disputeConfig.reason')?.invalid && bulkForm.get('disputeConfig.reason')?.touched">
+                  Reason is required (minimum 10 characters)
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="disputeDescription" class="form-label">Additional Description</label>
+                <textarea
+                  id="disputeDescription"
+                  class="form-control"
+                  rows="3"
+                  formControlName="description"
+                  placeholder="Enter additional details (optional)"></textarea>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Template Customization -->
+          <div class="col-12" *ngIf="selectedTemplate">
+            <div class="form-section">
+              <h4>Template Customization</h4>
+              
+              <div class="form-check mb-3">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="useCustomizations"
+                  formControlName="useCustomizations">
+                <label class="form-check-label" for="useCustomizations">
+                  Customize template content
+                </label>
+              </div>
+              
+              <div *ngIf="bulkForm.get('disputeConfig.useCustomizations')?.value">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="customSubject" class="form-label">Custom Subject</label>
+                    <input
+                      type="text"
+                      id="customSubject"
+                      class="form-control"
+                      formControlName="customSubject"
+                      [placeholder]="selectedTemplate.subject">
+                  </div>
+                  
+                  <div class="col-12">
+                    <label for="customContent" class="form-label">Custom Content</label>
+                    <textarea
+                      id="customContent"
+                      class="form-control"
+                      rows="6"
+                      formControlName="customContent"
+                      [placeholder]="selectedTemplate.content"></textarea>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Template Variables -->
+              <div class="variables-section" *ngIf="variablesFormArray.length > 0">
+                <h5>Template Variables</h5>
+                <p class="text-muted">Provide values for the template variables</p>
+                
+                <div class="row g-3" formArrayName="variables">
+                  <div 
+                    class="col-md-6"
+                    *ngFor="let variable of variablesFormArray.controls; let i = index"
+                    [formGroupName]="i">
+                    <label [for]="'variable-' + i" class="form-label">
+                      {{ variable.get('key')?.value }}
+                    </label>
+                    <input
+                      type="text"
+                      [id]="'variable-' + i"
+                      class="form-control"
+                      formControlName="value"
+                      [placeholder]="variable.get('description')?.value">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Review -->
+    <div class="step-content" *ngIf="currentStep === 4">
+      <div class="step-header">
+        <h2>Review & Create</h2>
+        <p>Review your selections and create the disputes</p>
+      </div>
+
+      <!-- Review Summary -->
+      <div class="review-summary">
+        <div class="row g-4">
+          <!-- Clients Summary -->
+          <div class="col-md-6">
+            <div class="summary-card">
+              <div class="card-header">
+                <h5>
+                  <i class="fas fa-users"></i>
+                  Selected Clients ({{ selectedClients.length }})
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="client-list">
+                  <div 
+                    class="client-item"
+                    *ngFor="let client of selectedClients.slice(0, 5)">
+                    <span class="client-name">{{ client.firstName }} {{ client.lastName }}</span>
+                    <span class="client-email">{{ client.email }}</span>
+                  </div>
+                  <div class="more-clients" *ngIf="selectedClients.length > 5">
+                    <span>... and {{ selectedClients.length - 5 }} more</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Template Summary -->
+          <div class="col-md-6">
+            <div class="summary-card">
+              <div class="card-header">
+                <h5>
+                  <i class="fas fa-file-alt"></i>
+                  Selected Template
+                </h5>
+              </div>
+              <div class="card-body" *ngIf="selectedTemplate">
+                <div class="template-details">
+                  <div class="detail-item">
+                    <span class="label">Name:</span>
+                    <span class="value">{{ selectedTemplate.name }}</span>
+                  </div>
+
+                  <div class="detail-item">
+                    <span class="label">Type:</span>
+                    <span class="value">{{ selectedTemplate?.type | titlecase }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Subject:</span>
+                    <span class="value">{{ selectedTemplate.subject }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Configuration Summary -->
+          <div class="col-12">
+            <div class="summary-card">
+              <div class="card-header">
+                <h5>
+                  <i class="fas fa-cog"></i>
+                  Dispute Configuration
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-3">
+                    <div class="detail-item">
+                      <span class="label">Type:</span>
+                      <span class="value">{{ bulkForm.get('disputeConfig.type')?.value | titlecase }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="detail-item">
+                      <span class="label">Priority:</span>
+                      <span class="value">{{ bulkForm.get('disputeConfig.priority')?.value | titlecase }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="detail-item">
+                      <span class="label">Due Date:</span>
+                      <span class="value">{{ formatDate(bulkForm.get('disputeConfig.dueDate')?.value) }}</span>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="detail-item">
+                      <span class="label">Credit Bureaus:</span>
+                      <span class="value">{{ bulkForm.get('disputeConfig.creditBureaus')?.value?.length || 0 }}</span>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="detail-item">
+                      <span class="label">Reason:</span>
+                      <span class="value">{{ bulkForm.get('disputeConfig.reason')?.value }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Validation Errors -->
+      <div class="validation-errors" *ngIf="getFormErrors().length > 0">
+        <div class="alert alert-danger">
+          <h6><i class="fas fa-exclamation-triangle"></i> Please fix the following errors:</h6>
+          <ul class="mb-0">
+            <li *ngFor="let error of getFormErrors()">{{ error }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Confirmation -->
+      <div class="confirmation-section" formGroupName="review">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="confirmCreation"
+            formControlName="confirmed">
+          <label class="form-check-label" for="confirmCreation">
+            I confirm that I want to create {{ selectedClients.length }} dispute(s) using the selected template and configuration.
+          </label>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Step Navigation -->
+  <div class="step-navigation">
+    <div class="nav-left">
+      <button 
+        type="button" 
+        class="btn btn-outline-secondary"
+        *ngIf="currentStep > 1"
+        (click)="previousStep()">
+        <i class="fas fa-arrow-left"></i>
+        Previous
+      </button>
+    </div>
+    
+    <div class="nav-center">
+      <span class="step-indicator">Step {{ currentStep }} of {{ totalSteps }}</span>
+    </div>
+    
+    <div class="nav-right">
+      <button 
+        type="button" 
+        class="btn btn-primary"
+        *ngIf="currentStep < totalSteps"
+        [disabled]="!isCurrentStepValid()"
+        (click)="nextStep()">
+        Next
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      
+      <button 
+        type="button" 
+        class="btn btn-success"
+        *ngIf="currentStep === totalSteps"
+        [disabled]="!isFormValid() || isCreating"
+        (click)="createBulkDisputes()">
+        <span *ngIf="!isCreating">
+          <i class="fas fa-plus"></i>
+          Create {{ selectedClients.length }} Dispute(s)
+        </span>
+        <span *ngIf="isCreating">
+          <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+          Creating...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Modal -->
+<div class="modal fade" [class.show]="showProgressModal" [style.display]="showProgressModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-layer-group"></i>
+          Creating Disputes
+        </h5>
+      </div>
+      <div class="modal-body" *ngIf="createProgress">
+        <!-- Progress Overview -->
+        <div class="progress-overview">
+          <div class="progress-stats">
+            <div class="stat-item">
+              <div class="stat-value">{{ createProgress?.total || 0 }}</div>
+              <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value text-success">{{ createProgress?.completed || 0 }}</div>
+              <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value text-danger">{{ createProgress?.failed || 0 }}</div>
+              <div class="stat-label">Failed</div>
+            </div>
+          </div>
+          
+          <div class="progress-bar-container">
+            <div class="progress">
+              <div 
+                class="progress-bar bg-success"
+                [style.width.%]="((createProgress?.completed || 0) / (createProgress?.total || 1)) * 100">
+              </div>
+              <div 
+                class="progress-bar bg-danger"
+                [style.width.%]="((createProgress?.failed || 0) / (createProgress?.total || 1)) * 100">
+              </div>
+            </div>
+            <div class="progress-text">
+              {{ (createProgress?.completed || 0) + (createProgress?.failed || 0) }} of {{ createProgress?.total || 0 }} processed
+            </div>
+          </div>
+        </div>
+        
+        <!-- Current Status -->
+        <div class="current-status" *ngIf="isCreating">
+          <div class="status-indicator">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            <span>Processing: {{ createProgress?.current || 0 }}</span>
+          </div>
+        </div>
+        
+        <!-- Errors List -->
+        <div class="errors-section" *ngIf="createProgress && createProgress.errors && createProgress.errors.length > 0">
+          <h6 class="text-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            Errors ({{ createProgress?.errors?.length || 0 }})
+          </h6>
+          <div class="errors-list">
+            <div class="error-item" *ngFor="let error of createProgress?.errors || []">
+              <strong>{{ error.client }}:</strong> {{ error.error }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          [disabled]="isCreating"
+          (click)="closeProgressModal()">
+          {{ isCreating ? 'Please wait...' : 'Close' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div 
+  class="modal-backdrop fade"
+  [class.show]="showProgressModal"
+  *ngIf="showProgressModal"></div>

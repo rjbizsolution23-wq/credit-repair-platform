@@ -1,0 +1,298 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title mb-0">Credit Monitoring</h4>
+          <p class="text-muted mb-0">Monitor your credit reports for changes and alerts</p>
+        </div>
+        <div class="card-body">
+          <!-- Loading State -->
+          <div *ngIf="loading" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading monitoring data...</p>
+          </div>
+
+          <!-- Error State -->
+          <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error }}
+            <button type="button" class="btn-close" (click)="error = null"></button>
+          </div>
+
+          <!-- Success State -->
+          <div *ngIf="success" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            {{ success }}
+            <button type="button" class="btn-close" (click)="success = null"></button>
+          </div>
+
+          <!-- Content -->
+          <div *ngIf="!loading">
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs mb-4" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" 
+                        [class.active]="activeTab === 'overview'"
+                        (click)="onTabChange('overview')"
+                        type="button">
+                  <i class="fas fa-chart-line me-2"></i>Overview
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" 
+                        [class.active]="activeTab === 'alerts'"
+                        (click)="onTabChange('alerts')"
+                        type="button">
+                  <i class="fas fa-bell me-2"></i>Alerts
+                  <span *ngIf="totalItems > 0" class="badge bg-danger ms-1">{{ totalItems }}</span>
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" 
+                        [class.active]="activeTab === 'settings'"
+                        (click)="onTabChange('settings')"
+                        type="button">
+                  <i class="fas fa-cog me-2"></i>Settings
+                </button>
+              </li>
+            </ul>
+
+            <!-- Overview Tab -->
+            <div *ngIf="activeTab === 'overview'" class="tab-pane fade show active">
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <div class="card bg-primary text-white">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between">
+                        <div>
+                          <h6 class="card-title">Active Monitors</h6>
+                          <h3 class="mb-0">3</h3>
+                        </div>
+                        <i class="fas fa-shield-alt fa-2x opacity-75"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="card bg-warning text-white">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between">
+                        <div>
+                          <h6 class="card-title">Pending Alerts</h6>
+                          <h3 class="mb-0">{{ totalItems }}</h3>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="card bg-success text-white">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between">
+                        <div>
+                          <h6 class="card-title">Last Check</h6>
+                          <h6 class="mb-0">{{ lastCheck | date:'short' }}</h6>
+                        </div>
+                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alerts Tab -->
+            <div *ngIf="activeTab === 'alerts'" class="tab-pane fade show active">
+              <!-- Alert Filters -->
+              <div class="row mb-3">
+                <div class="col-md-3">
+                  <select class="form-select" [(ngModel)]="alertFilters.type" (change)="onFilterChange()">
+                    <option value="">All Types</option>
+                    <option value="score_change">Score Change</option>
+                    <option value="new_account">New Account</option>
+                    <option value="inquiry">New Inquiry</option>
+                    <option value="payment_missed">Missed Payment</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select" [(ngModel)]="alertFilters.severity" (change)="onFilterChange()">
+                    <option value="">All Severities</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select" [(ngModel)]="alertFilters.isRead" (change)="onFilterChange()">
+                    <option value="">All Status</option>
+                    <option value="false">Unread</option>
+                    <option value="true">Read</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Alerts List -->
+              <div *ngIf="alerts.length === 0" class="text-center py-4">
+                <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No alerts found</h5>
+                <p class="text-muted">Your credit monitoring is active and watching for changes.</p>
+              </div>
+
+              <div *ngFor="let alert of alerts" class="card mb-3" [class.border-warning]="!alert.isRead">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <div class="d-flex align-items-center mb-2">
+                        <span class="badge me-2" [class]="'bg-' + getSeverityColor(alert.severity)">{{ alert.severity | titlecase }}</span>
+                        <span class="badge bg-secondary me-2">{{ alert.type | titlecase }}</span>
+                        <small class="text-muted">{{ alert.dateCreated | date:'short' }}</small>
+                      </div>
+                      <p class="card-text text-muted mb-2">{{ alert.message }}</p>
+                      <small class="text-muted" *ngIf="alert.relatedAccountId">Account: {{ alert.relatedAccountId }}</small>
+                    </div>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li *ngIf="!alert.isRead">
+                          <a class="dropdown-item" href="#" (click)="onMarkAlertAsRead(alert.id); $event.preventDefault()">
+                            <i class="fas fa-check me-2"></i>Mark as Read
+                          </a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item text-danger" href="#" (click)="onDeleteAlert(alert.id); $event.preventDefault()">
+                            <i class="fas fa-trash me-2"></i>Delete
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pagination -->
+              <nav *ngIf="totalItems > itemsPerPage">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item" [class.disabled]="currentPage === 1">
+                    <a class="page-link" href="#" (click)="onPageChange(currentPage - 1); $event.preventDefault()">
+                      <i class="fas fa-chevron-left"></i>
+                    </a>
+                  </li>
+                  <li class="page-item" *ngFor="let page of [].constructor(Math.ceil(totalItems / itemsPerPage)); let i = index" [class.active]="currentPage === i + 1">
+                    <a class="page-link" href="#" (click)="onPageChange(i + 1); $event.preventDefault()">{{ i + 1 }}</a>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentPage === Math.ceil(totalItems / itemsPerPage)">
+                    <a class="page-link" href="#" (click)="onPageChange(currentPage + 1); $event.preventDefault()">
+                      <i class="fas fa-chevron-right"></i>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+            <!-- Settings Tab -->
+            <div *ngIf="activeTab === 'settings'" class="tab-pane fade show active">
+              <form [formGroup]="settingsForm" (ngSubmit)="onSaveSettings()">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="card-title mb-0">Monitoring Preferences</h5>
+                      </div>
+                      <div class="card-body">
+                        <div class="mb-3">
+                          <label class="form-label">Monitoring Frequency</label>
+                          <select class="form-select" formControlName="frequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                          </select>
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label">Credit Bureaus to Monitor</label>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="monitorTransUnion" id="transunion">
+                            <label class="form-check-label" for="transunion">TransUnion</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="monitorEquifax" id="equifax">
+                            <label class="form-check-label" for="equifax">Equifax</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="monitorExperian" id="experian">
+                            <label class="form-check-label" for="experian">Experian</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="card">
+                      <div class="card-header">
+                        <h5 class="card-title mb-0">Alert Preferences</h5>
+                      </div>
+                      <div class="card-body">
+                        <div class="mb-3">
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="alertScoreChanges" id="scoreChanges">
+                            <label class="form-check-label" for="scoreChanges">Score Changes</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="alertNewAccounts" id="newAccounts">
+                            <label class="form-check-label" for="newAccounts">New Accounts</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="alertInquiries" id="inquiries">
+                            <label class="form-check-label" for="inquiries">Hard Inquiries</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="alertPaymentChanges" id="paymentChanges">
+                            <label class="form-check-label" for="paymentChanges">Payment Status Changes</label>
+                          </div>
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label">Email Notifications</label>
+                          <input type="email" class="form-control" formControlName="emailNotifications" placeholder="Enter email address">
+                        </div>
+
+                        <div class="mb-3">
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="smsNotifications" id="smsNotifications">
+                            <label class="form-check-label" for="smsNotifications">SMS Notifications</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mt-3">
+                  <div class="col-12">
+                    <div class="d-flex justify-content-between">
+                      <button type="button" class="btn btn-outline-primary" (click)="onTestNotifications()">
+                        <i class="fas fa-paper-plane me-2"></i>Test Notifications
+                      </button>
+                      <button type="submit" class="btn btn-primary" [disabled]="saving || settingsForm.invalid">
+                        <span *ngIf="saving" class="spinner-border spinner-border-sm me-2"></span>
+                        <i *ngIf="!saving" class="fas fa-save me-2"></i>
+                        {{ saving ? 'Saving...' : 'Save Settings' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

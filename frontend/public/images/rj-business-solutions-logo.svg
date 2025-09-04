@@ -1,0 +1,20 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="200" height="60" rx="8" fill="#2563eb"/>
+  
+  <!-- Main RJ text -->
+  <text x="30" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">RJ</text>
+  
+  <!-- BUSINESS SOLUTIONS text -->
+  <text x="30" y="40" font-family="Arial, sans-serif" font-size="10" font-weight="600" fill="white">BUSINESS SOLUTIONS</text>
+  
+  <!-- Credit Solutions subtitle -->
+  <text x="30" y="52" font-family="Arial, sans-serif" font-size="8" fill="#93c5fd">Credit Solutions</text>
+  
+  <!-- Decorative icon -->
+  <circle cx="170" cy="20" r="12" fill="white" opacity="0.2"/>
+  <path d="M164 20 L168 24 L176 16" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Bottom accent line -->
+  <rect x="30" y="55" width="140" height="2" fill="#60a5fa" opacity="0.8"/>
+</svg>

@@ -1,0 +1,76 @@
+{
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0,
+    "success_rate": 100.0
+  },
+  "results": [
+    {
+      "test": "Main Health Check",
+      "success": true,
+      "details": "Status: healthy",
+      "timestamp": "2025-08-25T23:48:59.659918"
+    },
+    {
+      "test": "USPS Health Check",
+      "success": true,
+      "details": "Healthy: False, Message: USPS service error: USPS authentication error: USPS authentication failed: 401",
+      "timestamp": "2025-08-25T23:49:00.554345"
+    },
+    {
+      "test": "Client Creation",
+      "success": true,
+      "details": "Created client ID: 84be270f-89a4-4909-b7e6-26ecc813a437",
+      "timestamp": "2025-08-25T23:49:00.571011"
+    },
+    {
+      "test": "Client Retrieval",
+      "success": true,
+      "details": "Successfully retrieved client",
+      "timestamp": "2025-08-25T23:49:00.571011"
+    },
+    {
+      "test": "Get All Clients",
+      "success": true,
+      "details": "Found 1 clients",
+      "timestamp": "2025-08-25T23:49:00.581148"
+    },
+    {
+      "test": "Dispute Creation",
+      "success": true,
+      "details": "Created dispute ID: a140cb83-535c-4c5a-aab8-0a070c18da6f",
+      "timestamp": "2025-08-25T23:49:00.591107"
+    },
+    {
+      "test": "Client Disputes Retrieval",
+      "success": true,
+      "details": "Found 1 disputes",
+      "timestamp": "2025-08-25T23:49:00.593110"
+    },
+    {
+      "test": "USPS Address Verification",
+      "success": true,
+      "details": "Address verification endpoint responding",
+      "timestamp": "2025-08-25T23:49:01.143122"
+    },
+    {
+      "test": "USPS Pricing",
+      "success": true,
+      "details": "Pricing endpoint responding",
+      "timestamp": "2025-08-25T23:49:01.669046"
+    },
+    {
+      "test": "10 Step TEC\u2122",
+      "success": true,
+      "details": "All 10 enforcement stages available",
+      "timestamp": "2025-08-25T23:49:01.677245"
+    },
+    {
+      "test": "Statistics",
+      "success": true,
+      "details": "Stats available: ['total_clients', 'total_disputes', 'lives_transformed', 'homeowners_created', 'people_educated', 'success_rate', 'trusted_by']",
+      "timestamp": "2025-08-25T23:49:01.682098"
+    }
+  ]
+}

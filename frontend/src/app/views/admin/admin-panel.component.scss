@@ -1,0 +1,1176 @@
+/* Rick Jefferson Solutions - Admin Panel Styles */
+
+// Brand Colors
+$teal: #14B8A6;
+$navy: #1E3A8A;
+$success: #059669;
+$warning: #D97706;
+$error: #DC2626;
+$accent: #0F766E;
+$light-gray: #F8FAFC;
+$medium-gray: #64748B;
+$dark-gray: #334155;
+
+.admin-panel {
+  min-height: 100vh;
+  background: $light-gray;
+  font-family: 'Open Sans', Arial, sans-serif;
+
+  // Header Styles
+  .admin-header {
+    background: linear-gradient(135deg, $navy 0%, $teal 100%);
+    color: white;
+    padding: 1.5rem 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    .admin-title {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-weight: bold;
+      font-size: 1.8rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      .text-teal {
+        color: $teal;
+        filter: brightness(1.3);
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+        font-weight: 400;
+        opacity: 0.9;
+        margin-left: 0.5rem;
+        display: block;
+      }
+    }
+
+    .admin-actions {
+      .btn {
+        border-radius: 6px;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+
+        &.btn-outline-teal {
+          border-color: $teal;
+          color: $teal;
+          background: rgba(255, 255, 255, 0.1);
+
+          &:hover {
+            background: $teal;
+            color: white;
+            transform: translateY(-1px);
+          }
+        }
+
+        &.btn-outline-navy {
+          border-color: white;
+          color: white;
+          background: rgba(255, 255, 255, 0.1);
+
+          &:hover {
+            background: white;
+            color: $navy;
+            transform: translateY(-1px);
+          }
+        }
+      }
+    }
+  }
+
+  // Navigation Tabs
+  .admin-nav {
+    background: white;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 0;
+
+    .admin-tabs {
+      border-bottom: none;
+      margin: 0;
+
+      .nav-item {
+        .nav-link {
+          border: none;
+          color: $medium-gray;
+          font-weight: 500;
+          padding: 1rem 1.5rem;
+          transition: all 0.3s ease;
+          position: relative;
+
+          i {
+            margin-right: 0.5rem;
+          }
+
+          &:hover {
+            color: $teal;
+            background: rgba($teal, 0.05);
+          }
+
+          &.active {
+            color: $teal;
+            background: rgba($teal, 0.1);
+            border-bottom: 3px solid $teal;
+          }
+        }
+      }
+    }
+  }
+
+  // Main Content
+  .admin-content {
+    padding: 2rem 0;
+
+    .tab-content {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+  }
+
+  // Metric Cards
+  .metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .metric-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+
+      &.bg-teal { background: $teal; }
+      &.bg-navy { background: $navy; }
+      &.bg-success { background: $success; }
+      &.bg-warning { background: $warning; }
+    }
+
+    .metric-content {
+      h3 {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0;
+        color: $dark-gray;
+        font-family: 'Montserrat', Arial Black, sans-serif;
+      }
+
+      p {
+        margin: 0;
+        color: $medium-gray;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+    }
+  }
+
+  // Chart Cards
+  .chart-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
+    height: 100%;
+
+    .chart-header {
+      margin-bottom: 1.5rem;
+
+      h4 {
+        font-family: 'Montserrat', Arial Black, sans-serif;
+        font-weight: bold;
+        color: $dark-gray;
+        margin: 0;
+      }
+
+      p {
+        color: $medium-gray;
+        margin: 0.25rem 0 0 0;
+        font-size: 0.9rem;
+      }
+    }
+
+    .chart-content {
+      position: relative;
+      height: 300px;
+    }
+  }
+
+  // Activity Cards
+  .activity-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+
+    .card-header {
+      background: $light-gray;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #E2E8F0;
+
+      h4 {
+        font-family: 'Montserrat', Arial Black, sans-serif;
+        font-weight: bold;
+        color: $dark-gray;
+        margin: 0;
+        font-size: 1.1rem;
+      }
+    }
+
+    .activity-list {
+      max-height: 400px;
+      overflow-y: auto;
+
+      .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #F1F5F9;
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: $light-gray;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .activity-icon {
+          color: $teal;
+          font-size: 1.2rem;
+        }
+
+        .activity-content {
+          flex: 1;
+
+          p {
+            margin: 0;
+            color: $dark-gray;
+            font-size: 0.9rem;
+          }
+
+          small {
+            color: $medium-gray;
+          }
+        }
+      }
+    }
+
+    .alert-list {
+      max-height: 400px;
+      overflow-y: auto;
+
+      .alert-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #F1F5F9;
+        border-left: 4px solid transparent;
+        transition: all 0.2s ease;
+
+        &.alert-high {
+          border-left-color: $error;
+          background: rgba($error, 0.02);
+        }
+
+        &.alert-medium {
+          border-left-color: $warning;
+          background: rgba($warning, 0.02);
+        }
+
+        &.alert-low {
+          border-left-color: $success;
+          background: rgba($success, 0.02);
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .alert-icon {
+          color: $warning;
+          font-size: 1.1rem;
+        }
+
+        .alert-content {
+          flex: 1;
+
+          p {
+            margin: 0;
+            color: $dark-gray;
+            font-size: 0.9rem;
+          }
+
+          small {
+            color: $medium-gray;
+          }
+        }
+      }
+    }
+  }
+
+  // Content Headers
+  .content-header {
+    h2 {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-weight: bold;
+      color: $dark-gray;
+      margin: 0;
+    }
+
+    p {
+      color: $medium-gray;
+      margin: 0.5rem 0 0 0;
+    }
+  }
+
+  // Filters Section
+  .filters-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
+
+    .form-group {
+      label {
+        font-weight: 600;
+        color: $dark-gray;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .form-control {
+        border: 1px solid #D1D5DB;
+        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+
+        &:focus {
+          border-color: $teal;
+          box-shadow: 0 0 0 3px rgba($teal, 0.1);
+        }
+      }
+    }
+  }
+
+  // Table Card
+  .table-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+
+    .table {
+      margin: 0;
+
+      thead {
+        background: $light-gray;
+
+        th {
+          border: none;
+          padding: 1rem;
+          font-weight: 600;
+          color: $dark-gray;
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      tbody {
+        tr {
+          transition: background 0.2s ease;
+
+          &:hover {
+            background: rgba($teal, 0.02);
+          }
+
+          td {
+            padding: 1rem;
+            border-color: #F1F5F9;
+            vertical-align: middle;
+          }
+        }
+      }
+    }
+
+    .client-info {
+      strong {
+        color: $dark-gray;
+        font-weight: 600;
+      }
+    }
+
+    .contact-info {
+      font-size: 0.9rem;
+
+      div {
+        color: $dark-gray;
+      }
+    }
+
+    .dispute-stats {
+      font-size: 0.9rem;
+
+      .active {
+        color: $teal;
+        font-weight: 600;
+      }
+
+      .total {
+        color: $medium-gray;
+      }
+    }
+
+    .score-change {
+      font-weight: 600;
+      font-size: 0.9rem;
+
+      &.positive {
+        color: $success;
+      }
+
+      &.negative {
+        color: $error;
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+
+      .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  // CRO Cards
+  .cro-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .cro-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+
+      .cro-avatar {
+        width: 50px;
+        height: 50px;
+        background: $teal;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .cro-info {
+        flex: 1;
+
+        h5 {
+          margin: 0;
+          color: $dark-gray;
+          font-weight: 600;
+        }
+
+        p {
+          margin: 0.25rem 0 0 0;
+          color: $medium-gray;
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    .cro-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+
+      .stat-item {
+        text-align: center;
+
+        .stat-value {
+          display: block;
+          font-size: 1.5rem;
+          font-weight: bold;
+          color: $teal;
+          font-family: 'Montserrat', Arial Black, sans-serif;
+        }
+
+        .stat-label {
+          font-size: 0.8rem;
+          color: $medium-gray;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+
+    .cro-actions {
+      display: flex;
+      gap: 0.5rem;
+
+      .btn {
+        flex: 1;
+        font-size: 0.85rem;
+        padding: 0.5rem;
+        border-radius: 6px;
+      }
+    }
+  }
+
+  // Template Categories
+  .template-categories {
+    .category-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      border: 1px solid #E2E8F0;
+      overflow: hidden;
+
+      .category-header {
+        background: $light-gray;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #E2E8F0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h4 {
+          margin: 0;
+          color: $dark-gray;
+          font-weight: 600;
+        }
+
+        .template-count {
+          background: $teal;
+          color: white;
+          padding: 0.25rem 0.75rem;
+          border-radius: 12px;
+          font-size: 0.8rem;
+          font-weight: 500;
+        }
+      }
+
+      .template-list {
+        max-height: 400px;
+        overflow-y: auto;
+
+        .template-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1rem 1.5rem;
+          border-bottom: 1px solid #F1F5F9;
+          transition: background 0.2s ease;
+
+          &:hover {
+            background: $light-gray;
+          }
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .template-info {
+            flex: 1;
+
+            strong {
+              color: $dark-gray;
+              font-weight: 600;
+            }
+
+            p {
+              margin: 0.25rem 0;
+              color: $medium-gray;
+              font-size: 0.85rem;
+            }
+
+            .fcra-section {
+              background: rgba($navy, 0.1);
+              color: $navy;
+              padding: 0.2rem 0.5rem;
+              border-radius: 4px;
+              font-size: 0.75rem;
+              font-weight: 500;
+            }
+          }
+
+          .template-actions {
+            display: flex;
+            gap: 0.5rem;
+
+            .btn {
+              padding: 0.25rem 0.5rem;
+              font-size: 0.8rem;
+              border-radius: 4px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Compliance Score Card
+  .compliance-score-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
+
+    .score-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+
+      h3 {
+        margin: 0;
+        color: $dark-gray;
+        font-family: 'Montserrat', Arial Black, sans-serif;
+        font-weight: bold;
+      }
+
+      .score-value {
+        text-align: right;
+
+        .score-number {
+          display: block;
+          font-size: 3rem;
+          font-weight: bold;
+          color: $success;
+          font-family: 'Montserrat', Arial Black, sans-serif;
+          line-height: 1;
+        }
+
+        .score-status {
+          font-size: 0.9rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          &.success {
+            color: $success;
+          }
+        }
+      }
+    }
+
+    .score-breakdown {
+      .breakdown-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .label {
+          min-width: 150px;
+          font-weight: 500;
+          color: $dark-gray;
+          font-size: 0.9rem;
+        }
+
+        .progress {
+          flex: 1;
+          height: 8px;
+          background: #E2E8F0;
+          border-radius: 4px;
+          overflow: hidden;
+
+          .progress-bar {
+            height: 100%;
+            transition: width 0.3s ease;
+          }
+        }
+
+        .value {
+          min-width: 50px;
+          text-align: right;
+          font-weight: 600;
+          color: $success;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  // Compliance Alerts Summary
+  .compliance-alerts-summary {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
+
+    h4 {
+      margin: 0 0 1.5rem 0;
+      color: $dark-gray;
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-weight: bold;
+    }
+
+    .alert-summary {
+      .alert-type {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #F1F5F9;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .count {
+          font-size: 1.5rem;
+          font-weight: bold;
+          font-family: 'Montserrat', Arial Black, sans-serif;
+        }
+
+        .label {
+          font-size: 0.9rem;
+          font-weight: 500;
+          color: $medium-gray;
+        }
+
+        &.high .count {
+          color: $error;
+        }
+
+        &.medium .count {
+          color: $warning;
+        }
+
+        &.low .count {
+          color: $success;
+        }
+      }
+    }
+  }
+
+  // Audit Trail Card
+  .audit-trail-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+
+    .card-header {
+      background: $light-gray;
+      padding: 1.5rem;
+      border-bottom: 1px solid #E2E8F0;
+
+      h4 {
+        margin: 0;
+        color: $dark-gray;
+        font-family: 'Montserrat', Arial Black, sans-serif;
+        font-weight: bold;
+      }
+
+      p {
+        margin: 0.5rem 0 0 0;
+        color: $medium-gray;
+      }
+    }
+
+    .compliance-impact {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      &.high {
+        background: rgba($error, 0.1);
+        color: $error;
+      }
+
+      &.medium {
+        background: rgba($warning, 0.1);
+        color: $warning;
+      }
+
+      &.low {
+        background: rgba($success, 0.1);
+        color: $success;
+      }
+
+      &.none {
+        background: rgba($medium-gray, 0.1);
+        color: $medium-gray;
+      }
+    }
+  }
+
+  // Badge Styles
+  .badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.badge-success {
+      background: rgba($success, 0.1);
+      color: $success;
+    }
+
+    &.badge-warning {
+      background: rgba($warning, 0.1);
+      color: $warning;
+    }
+
+    &.badge-danger {
+      background: rgba($error, 0.1);
+      color: $error;
+    }
+
+    &.badge-secondary {
+      background: rgba($medium-gray, 0.1);
+      color: $medium-gray;
+    }
+
+    &.badge-primary {
+      background: rgba($teal, 0.1);
+      color: $teal;
+    }
+  }
+
+  // Button Styles
+  .btn {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    padding: 0.5rem 1rem;
+
+    &.btn-teal {
+      background: $teal;
+      color: white;
+
+      &:hover {
+        background: darken($teal, 10%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba($teal, 0.3);
+      }
+    }
+
+    &.btn-navy {
+      background: $navy;
+      color: white;
+
+      &:hover {
+        background: darken($navy, 10%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba($navy, 0.3);
+      }
+    }
+
+    &.btn-outline-primary {
+      border: 1px solid $teal;
+      color: $teal;
+      background: transparent;
+
+      &:hover {
+        background: $teal;
+        color: white;
+      }
+    }
+
+    &.btn-outline-secondary {
+      border: 1px solid $medium-gray;
+      color: $medium-gray;
+      background: transparent;
+
+      &:hover {
+        background: $medium-gray;
+        color: white;
+      }
+    }
+
+    &.btn-outline-danger {
+      border: 1px solid $error;
+      color: $error;
+      background: transparent;
+
+      &:hover {
+        background: $error;
+        color: white;
+      }
+    }
+  }
+
+  // Modal Styles
+  .modal {
+    &.show {
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-dialog {
+      margin: 2rem auto;
+    }
+
+    .modal-content {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+
+      .modal-header {
+        background: $light-gray;
+        border-bottom: 1px solid #E2E8F0;
+        border-radius: 12px 12px 0 0;
+        padding: 1.5rem;
+
+        .modal-title {
+          margin: 0;
+          color: $dark-gray;
+          font-family: 'Montserrat', Arial Black, sans-serif;
+          font-weight: bold;
+        }
+
+        .close {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          color: $medium-gray;
+          opacity: 1;
+
+          &:hover {
+            color: $dark-gray;
+          }
+        }
+      }
+
+      .modal-body {
+        padding: 2rem;
+
+        .form-group {
+          margin-bottom: 1.5rem;
+
+          label {
+            font-weight: 600;
+            color: $dark-gray;
+            margin-bottom: 0.5rem;
+            display: block;
+          }
+
+          .form-control {
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+
+            &:focus {
+              border-color: $teal;
+              box-shadow: 0 0 0 3px rgba($teal, 0.1);
+              outline: none;
+            }
+          }
+        }
+      }
+
+      .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid #E2E8F0;
+        background: $light-gray;
+        border-radius: 0 0 12px 12px;
+
+        .btn {
+          margin-left: 0.5rem;
+        }
+      }
+    }
+  }
+
+  // Loading Overlay
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+
+    .spinner-border {
+      width: 3rem;
+      height: 3rem;
+
+      &.text-teal {
+        color: $teal;
+      }
+    }
+  }
+
+  // Animations
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    .admin-header {
+      .admin-title {
+        font-size: 1.4rem;
+
+        .subtitle {
+          font-size: 0.8rem;
+        }
+      }
+
+      .admin-actions {
+        margin-top: 1rem;
+        text-align: left !important;
+      }
+    }
+
+    .admin-nav {
+      .admin-tabs {
+        flex-wrap: wrap;
+
+        .nav-item {
+          .nav-link {
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+
+    .metric-card {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.75rem;
+
+      .metric-content {
+        h3 {
+          font-size: 1.5rem;
+        }
+      }
+    }
+
+    .cro-card {
+      .cro-stats {
+        flex-direction: column;
+        gap: 1rem;
+
+        .stat-item {
+          .stat-value {
+            font-size: 1.2rem;
+          }
+        }
+      }
+    }
+
+    .compliance-score-card {
+      .score-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+
+        .score-value {
+          .score-number {
+            font-size: 2.5rem;
+          }
+        }
+      }
+    }
+
+    .action-buttons {
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  @media (max-width: 576px) {
+    .admin-content {
+      padding: 1rem 0;
+    }
+
+    .filters-section {
+      .row {
+        .col-md-3 {
+          margin-bottom: 1rem;
+        }
+      }
+    }
+
+    .table-card {
+      .table-responsive {
+        font-size: 0.8rem;
+      }
+    }
+  }
+}
+
+// Utility Classes
+.text-teal { color: $teal !important; }
+.text-navy { color: $navy !important; }
+.text-success { color: $success !important; }
+.text-warning { color: $warning !important; }
+.text-error { color: $error !important; }
+
+.bg-teal { background-color: $teal !important; }
+.bg-navy { background-color: $navy !important; }
+.bg-success { background-color: $success !important; }
+.bg-warning { background-color: $warning !important; }
+.bg-error { background-color: $error !important; }

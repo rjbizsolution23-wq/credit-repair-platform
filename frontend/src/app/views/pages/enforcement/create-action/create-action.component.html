@@ -1,0 +1,193 @@
+<div class="create-action-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="btn btn-outline-secondary back-btn" (click)="onCancel()">
+          <i feather="arrow-left" class="btn-icon"></i>
+          Back to Actions
+        </button>
+        <div class="header-info">
+          <h1 class="page-title">Create Enforcement Action</h1>
+          <p class="page-subtitle">Create a new enforcement action to address compliance violations</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-container">
+    <form [formGroup]="actionForm" (ngSubmit)="onSubmit()" class="action-form">
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3 class="section-title">Basic Information</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="title" class="form-label required">Action Title</label>
+            <input 
+              type="text" 
+              id="title"
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('title')"
+              formControlName="title"
+              placeholder="Enter action title">
+            <div *ngIf="isFieldInvalid('title')" class="invalid-feedback">
+              {{ getFieldError('title') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="description" class="form-label required">Description</label>
+            <textarea 
+              id="description"
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('description')"
+              formControlName="description"
+              rows="4"
+              placeholder="Describe the enforcement action in detail"></textarea>
+            <div *ngIf="isFieldInvalid('description')" class="invalid-feedback">
+              {{ getFieldError('description') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="type" class="form-label required">Action Type</label>
+            <select 
+              id="type"
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('type')"
+              formControlName="type">
+              <option value="">Select action type</option>
+              <option *ngFor="let type of ActionType | keyvalue" [value]="type.value">
+                {{ type.value.toString() | titlecase }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalid('type')" class="invalid-feedback">
+              {{ getFieldError('type') }}
+            </div>
+          </div>
+
+          <div class="form-group col-md-6">
+            <label for="priority" class="form-label required">Priority</label>
+            <select 
+              id="priority"
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('priority')"
+              formControlName="priority">
+              <option *ngFor="let priority of ActionPriority | keyvalue" [value]="priority.value">
+                {{ priority.value.toString() | titlecase }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalid('priority')" class="invalid-feedback">
+              {{ getFieldError('priority') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assignment & Timeline -->
+      <div class="form-section">
+        <h3 class="section-title">Assignment & Timeline</h3>
+        
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="assignedTo" class="form-label">Assigned To</label>
+            <input 
+              type="text" 
+              id="assignedTo"
+              class="form-control"
+              formControlName="assignedTo"
+              placeholder="Enter assignee name or ID">
+          </div>
+
+          <div class="form-group col-md-6">
+            <label for="dueDate" class="form-label required">Due Date</label>
+            <input 
+              type="date" 
+              id="dueDate"
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('dueDate')"
+              formControlName="dueDate">
+            <div *ngIf="isFieldInvalid('dueDate')" class="invalid-feedback">
+              {{ getFieldError('dueDate') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="estimatedHours" class="form-label">Estimated Hours</label>
+            <input 
+              type="number" 
+              id="estimatedHours"
+              class="form-control"
+              formControlName="estimatedHours"
+              placeholder="Enter estimated hours"
+              min="0"
+              step="0.5">
+          </div>
+
+          <div class="form-group col-md-6">
+            <label for="violationId" class="form-label">Related Violation</label>
+            <input 
+              type="text" 
+              id="violationId"
+              class="form-control"
+              formControlName="violationId"
+              placeholder="Enter violation ID (optional)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information -->
+      <div class="form-section">
+        <h3 class="section-title">Additional Information</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tags" class="form-label">Tags</label>
+            <input 
+              type="text" 
+              id="tags"
+              class="form-control"
+              formControlName="tags"
+              placeholder="Enter tags separated by commas">
+            <small class="form-text text-muted">
+              Add tags to help categorize and search for this action
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        <i feather="alert-circle" class="alert-icon"></i>
+        {{ error }}
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="onCancel()"
+          [disabled]="loading">
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="actionForm.invalid || loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!loading" feather="plus" class="btn-icon"></i>
+          {{ loading ? 'Creating...' : 'Create Action' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

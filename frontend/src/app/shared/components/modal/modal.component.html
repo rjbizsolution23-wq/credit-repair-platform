@@ -1,0 +1,56 @@
+<div #modalElement 
+     [class]="getModalClasses()" 
+     [style]="getModalStyles()" 
+     tabindex="-1" 
+     role="dialog" 
+     [attr.aria-labelledby]="title ? 'modal-title' : null"
+     aria-hidden="true">
+  
+  <div #modalDialog 
+       [class]="getDialogClasses()" 
+       role="document"
+       (click)="onDialogClick($event)">
+    
+    <div class="modal-content">
+      
+      <!-- Modal Header -->
+      <div class="modal-header" *ngIf="showHeader">
+        <h5 class="modal-title" id="modal-title" *ngIf="title">{{ title }}</h5>
+        
+        <!-- Custom header content -->
+        <ng-content select="[slot=header]"></ng-content>
+        
+        <button type="button" 
+                class="btn-close" 
+                *ngIf="showCloseButton"
+                (click)="onCloseClick()"
+                aria-label="Close">
+          <i class="feather icon-x"></i>
+        </button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <ng-content></ng-content>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="modal-footer" *ngIf="showFooter">
+        <ng-content select="[slot=footer]"></ng-content>
+        
+        <!-- Default footer if no custom footer provided -->
+        <ng-container *ngIf="!hasCustomFooter()">
+          <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+        </ng-container>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" 
+     *ngIf="isOpen && config.backdrop" 
+     [class.fade]="config.animation"
+     [class.show]="isOpen">
+</div>

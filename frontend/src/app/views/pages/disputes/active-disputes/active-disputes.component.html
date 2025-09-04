@@ -1,0 +1,281 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h4 class="page-title">Active Disputes</h4>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a routerLink="/disputes">Disputes</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Active</li>
+      </ol>
+    </nav>
+  </div>
+  <div class="d-flex gap-2">
+    <button type="button" class="btn btn-outline-secondary" (click)="refreshDisputes()">
+      <i data-feather="refresh-cw" class="me-1"></i>
+      Refresh
+    </button>
+    <button type="button" class="btn btn-outline-primary" (click)="exportDisputes()">
+      <i data-feather="download" class="me-1"></i>
+      Export
+    </button>
+    <a routerLink="/disputes/create" class="btn btn-primary">
+      <i data-feather="plus" class="me-1"></i>
+      Create Dispute
+    </a>
+  </div>
+</div>
+
+<!-- Filters Card -->
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row g-3">
+      <!-- Search -->
+      <div class="col-md-3">
+        <label class="form-label">Search</label>
+        <div class="input-group">
+          <span class="input-group-text"><i data-feather="search"></i></span>
+          <input type="text" class="form-control" placeholder="Search disputes..." 
+                 [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()">
+        </div>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="col-md-2">
+        <label class="form-label">Status</label>
+        <select class="form-select" [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()">
+          <option *ngFor="let status of statusOptions" [value]="status.value">{{status.label}}</option>
+        </select>
+      </div>
+
+      <!-- Type Filter -->
+      <div class="col-md-2">
+        <label class="form-label">Type</label>
+        <select class="form-select" [(ngModel)]="selectedType" (ngModelChange)="onFilterChange()">
+          <option *ngFor="let type of typeOptions" [value]="type.value">{{type.label}}</option>
+        </select>
+      </div>
+
+      <!-- Bureau Filter -->
+      <div class="col-md-2">
+        <label class="form-label">Bureau</label>
+        <select class="form-select" [(ngModel)]="selectedBureau" (ngModelChange)="onFilterChange()">
+          <option *ngFor="let bureau of bureauOptions" [value]="bureau.value">{{bureau.label}}</option>
+        </select>
+      </div>
+
+      <!-- Sort -->
+      <div class="col-md-3">
+        <label class="form-label">Sort By</label>
+        <select class="form-select" [(ngModel)]="selectedSort" (ngModelChange)="onSortChange()">
+          <option *ngFor="let sort of sortOptions" [value]="sort.value">{{sort.label}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Actions -->
+<div class="card mb-4" *ngIf="selectedDisputes.length > 0">
+  <div class="card-body py-2">
+    <div class="d-flex justify-content-between align-items-center">
+      <span class="text-muted">{{selectedDisputes.length}} dispute(s) selected</span>
+      <div class="d-flex gap-2">
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" 
+                  data-bs-toggle="dropdown" aria-expanded="false">
+            Update Status
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" (click)="bulkUpdateStatus(DisputeStatus.IN_PROGRESS)">Mark In Progress</a></li>
+<li><a class="dropdown-item" (click)="bulkUpdateStatus(DisputeStatus.PENDING_RESPONSE)">Mark Pending Response</a></li>
+<li><a class="dropdown-item" (click)="bulkUpdateStatus(DisputeStatus.UNDER_REVIEW)">Mark Under Review</a></li>
+<li><a class="dropdown-item" (click)="bulkUpdateStatus(DisputeStatus.COMPLETED)">Mark Completed</a></li>
+<li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item" (click)="bulkUpdateStatus(DisputeStatus.ESCALATED)">Escalate</a></li>
+          </ul>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-danger" (click)="bulkDelete()">
+          <i data-feather="trash-2" class="me-1"></i>
+          Delete Selected
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Disputes Table -->
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th width="40">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" 
+                       [(ngModel)]="selectAll" (ngModelChange)="toggleSelectAll()">
+              </div>
+            </th>
+            <th>Client</th>
+            <th>Creditor</th>
+            <th>Account</th>
+            <th>Type</th>
+            <th>Bureau</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Due Date</th>
+            <th>Created</th>
+            <th width="120">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="loading">
+            <td colspan="11" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="!loading && getPaginatedDisputes().length === 0">
+            <td colspan="11" class="text-center py-4 text-muted">
+              <i data-feather="inbox" class="mb-2"></i>
+              <p class="mb-0">No active disputes found</p>
+            </td>
+          </tr>
+          <tr *ngFor="let dispute of getPaginatedDisputes()">
+            <td>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" 
+                       [checked]="isSelected(dispute.id)" 
+                       (change)="toggleSelectDispute(dispute.id)">
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar avatar-sm me-2">
+                  <span class="avatar-title bg-primary rounded-circle">
+                    {{dispute.clientName?.charAt(0) || 'C'}}
+                  </span>
+                </div>
+                <div>
+                  <h6 class="mb-0">{{dispute.clientName}}</h6>
+                  <small class="text-muted">ID: {{dispute.clientId}}</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div>
+                <h6 class="mb-0">{{dispute.creditorName}}</h6>
+                <small class="text-muted">{{dispute.originalCreditor}}</small>
+              </div>
+            </td>
+            <td>
+              <div>
+                <span class="fw-medium">{{dispute.accountNumber}}</span>
+                <br>
+                <small class="text-muted">${{dispute.amount | number:'1.2-2'}}</small>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getTypeBadgeClass(dispute.type)">
+                {{dispute.type | titlecase}}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getBureauBadgeClass(dispute.bureau)">
+                {{dispute.bureau}}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getStatusBadgeClass(dispute.status)">
+                {{dispute.status | titlecase}}
+              </span>
+            </td>
+            <td>
+              <span [ngClass]="getPriorityClass(dispute.priority)">
+                <i data-feather="flag" class="me-1"></i>
+                {{dispute.priority | titlecase}}
+              </span>
+            </td>
+            <td>
+              <div *ngIf="dispute.dueDate">
+                <span class="fw-medium">{{dispute.dueDate | date:'MMM d'}}</span>
+                <br>
+                <small [ngClass]="{
+                  'text-danger': getDaysRemaining(dispute.dueDate) <= 3,
+                  'text-warning': getDaysRemaining(dispute.dueDate) <= 7 && getDaysRemaining(dispute.dueDate) > 3,
+                  'text-muted': getDaysRemaining(dispute.dueDate) > 7
+                }">
+                  {{getDaysRemaining(dispute.dueDate)}} days
+                </small>
+              </div>
+              <span *ngIf="!dispute.dueDate" class="text-muted">-</span>
+            </td>
+            <td>
+              <small class="text-muted">{{dispute.createdAt | date:'MMM d, y'}}</small>
+            </td>
+            <td>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                  <i data-feather="more-horizontal"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a class="dropdown-item" [routerLink]="['/disputes/view', dispute.id]">
+                      <i data-feather="eye" class="me-2"></i>
+                      View Details
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" [routerLink]="['/disputes/edit', dispute.id]">
+                      <i data-feather="edit" class="me-2"></i>
+                      Edit
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item" (click)="bulkUpdateStatus(DisputeStatus.COMPLETED)">
+                      <i data-feather="check-circle" class="me-2"></i>
+                      Mark Complete
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" (click)="bulkUpdateStatus(DisputeStatus.ESCALATED)">
+                      <i data-feather="arrow-up" class="me-2"></i>
+                      Escalate
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item text-danger" (click)="deleteDispute(dispute.id)">
+                      <i data-feather="trash-2" class="me-2"></i>
+                      Delete
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="!loading && totalItems > 0">
+      <div class="text-muted">
+        Showing {{(currentPage - 1) * itemsPerPage + 1}} to 
+        {{Math.min(currentPage * itemsPerPage, totalItems)}} of {{totalItems}} disputes
+      </div>
+      <ngb-pagination 
+        [(page)]="currentPage" 
+        [pageSize]="itemsPerPage" 
+        [collectionSize]="totalItems"
+        [maxSize]="5"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="onPageChange($event)">
+      </ngb-pagination>
+    </div>
+  </div>
+</div>

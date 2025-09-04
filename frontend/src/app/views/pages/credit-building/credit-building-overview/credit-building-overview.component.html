@@ -1,0 +1,429 @@
+<div class="credit-building-overview">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">
+          <i class="fas fa-chart-line me-2"></i>
+          Credit Building Dashboard
+        </h1>
+        <p class="page-description">
+          Monitor credit building strategies, track progress, and manage recommendations
+        </p>
+      </div>
+      <div class="header-actions">
+        <button 
+          class="btn btn-outline-primary me-2" 
+          (click)="onRefresh()"
+          [disabled]="isLoading">
+          <i class="fas fa-sync-alt" [class.fa-spin]="isLoading"></i>
+          Refresh
+        </button>
+        <button 
+          class="btn btn-primary me-2" 
+          (click)="onQuickAction({route: '/credit-building/strategies/create'})">
+          <i class="fas fa-plus me-1"></i>
+          New Strategy
+        </button>
+        <button 
+          class="btn btn-success" 
+          (click)="onQuickAction({route: '/credit-building/goals/create'})">
+          <i class="fas fa-target me-1"></i>
+          Set Goal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="loading-text">Loading credit building data...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-2" (click)="onRefresh()">
+      <i class="fas fa-redo me-1"></i>
+      Retry
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && !error" class="main-content">
+    <!-- Statistics Cards -->
+    <div class="stats-section">
+      <div class="row g-3">
+        <div class="col-xl-3 col-lg-6 col-md-6">
+          <div class="stat-card stat-card-primary">
+            <div class="stat-icon">
+              <i class="fas fa-chess-knight"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ stats.totalStrategies }}</div>
+              <div class="stat-label">Total Strategies</div>
+              <div class="stat-sublabel">{{ stats.activeStrategies }} active</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-xl-3 col-lg-6 col-md-6">
+          <div class="stat-card stat-card-success">
+            <div class="stat-icon">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ stats.totalRecommendations }}</div>
+              <div class="stat-label">Recommendations</div>
+              <div class="stat-sublabel">{{ stats.pendingRecommendations }} pending</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-xl-3 col-lg-6 col-md-6">
+          <div class="stat-card stat-card-warning">
+            <div class="stat-icon">
+              <i class="fas fa-target"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">{{ stats.totalGoals }}</div>
+              <div class="stat-label">Credit Goals</div>
+              <div class="stat-sublabel">{{ stats.achievedGoals }} achieved</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-xl-3 col-lg-6 col-md-6">
+          <div class="stat-card stat-card-info">
+            <div class="stat-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">+{{ stats.averageCreditScoreImprovement }}</div>
+              <div class="stat-label">Avg. Score Improvement</div>
+              <div class="stat-sublabel">{{ stats.successRate }}% success rate</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-pie-chart me-2"></i>
+                Strategies by Type
+              </h5>
+            </div>
+            <div class="chart-body">
+              <canvas 
+                *ngIf="strategiesByTypeChart.labels.length > 0"
+                baseChart
+                [data]="strategiesByTypeChart"
+                [type]="'doughnut'"
+                [options]="{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom'
+                    }
+                  }
+                }">
+              </canvas>
+              <div *ngIf="strategiesByTypeChart.labels.length === 0" class="no-data">
+                <i class="fas fa-chart-pie fa-3x text-muted"></i>
+                <p class="text-muted mt-2">No strategy data available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Recommendations by Priority
+              </h5>
+            </div>
+            <div class="chart-body">
+              <canvas 
+                *ngIf="recommendationsByPriorityChart.labels.length > 0"
+                baseChart
+                [data]="recommendationsByPriorityChart"
+                [type]="'doughnut'"
+                [options]="{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom'
+                    }
+                  }
+                }">
+              </canvas>
+              <div *ngIf="recommendationsByPriorityChart.labels.length === 0" class="no-data">
+                <i class="fas fa-chart-pie fa-3x text-muted"></i>
+                <p class="text-muted mt-2">No recommendation data available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-4">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h5 class="chart-title">
+                <i class="fas fa-trending-up me-2"></i>
+                Progress Trend
+              </h5>
+            </div>
+            <div class="chart-body">
+              <canvas 
+                *ngIf="progressTrendChart.labels.length > 0"
+                baseChart
+                [data]="progressTrendChart"
+                [type]="'line'"
+                [options]="{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      max: 100
+                    }
+                  },
+                  plugins: {
+                    legend: {
+                      display: false
+                    }
+                  }
+                }">
+              </canvas>
+              <div *ngIf="progressTrendChart.labels.length === 0" class="no-data">
+                <i class="fas fa-chart-line fa-3x text-muted"></i>
+                <p class="text-muted mt-2">No progress data available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-sections">
+      <div class="row g-4">
+        <!-- Recent Strategies -->
+        <div class="col-lg-6">
+          <div class="content-card">
+            <div class="content-header">
+              <h5 class="content-title">
+                <i class="fas fa-chess-knight me-2"></i>
+                Recent Strategies
+              </h5>
+              <button class="btn btn-sm btn-outline-primary" (click)="onViewAllStrategies()">
+                View All
+              </button>
+            </div>
+            <div class="content-body">
+              <div *ngIf="strategies.length === 0" class="empty-state">
+                <i class="fas fa-chess-knight fa-3x text-muted"></i>
+                <p class="text-muted mt-2">No strategies found</p>
+                <button class="btn btn-primary btn-sm" (click)="onQuickAction({route: '/credit-building/strategies/create'})">
+                  Create First Strategy
+                </button>
+              </div>
+              
+              <div *ngFor="let strategy of strategies.slice(0, 5)" class="list-item">
+                <div class="item-content" (click)="onViewStrategy(strategy)">
+                  <div class="item-header">
+                    <h6 class="item-title">{{ strategy.title }}</h6>
+                    <span class="badge" [class]="'badge-' + getStrategyStatusColor(strategy.status)">
+                      {{ strategy.status | titlecase }}
+                    </span>
+                  </div>
+                  <p class="item-description">{{ strategy.description }}</p>
+                  <div class="item-meta">
+                    <div class="progress-info">
+                      <small class="text-muted">Progress: {{ strategy.progress }}%</small>
+                      <div class="progress progress-sm">
+                        <div 
+                          class="progress-bar" 
+                          [class]="'bg-' + getProgressColor(strategy.progress)"
+                          [style.width.%]="strategy.progress">
+                        </div>
+                      </div>
+                    </div>
+                    <small class="text-muted">{{ getTimeAgo(strategy.updatedAt) }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- High Priority Recommendations -->
+        <div class="col-lg-6">
+          <div class="content-card">
+            <div class="content-header">
+              <h5 class="content-title">
+                <i class="fas fa-lightbulb me-2"></i>
+                High Priority Recommendations
+              </h5>
+              <button class="btn btn-sm btn-outline-primary" (click)="onViewAllRecommendations()">
+                View All
+              </button>
+            </div>
+            <div class="content-body">
+              <div *ngIf="recommendations.length === 0" class="empty-state">
+                <i class="fas fa-lightbulb fa-3x text-muted"></i>
+                <p class="text-muted mt-2">No recommendations found</p>
+                <button class="btn btn-primary btn-sm" (click)="onQuickAction({route: '/credit-building/recommendations'})">
+                  Generate Recommendations
+                </button>
+              </div>
+              
+              <div *ngFor="let recommendation of recommendations.slice(0, 5)" class="list-item">
+                <div class="item-content" (click)="onViewRecommendation(recommendation)">
+                  <div class="item-header">
+                    <h6 class="item-title">{{ recommendation.title }}</h6>
+                    <span class="badge" [class]="'badge-' + getRecommendationPriorityColor(recommendation.priority)">
+                      {{ recommendation.priority | titlecase }}
+                    </span>
+                  </div>
+                  <p class="item-description">{{ recommendation.description }}</p>
+                  <div class="item-meta">
+                    <div class="impact-info">
+                      <span class="badge" [class]="'badge-' + getImpactBadge(recommendation.expectedImpact).color">
+                        {{ getImpactBadge(recommendation.expectedImpact).text }}
+                      </span>
+                      <small class="text-muted ms-2">+{{ recommendation.expectedImpact }} points</small>
+                    </div>
+                    <small class="text-muted">{{ getTimeAgo(recommendation.updatedAt) }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Active Goals -->
+        <div class="col-lg-6">
+          <div class="content-card">
+            <div class="content-header">
+              <h5 class="content-title">
+                <i class="fas fa-target me-2"></i>
+                Active Goals
+              </h5>
+              <button class="btn btn-sm btn-outline-primary" (click)="onViewAllGoals()">
+                View All
+              </button>
+            </div>
+            <div class="content-body">
+              <div *ngIf="goals.length === 0" class="empty-state">
+                <i class="fas fa-target fa-3x text-muted"></i>
+                <p class="text-muted mt-2">No goals found</p>
+                <button class="btn btn-primary btn-sm" (click)="onQuickAction({route: '/credit-building/goals/create'})">
+                  Set First Goal
+                </button>
+              </div>
+              
+              <div *ngFor="let goal of goals.slice(0, 5)" class="list-item">
+                <div class="item-content" (click)="onViewGoal(goal)">
+                  <div class="item-header">
+                    <h6 class="item-title">{{ goal.title }}</h6>
+                    <span class="badge" [class]="'badge-' + getGoalStatusColor(goal.status)">
+                      {{ goal.status | titlecase }}
+                    </span>
+                  </div>
+                  <p class="item-description">{{ goal.description }}</p>
+                  <div class="item-meta">
+                    <div class="goal-progress">
+                      <small class="text-muted">
+                        {{ goal.currentValue }} / {{ goal.targetValue }}
+                      </small>
+                      <div class="progress progress-sm">
+                        <div 
+                          class="progress-bar" 
+                          [class]="'bg-' + getProgressColor(goal.progress)"
+                          [style.width.%]="goal.progress">
+                        </div>
+                      </div>
+                    </div>
+                    <small class="text-muted">Due: {{ formatDate(goal.targetDate) }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="col-lg-6">
+          <div class="content-card">
+            <div class="content-header">
+              <h5 class="content-title">
+                <i class="fas fa-clock me-2"></i>
+                Recent Activity
+              </h5>
+              <button class="btn btn-sm btn-outline-primary" (click)="onViewReports()">
+                View Reports
+              </button>
+            </div>
+            <div class="content-body">
+              <div *ngIf="recentActivity.length === 0" class="empty-state">
+                <i class="fas fa-clock fa-3x text-muted"></i>
+                <p class="text-muted mt-2">No recent activity</p>
+              </div>
+              
+              <div class="activity-timeline">
+                <div *ngFor="let activity of recentActivity" class="timeline-item">
+                  <div class="timeline-marker" [class]="'bg-' + getActivityColor(activity.type)">
+                    <i [class]="getActivityIcon(activity.type)"></i>
+                  </div>
+                  <div class="timeline-content">
+                    <h6 class="timeline-title">{{ activity.title }}</h6>
+                    <p class="timeline-description">{{ activity.description }}</p>
+                    <small class="timeline-time text-muted">
+                      {{ getTimeAgo(activity.timestamp) }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <div class="section-header">
+        <h5 class="section-title">
+          <i class="fas fa-bolt me-2"></i>
+          Quick Actions
+        </h5>
+      </div>
+      <div class="row g-3">
+        <div *ngFor="let action of quickActions" class="col-lg-2 col-md-4 col-sm-6">
+          <div class="quick-action-card" (click)="onQuickAction(action)">
+            <div class="action-icon" [class]="'text-' + action.color">
+              <i [class]="action.icon"></i>
+            </div>
+            <h6 class="action-title">{{ action.title }}</h6>
+            <p class="action-description">{{ action.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

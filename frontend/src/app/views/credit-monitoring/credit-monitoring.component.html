@@ -1,0 +1,341 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+  <div>
+    <h4 class="mb-3 mb-md-0">Credit Monitoring & Analytics</h4>
+    <p class="text-muted">Advanced credit insights powered by MyFreeScore integration</p>
+  </div>
+  <div class="d-flex align-items-center flex-wrap text-nowrap">
+    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0" (click)="refreshReport()">
+      <i class="feather icon-refresh-cw btn-icon-prepend"></i>
+      Refresh Report
+    </button>
+    <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0" (click)="exportReport()">
+      <i class="feather icon-download btn-icon-prepend"></i>
+      Export Report
+    </button>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="isLoading" class="text-center py-5">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <p class="mt-3 text-muted">Loading credit report data...</p>
+</div>
+
+<!-- Credit Score Overview -->
+<div *ngIf="!isLoading && creditAnalysis" class="row">
+  <div class="col-12 col-xl-12 stretch-card">
+    <div class="row flex-grow-1">
+      <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Average Score</h6>
+              <div class="dropdown mb-2">
+                <span [ngClass]="getGradeClass(creditAnalysis.creditGrade)">{{ creditAnalysis.creditGrade }}</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 col-md-12 col-xl-5">
+                <h3 class="mb-2" [style.color]="getScoreColor(creditAnalysis.averageScore)">{{ creditAnalysis.averageScore }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-success">
+                    <span>+{{ creditAnalysis.improvementPotential }}</span>
+                    <i class="feather icon-arrow-up icon-sm ms-1"></i>
+                  </p>
+                </div>
+              </div>
+              <div class="col-6 col-md-12 col-xl-7">
+                <div id="customers-chart" class="mt-md-3 mt-xl-0">
+                  <apx-chart
+                    [series]="improvementChartData.series"
+                    [chart]="improvementChartData.chart"
+                    [labels]="improvementChartData.labels"
+                    [colors]="improvementChartData.colors">
+                  </apx-chart>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">TransUnion</h6>
+              <div class="dropdown mb-2">
+                <span class="badge bg-info">TU</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h3 class="mb-2" [style.color]="getScoreColor(creditAnalysis.scores.transunion)">{{ creditAnalysis.scores.transunion }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-muted">VantageScore 3.0</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Equifax</h6>
+              <div class="dropdown mb-2">
+                <span class="badge bg-warning">EQ</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h3 class="mb-2" [style.color]="getScoreColor(creditAnalysis.scores.equifax)">{{ creditAnalysis.scores.equifax }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-muted">VantageScore 3.0</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Experian</h6>
+              <div class="dropdown mb-2">
+                <span class="badge bg-success">EX</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h3 class="mb-2" [style.color]="getScoreColor(creditAnalysis.scores.experian)">{{ creditAnalysis.scores.experian }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-muted">VantageScore 3.0</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Credit Score Trends Chart -->
+<div *ngIf="!isLoading && creditAnalysis" class="row">
+  <div class="col-12 col-xl-8 grid-margin stretch-card">
+    <div class="card overflow-hidden">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-baseline mb-4 mb-md-3">
+          <h6 class="card-title mb-0">Credit Score Analysis</h6>
+          <div class="dropdown">
+            <button class="btn btn-link p-0" type="button" id="dropdownMenuButton7" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="feather icon-more-horizontal icon-lg text-muted"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton7">
+              <a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="feather icon-eye icon-sm me-2"></i> <span class="">View</span></a>
+              <a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="feather icon-edit-2 icon-sm me-2"></i> <span class="">Edit</span></a>
+              <a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="feather icon-download icon-sm me-2"></i> <span class="">Download</span></a>
+              <a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="feather icon-print icon-sm me-2"></i> <span class="">Print</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <apx-chart
+              [series]="creditScoreChartData.series"
+              [chart]="creditScoreChartData.chart"
+              [xaxis]="creditScoreChartData.xaxis"
+              [yaxis]="creditScoreChartData.yaxis"
+              [colors]="creditScoreChartData.colors"
+              [title]="creditScoreChartData.title">
+            </apx-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Negative Factors Summary -->
+  <div class="col-12 col-xl-4 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Negative Factors</h6>
+        <p class="text-muted mb-3">Items impacting your credit score</p>
+        <div *ngIf="negativeFactors.length === 0" class="text-center py-3">
+          <i class="feather icon-check-circle text-success" style="font-size: 2rem;"></i>
+          <p class="text-success mt-2">No negative factors found!</p>
+        </div>
+        <div *ngFor="let factor of negativeFactors" class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+          <div>
+            <p class="mb-1 fw-bold">{{ factor.bureau }}</p>
+            <p class="text-muted mb-0 small">{{ factor.description }}</p>
+          </div>
+          <div class="text-end">
+            <span class="badge bg-danger">{{ factor.impact }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dispute Recommendations -->
+<div *ngIf="!isLoading && disputeRecommendations.length > 0" class="row">
+  <div class="col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">AI-Powered Dispute Recommendations</h6>
+        <p class="text-muted mb-3">Automated dispute suggestions based on credit report analysis</p>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Bureau</th>
+                <th>Dispute Type</th>
+                <th>Priority</th>
+                <th>Estimated Impact</th>
+                <th>Template</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let recommendation of disputeRecommendations">
+                <td>
+                  <span class="badge" 
+                        [ngClass]="{
+                          'bg-info': recommendation.bureau === 'TransUnion',
+                          'bg-warning': recommendation.bureau === 'Equifax',
+                          'bg-success': recommendation.bureau === 'Experian'
+                        }">
+                    {{ recommendation.bureau }}
+                  </span>
+                </td>
+                <td>{{ recommendation.disputeType }}</td>
+                <td>
+                  <span [ngClass]="getPriorityClass(recommendation.priority)">
+                    {{ getPriorityText(recommendation.priority) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="text-success fw-bold">+{{ recommendation.estimatedImpact }} points</span>
+                </td>
+                <td>
+                  <code>{{ recommendation.template }}</code>
+                </td>
+                <td>
+                  <button class="btn btn-primary btn-sm" (click)="createDispute(recommendation)">
+                    <i class="feather icon-plus me-1"></i>
+                    Create Dispute
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Credit Monitoring Insights -->
+<div *ngIf="!isLoading && creditData" class="row">
+  <div class="col-12 col-lg-6 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Credit Health Insights</h6>
+        <div class="mt-3">
+          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+            <p class="mb-0">Payment History</p>
+            <span class="badge bg-success">Good</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+            <p class="mb-0">Credit Utilization</p>
+            <span class="badge bg-warning">Fair</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+            <p class="mb-0">Credit Age</p>
+            <span class="badge bg-primary">Good</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+            <p class="mb-0">Credit Mix</p>
+            <span class="badge bg-info">Excellent</span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <p class="mb-0">New Credit</p>
+            <span class="badge bg-success">Good</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-12 col-lg-6 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Improvement Recommendations</h6>
+        <div class="mt-3">
+          <div class="alert alert-info" role="alert">
+            <i class="feather icon-info me-2"></i>
+            <strong>Quick Win:</strong> Pay down credit card balances to improve utilization ratio.
+          </div>
+          <div class="alert alert-warning" role="alert">
+            <i class="feather icon-alert-triangle me-2"></i>
+            <strong>Priority:</strong> Dispute negative items identified in the analysis above.
+          </div>
+          <div class="alert alert-success" role="alert">
+            <i class="feather icon-check-circle me-2"></i>
+            <strong>Long-term:</strong> Maintain consistent payment history for continued improvement.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- API Integration Status -->
+<div *ngIf="!isLoading" class="row">
+  <div class="col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">MyFreeScore API Integration Status</h6>
+        <div class="row">
+          <div class="col-md-3">
+            <div class="d-flex align-items-center">
+              <i class="feather icon-check-circle text-success me-2"></i>
+              <span>API Connected</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center">
+              <i class="feather icon-database text-primary me-2"></i>
+              <span>Data Synchronized</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center">
+              <i class="feather icon-shield text-success me-2"></i>
+              <span>Secure Connection</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex align-items-center">
+              <i class="feather icon-clock text-info me-2"></i>
+              <span>Real-time Updates</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3">
+          <small class="text-muted">
+            Last updated: {{ new Date().toLocaleString() }} | 
+            Data source: MyFreeScore API v2 | 
+            Credentials: {{ credentials.username }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

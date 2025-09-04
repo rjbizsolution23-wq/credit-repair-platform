@@ -1,0 +1,179 @@
+// Rick Jefferson Solutions - Brand Styling
+// Official Brand Guidelines Implementation
+
+// Import Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Open+Sans:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+
+// Header Typography - Montserrat Bold
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: $font-family-headers;
+  font-weight: 700;
+  color: $rick-jefferson-navy;
+}
+
+// Brand-specific heading styles
+.brand-title {
+  font-family: $font-family-headers;
+  font-weight: 900;
+  color: $rick-jefferson-navy;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.brand-tagline {
+  font-family: $font-family-sans-serif;
+  font-weight: 600;
+  color: $rick-jefferson-teal;
+  font-style: italic;
+}
+
+// Authority positioning
+.authority-text {
+  font-family: $font-family-headers;
+  font-weight: 700;
+  color: $rick-jefferson-navy;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+}
+
+// Contact information styling
+.contact-info {
+  font-family: $font-family-sans-serif;
+  font-weight: 500;
+  color: $rick-jefferson-navy;
+  
+  .phone, .email {
+    color: $rick-jefferson-teal;
+    font-weight: 600;
+  }
+}
+
+// Button styling with brand colors
+.btn-rick-primary {
+  background-color: $rick-jefferson-teal;
+  border-color: $rick-jefferson-teal;
+  color: white;
+  font-family: $font-family-headers;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &:hover {
+    background-color: darken($rick-jefferson-teal, 10%);
+    border-color: darken($rick-jefferson-teal, 10%);
+  }
+}
+
+.btn-rick-secondary {
+  background-color: $rick-jefferson-navy;
+  border-color: $rick-jefferson-navy;
+  color: white;
+  font-family: $font-family-headers;
+  font-weight: 700;
+  
+  &:hover {
+    background-color: darken($rick-jefferson-navy, 10%);
+    border-color: darken($rick-jefferson-navy, 10%);
+  }
+}
+
+// Card styling with brand elements
+.rick-card {
+  border: 1px solid rgba($rick-jefferson-teal, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba($rick-jefferson-navy, 0.1);
+  
+  .card-header {
+    background: linear-gradient(135deg, $rick-jefferson-navy 0%, $rick-jefferson-teal 100%);
+    color: white;
+    font-family: $font-family-headers;
+    font-weight: 700;
+  }
+}
+
+// Status indicators with brand colors
+.status-success {
+  color: $rick-jefferson-success;
+  font-weight: 600;
+}
+
+.status-warning {
+  color: $rick-jefferson-warning;
+  font-weight: 600;
+}
+
+.status-error {
+  color: $rick-jefferson-error;
+  font-weight: 600;
+}
+
+// Brand footer
+.brand-footer {
+  background: $rick-jefferson-navy;
+  color: white;
+  font-family: $font-family-sans-serif;
+  
+  .footer-brand {
+    font-family: $font-family-headers;
+    font-weight: 700;
+    color: $rick-jefferson-teal;
+  }
+  
+  .footer-tagline {
+    color: rgba(white, 0.8);
+    font-style: italic;
+  }
+}
+
+// Compliance and legal text
+.compliance-text {
+  font-family: $font-family-sans-serif;
+  font-size: 0.75rem;
+  color: $rick-jefferson-navy;
+  line-height: 1.4;
+  
+  &.disclaimer {
+    font-style: italic;
+    color: rgba($rick-jefferson-navy, 0.7);
+  }
+}
+
+// 10 Step Total Enforcement Chain™ styling
+.enforcement-chain {
+  .step-number {
+    background: $rick-jefferson-teal;
+    color: white;
+    font-family: $font-family-headers;
+    font-weight: 900;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .step-title {
+    font-family: $font-family-headers;
+    font-weight: 700;
+    color: $rick-jefferson-navy;
+  }
+  
+  .step-description {
+    font-family: $font-family-sans-serif;
+    color: rgba($rick-jefferson-navy, 0.8);
+  }
+}
+
+// Responsive brand adjustments
+@media (max-width: 768px) {
+  .brand-title {
+    font-size: 1.8rem;
+  }
+  
+  .authority-text {
+    font-size: 0.8rem;
+  }
+}

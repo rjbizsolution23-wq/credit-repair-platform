@@ -1,0 +1,245 @@
+// Help Overview Component Styles
+// Rick Jefferson Solutions Brand Colors
+$primary-teal: #14B8A6;
+$navy-blue: #1E3A8A;
+$success-green: #059669;
+$warning-orange: #D97706;
+$error-red: #DC2626;
+$accent-teal: #0F766E;
+
+.container-fluid {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Hero Section
+.hero-section {
+  background: linear-gradient(135deg, rgba($navy-blue, 0.05) 0%, rgba($primary-teal, 0.05) 100%);
+  padding: 3rem 2rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+
+  .display-4 {
+    font-family: 'Montserrat', Arial Black, sans-serif;
+    font-weight: 700;
+  }
+
+  .search-box {
+    .form-control {
+      border: 2px solid rgba($primary-teal, 0.3);
+      border-radius: 0.5rem 0 0 0.5rem;
+      
+      &:focus {
+        border-color: $primary-teal;
+        box-shadow: 0 0 0 0.2rem rgba($primary-teal, 0.25);
+      }
+    }
+
+    .btn-primary {
+      background-color: $primary-teal;
+      border-color: $primary-teal;
+      border-radius: 0 0.5rem 0.5rem 0;
+      
+      &:hover {
+        background-color: $accent-teal;
+        border-color: $accent-teal;
+      }
+    }
+  }
+}
+
+// Text Colors
+.text-navy {
+  color: $navy-blue !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+// Quick Links Cards
+.quick-link-card {
+  border: 2px solid rgba($primary-teal, 0.1);
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  
+  &:hover {
+    border-color: $primary-teal;
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba($primary-teal, 0.15);
+    text-decoration: none;
+    
+    .card-title {
+      color: $primary-teal !important;
+    }
+  }
+  
+  .icon-large {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+  
+  .card-title {
+    font-family: 'Montserrat', Arial Black, sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+  }
+}
+
+// Category Cards
+.category-card {
+  border: 1px solid rgba($navy-blue, 0.1);
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: rgba($primary-teal, 0.3);
+    box-shadow: 0 0.25rem 0.75rem rgba($navy-blue, 0.1);
+  }
+  
+  .category-icon {
+    font-size: 2rem;
+    line-height: 1;
+  }
+  
+  .card-title {
+    font-family: 'Montserrat', Arial Black, sans-serif;
+    font-weight: 600;
+  }
+  
+  .category-links {
+    .category-link {
+      color: $accent-teal;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      padding: 0.25rem 0;
+      
+      &:hover {
+        color: $primary-teal;
+        padding-left: 0.5rem;
+        text-decoration: none;
+      }
+      
+      i {
+        transition: transform 0.2s ease;
+      }
+      
+      &:hover i {
+        transform: translateX(3px);
+      }
+    }
+  }
+}
+
+// Contact Card
+.contact-card {
+  background: linear-gradient(135deg, rgba($navy-blue, 0.02) 0%, rgba($primary-teal, 0.02) 100%);
+  border: 1px solid rgba($primary-teal, 0.2);
+  border-radius: 1rem;
+  
+  .contact-method {
+    padding: 1rem;
+    
+    .contact-icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+    
+    h6 {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+  }
+  
+  .btn-primary {
+    background-color: $primary-teal;
+    border-color: $primary-teal;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    
+    &:hover {
+      background-color: $accent-teal;
+      border-color: $accent-teal;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Section Headings
+h3 {
+  font-family: 'Montserrat', Arial Black, sans-serif;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 1rem;
+  }
+  
+  .hero-section {
+    padding: 2rem 1rem;
+    
+    .display-4 {
+      font-size: 2rem;
+    }
+  }
+  
+  .quick-link-card {
+    margin-bottom: 1rem;
+  }
+  
+  .category-card {
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-section {
+    .display-4 {
+      font-size: 1.75rem;
+    }
+    
+    .lead {
+      font-size: 1rem;
+    }
+  }
+  
+  .contact-method {
+    margin-bottom: 1.5rem;
+  }
+}
+
+// Animation for cards
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quick-link-card,
+.category-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+// Stagger animation for multiple cards
+.quick-link-card:nth-child(1) { animation-delay: 0.1s; }
+.quick-link-card:nth-child(2) { animation-delay: 0.2s; }
+.quick-link-card:nth-child(3) { animation-delay: 0.3s; }
+.quick-link-card:nth-child(4) { animation-delay: 0.4s; }
+
+.category-card:nth-child(1) { animation-delay: 0.2s; }
+.category-card:nth-child(2) { animation-delay: 0.3s; }
+.category-card:nth-child(3) { animation-delay: 0.4s; }
+.category-card:nth-child(4) { animation-delay: 0.5s; }

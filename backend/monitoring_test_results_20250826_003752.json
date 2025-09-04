@@ -1,0 +1,66 @@
+{
+  "test_suite": "Rick Jefferson Solutions - Monitoring System Test",
+  "timestamp": "2025-08-26T05:37:52.966599+00:00",
+  "duration_seconds": 3.68,
+  "total_tests": 7,
+  "passed_tests": 7,
+  "failed_tests": 0,
+  "success_rate_percent": 100.0,
+  "overall_status": "PASS",
+  "test_results": [
+    {
+      "test_name": "Monitoring Directory Structure",
+      "success": true,
+      "details": "All required files present: health_checks.py, dashboard.py, requirements.txt, .env.example",
+      "error": "",
+      "timestamp": "2025-08-26T05:37:49.283553+00:00"
+    },
+    {
+      "test_name": "Environment Configuration",
+      "success": true,
+      "details": "All required environment variables present: API_BASE_URL, FRONTEND_URL, ALERT_EMAIL_ENABLED, SMTP_SERVER, ALERT_RECIPIENTS",
+      "error": "",
+      "timestamp": "2025-08-26T05:37:49.400180+00:00"
+    },
+    {
+      "test_name": "Health Monitor Initialization",
+      "success": true,
+      "details": "Monitor initialized with base_url: http://localhost:8000",
+      "error": "",
+      "timestamp": "2025-08-26T05:37:49.406892+00:00"
+    },
+    {
+      "test_name": "Health Checks Execution",
+      "success": true,
+      "details": "Health checks completed - Status: unhealthy, Health: 33.33%, Checks: 2/6",
+      "error": "",
+      "timestamp": "2025-08-26T05:37:52.739871+00:00"
+    },
+    {
+      "test_name": "Dashboard Generation",
+      "success": true,
+      "details": "Dashboard HTML generated successfully (6759 chars), saved to monitoring_dashboard.html",
+      "error": "",
+      "timestamp": "2025-08-26T05:37:52.772467+00:00"
+    },
+    {
+      "test_name": "Alert Configuration",
+      "success": true,
+      "details": "Alert configuration valid, cooldown logic working correctly",
+      "error": "",
+      "timestamp": "2025-08-26T05:37:52.921491+00:00"
+    },
+    {
+      "test_name": "Report Generation",
+      "success": true,
+      "details": "Report generated and saved successfully to test_monitoring_report.json",
+      "error": "",
+      "timestamp": "2025-08-26T05:37:52.961459+00:00"
+    }
+  ],
+  "platform_info": {
+    "python_version": "3.13.1 (tags/v3.13.1:0671451, Dec  3 2024, 19:06:28) [MSC v.1942 64 bit (AMD64)]",
+    "operating_system": "nt",
+    "working_directory": "C:\\Users\\ricky\\Downloads\\Tencloud\\credit-repair-platform\\backend"
+  }
+}

@@ -1,0 +1,850 @@
+{
+  "crawler_settings": {
+    "output_directory": "comprehensive_credit_repair_corpus",
+    "max_concurrent_requests": 15,
+    "request_delay": 0.5,
+    "timeout": 45,
+    "retry_attempts": 3,
+    "chunk_size": 1500,
+    "max_documents_per_source": 2000,
+    "enable_javascript_rendering": true,
+    "follow_redirects": true,
+    "extract_metadata": true
+  },
+  "compliance_settings": {
+    "respect_robots_txt": true,
+    "rate_limiting": true,
+    "max_requests_per_minute": 120,
+    "politeness_delay": 0.5,
+    "user_agent": "CreditRepairCorpusCrawler/2.0 (Educational Research; +https://github.com/crawlerforge)"
+  },
+  "content_filters": {
+    "include_keywords": [
+      "credit repair",
+      "credit dispute",
+      "credit report",
+      "credit score",
+      "debt collection",
+      "debt validation",
+      "debt verification",
+      "FCRA",
+      "FDCPA",
+      "TILA",
+      "ECOA",
+      "GLBA",
+      "Metro2",
+      "consumer protection",
+      "consumer rights",
+      "credit bureau",
+      "Experian",
+      "Equifax",
+      "TransUnion",
+      "Innovis",
+      "credit law",
+      "consumer law",
+      "financial regulation",
+      "dispute letter",
+      "validation letter",
+      "cease and desist",
+      "credit counseling",
+      "debt management",
+      "bankruptcy",
+      "fair credit",
+      "accurate reporting",
+      "credit monitoring"
+    ],
+    "exclude_keywords": [
+      "advertisement",
+      "sponsored",
+      "casino",
+      "gambling",
+      "adult content",
+      "explicit",
+      "unrelated"
+    ],
+    "min_content_length": 200,
+    "max_content_length": 50000,
+    "language_filter": [
+      "en"
+    ]
+  },
+  "data_sources": {
+    "government_apis": {
+      "government_apis_3": {
+        "url": "https://www.federalregister.gov/documents/search?conditions%5Bagencies%5D%5B%5D=consumer-financial-protection-bureau&format=rss",
+        "type": "rss_feed",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.federalregister.gov",
+          "path": "/documents/search",
+          "is_api": false,
+          "is_feed": true,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred.md",
+        "feed_config": {
+          "format": "rss",
+          "update_frequency": "daily",
+          "max_items": 100
+        }
+      },
+      "government_apis_11": {
+        "url": "https://www.consumerfinance.gov/enforcement/actions/",
+        "type": "web_page",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "www.consumerfinance.gov",
+          "path": "/enforcement/actions/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred.md"
+      },
+      "government_apis_12": {
+        "url": "https://www.consumerfinance.gov/about-us/newsroom/",
+        "type": "news",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "www.consumerfinance.gov",
+          "path": "/about-us/newsroom/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "government_apis_15": {
+        "url": "https://www.federalregister.gov/developers/documentation/api/v1",
+        "type": "api",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.federalregister.gov",
+          "path": "/developers/documentation/api/v1",
+          "is_api": true,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md",
+        "api_config": {
+          "method": "GET",
+          "headers": {
+            "Accept": "application/json"
+          },
+          "pagination": true
+        }
+      },
+      "government_apis_21": {
+        "url": "https://www.federalregister.gov/",
+        "type": "web_page",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "www.federalregister.gov",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "government_apis_25": {
+        "url": "https://www.govinfo.gov/app/collection/BILLS",
+        "type": "web_page",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "www.govinfo.gov",
+          "path": "/app/collection/BILLS",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "government_apis_29": {
+        "url": "https://www.consumerfinance.gov/data-research/consumer-complaints/",
+        "type": "web_page",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "www.consumerfinance.gov",
+          "path": "/data-research/consumer-complaints/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "government_apis_31": {
+        "url": "https://www.govinfo.gov/app/collection/BILLS):**",
+        "type": "web_page",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "www.govinfo.gov",
+          "path": "/app/collection/BILLS):**",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "government_apis_34": {
+        "url": "https://www.federalregister.gov/):**",
+        "type": "web_page",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "www.federalregister.gov",
+          "path": "/):**",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "government_apis_43": {
+        "url": "https://www.govinfo.gov/app/collection/uscode",
+        "type": "web_page",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "www.govinfo.gov",
+          "path": "/app/collection/uscode",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      },
+      "government_apis_45": {
+        "url": "https://www.consumerfinance.gov/ask-cfpb/sample-letter-disputing-errors-in-a-credit-report-en-314/",
+        "type": "web_page",
+        "category": "government_apis",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "www.consumerfinance.gov",
+          "path": "/ask-cfpb/sample-letter-disputing-errors-in-a-credit-report-en-314/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      }
+    },
+    "legal_databases": {
+      "legal_databases_3": {
+        "url": "https://www.law.cornell.edu/ucc",
+        "type": "legal_document",
+        "category": "legal_databases",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "www.law.cornell.edu",
+          "path": "/ucc",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "legal_databases_5": {
+        "url": "https://pacer.uscourts.gov/",
+        "type": "web_page",
+        "category": "legal_databases",
+        "priority": "high",
+        "crawl_depth": 3,
+        "metadata": {
+          "domain": "pacer.uscourts.gov",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      }
+    },
+    "regulatory_sources": {
+      "regulatory_sources_1": {
+        "url": "https://www.billtrack50.com/",
+        "type": "web_page",
+        "category": "regulatory_sources",
+        "priority": "medium",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.billtrack50.com",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred.md"
+      },
+      "regulatory_sources_3": {
+        "url": "https://www.govtrack.us/congress/bills/subjects/credit/6148",
+        "type": "web_page",
+        "category": "regulatory_sources",
+        "priority": "medium",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.govtrack.us",
+          "path": "/congress/bills/subjects/credit/6148",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred.md"
+      },
+      "regulatory_sources_4": {
+        "url": "https://library.nclc.org/blog",
+        "type": "news",
+        "category": "regulatory_sources",
+        "priority": "high",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "library.nclc.org",
+          "path": "/blog",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred.md"
+      },
+      "regulatory_sources_7": {
+        "url": "https://www.govtrack.us/congress/bills/subjects/credit/6148):**",
+        "type": "web_page",
+        "category": "regulatory_sources",
+        "priority": "medium",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.govtrack.us",
+          "path": "/congress/bills/subjects/credit/6148):**",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "regulatory_sources_8": {
+        "url": "https://openstates.org/):**",
+        "type": "web_page",
+        "category": "regulatory_sources",
+        "priority": "medium",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "openstates.org",
+          "path": "/):**",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "regulatory_sources_11": {
+        "url": "https://www.govtrack.us/congress/bills/",
+        "type": "web_page",
+        "category": "regulatory_sources",
+        "priority": "medium",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.govtrack.us",
+          "path": "/congress/bills/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "regulatory_sources_13": {
+        "url": "https://openstates.org/",
+        "type": "web_page",
+        "category": "regulatory_sources",
+        "priority": "medium",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "openstates.org",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "regulatory_sources_16": {
+        "url": "https://www.nclc.org/",
+        "type": "web_page",
+        "category": "regulatory_sources",
+        "priority": "high",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.nclc.org",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "regulatory_sources_17": {
+        "url": "https://library.nclc.org/",
+        "type": "web_page",
+        "category": "regulatory_sources",
+        "priority": "high",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "library.nclc.org",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      },
+      "regulatory_sources_18": {
+        "url": "https://www.openstates.org/developers/api/",
+        "type": "api",
+        "category": "regulatory_sources",
+        "priority": "medium",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.openstates.org",
+          "path": "/developers/api/",
+          "is_api": true,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md",
+        "api_config": {
+          "method": "GET",
+          "headers": {
+            "Accept": "application/json"
+          },
+          "pagination": true
+        }
+      }
+    },
+    "industry_sources": {
+      "industry_sources_4": {
+        "url": "https://developer.equifax.com/",
+        "type": "web_page",
+        "category": "industry_sources",
+        "priority": "medium",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "developer.equifax.com",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      },
+      "industry_sources_6": {
+        "url": "https://developer.experian.com/",
+        "type": "web_page",
+        "category": "industry_sources",
+        "priority": "medium",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "developer.experian.com",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      }
+    },
+    "academic_sources": {},
+    "repositories": {
+      "repositories_1": {
+        "url": "https://huggingface.co/datasets",
+        "type": "web_page",
+        "category": "repositories",
+        "priority": "low",
+        "crawl_depth": 2,
+        "metadata": {
+          "domain": "huggingface.co",
+          "path": "/datasets",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "repositories_5": {
+        "url": "https://huggingface.co/datasets?search=credit",
+        "type": "web_page",
+        "category": "repositories",
+        "priority": "low",
+        "crawl_depth": 2,
+        "metadata": {
+          "domain": "huggingface.co",
+          "path": "/datasets",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      },
+      "repositories_7": {
+        "url": "https://github.com/search?q=credit+dispute+letters",
+        "type": "web_page",
+        "category": "repositories",
+        "priority": "low",
+        "crawl_depth": 2,
+        "metadata": {
+          "domain": "github.com",
+          "path": "/search",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      }
+    },
+    "consumer_resources": {},
+    "news_feeds": {},
+    "api_endpoints": {
+      "api_endpoints_1": {
+        "url": "https://cfpb.github.io/api/ccdb/",
+        "type": "api",
+        "category": "api_endpoints",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "cfpb.github.io",
+          "path": "/api/ccdb/",
+          "is_api": true,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred.md",
+        "api_config": {
+          "method": "GET",
+          "headers": {
+            "Accept": "application/json"
+          },
+          "pagination": true
+        }
+      }
+    },
+    "documentation": {},
+    "other": {
+      "other_3": {
+        "url": "https://uscode.house.gov/view.xhtml?path=/prelim@title15/chapter41/subchapterV&edition=prelim",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "uscode.house.gov",
+          "path": "/view.xhtml",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_4": {
+        "url": "https://Data.gov",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "Data.gov",
+          "path": "",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_7": {
+        "url": "https://www.ncsl.org/",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.ncsl.org",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_8": {
+        "url": "https://catalog.data.gov/dataset?organization=cfpb-gov&groups=consumer):**",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "catalog.data.gov",
+          "path": "/dataset",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_10": {
+        "url": "https://feedly.com/",
+        "type": "rss_feed",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "feedly.com",
+          "path": "/",
+          "is_api": false,
+          "is_feed": true,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md",
+        "feed_config": {
+          "format": "rss",
+          "update_frequency": "daily",
+          "max_items": 100
+        }
+      },
+      "other_11": {
+        "url": "https://uscode.house.gov/view.xhtml?path=/prelim@title15/chapter41/subchapterIV&edition=prelim",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "uscode.house.gov",
+          "path": "/view.xhtml",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_13": {
+        "url": "https://uscode.house.gov/view.xhtml?path=/prelim@title15/chapter41&edition=prelim",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "uscode.house.gov",
+          "path": "/view.xhtml",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_14": {
+        "url": "https://uscode.house.gov/view.xhtml?req=(title:15",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "uscode.house.gov",
+          "path": "/view.xhtml",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_18": {
+        "url": "https://catalog.data.gov/dataset?organization=cfpb-gov&groups=consumer",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "catalog.data.gov",
+          "path": "/dataset",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_20": {
+        "url": "https://uscode.house.gov/view.xhtml?req=%28title:15",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "uscode.house.gov",
+          "path": "/view.xhtml",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_21": {
+        "url": "https://GPO.gov",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "GPO.gov",
+          "path": "",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_22": {
+        "url": "https://www.inoreader.com/",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.inoreader.com",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_23": {
+        "url": "https://www.naag.org/find-my-ag/",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.naag.org",
+          "path": "/find-my-ag/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_26": {
+        "url": "https://uscode.house.gov/view.xhtml?path=/prelim@title15/chapter41/subchapterIII&edition=prelim",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "uscode.house.gov",
+          "path": "/view.xhtml",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md"
+      },
+      "other_28": {
+        "url": "https://data.world/bnaya/metro2",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "data.world",
+          "path": "/bnaya/metro2",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      },
+      "other_29": {
+        "url": "https://community.fico.com/s/explainable-machine-learning-challenge",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "community.fico.com",
+          "path": "/s/explainable-machine-learning-challenge",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      },
+      "other_30": {
+        "url": "https://www.openicpsr.org/",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "www.openicpsr.org",
+          "path": "/",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      },
+      "other_31": {
+        "url": "https://allenai.org/data",
+        "type": "web_page",
+        "category": "other",
+        "priority": "low",
+        "crawl_depth": 1,
+        "metadata": {
+          "domain": "allenai.org",
+          "path": "/data",
+          "is_api": false,
+          "is_feed": false,
+          "requires_auth": false
+        },
+        "discovered_from": "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md"
+      }
+    }
+  },
+  "extraction_metadata": {
+    "total_links_discovered": 136,
+    "links_by_category": {
+      "government_apis": 51,
+      "legal_databases": 12,
+      "regulatory_sources": 18,
+      "industry_sources": 6,
+      "academic_sources": 5,
+      "repositories": 9,
+      "consumer_resources": 2,
+      "news_feeds": 0,
+      "api_endpoints": 1,
+      "documentation": 0,
+      "other": 32
+    },
+    "validated_links": 47,
+    "extraction_date": "2025-08-07T04:54:40.070596",
+    "source_files": [
+      "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred2.md",
+      "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred3.md",
+      "C:\\Users\\ricky\\Downloads\\Tencloud\\tencent_docs_repo\\data\\json\\cred.md"
+    ]
+  }
+}

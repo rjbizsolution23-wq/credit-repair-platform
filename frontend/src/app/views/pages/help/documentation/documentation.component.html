@@ -1,0 +1,149 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title mb-0">Documentation</h4>
+          <p class="text-muted mb-0">Comprehensive guides and documentation for Rick Jefferson Solutions platform</p>
+        </div>
+        <div class="card-body p-0">
+          <div class="row g-0">
+            <!-- Sidebar Navigation -->
+            <div class="col-md-4 col-lg-3">
+              <div class="documentation-sidebar">
+                <div class="sidebar-content">
+                  <div *ngFor="let section of documentationSections" class="section-group">
+                    <h6 class="section-title" 
+                        [class.active]="selectedSection === section"
+                        (click)="selectSection(section)">
+                      {{ section.title }}
+                    </h6>
+                    <ul class="item-list" *ngIf="selectedSection === section">
+                      <li *ngFor="let item of section.items" 
+                          class="item-link"
+                          [class.active]="selectedItem === item"
+                          (click)="selectItem(item)">
+                        {{ item.title }}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-md-8 col-lg-9">
+              <div class="documentation-content">
+                <div *ngIf="selectedItem" class="content-area">
+                  <div class="content-header">
+                    <h2 class="content-title">{{ selectedItem.title }}</h2>
+                    <p class="content-description">{{ selectedItem.description }}</p>
+                  </div>
+                  
+                  <div class="content-body">
+                    <div class="content-section">
+                      <h4>Overview</h4>
+                      <p>{{ selectedItem.content }}</p>
+                    </div>
+
+                    <!-- Additional content based on the selected item -->
+                    <div class="content-section" *ngIf="selectedItem.title.includes('Step')">
+                      <h4>Process Details</h4>
+                      <div class="alert alert-info">
+                        <strong>Part of the 10 Step Total Enforcement Chain™</strong>
+                        <p class="mb-0 mt-2">
+                          This step is crucial to our comprehensive credit repair methodology. 
+                          Each step builds upon the previous one to ensure maximum effectiveness.
+                        </p>
+                      </div>
+                      <ul class="process-list">
+                        <li>Detailed analysis and documentation</li>
+                        <li>Legal compliance verification</li>
+                        <li>Strategic implementation</li>
+                        <li>Progress monitoring and adjustment</li>
+                      </ul>
+                    </div>
+
+                    <div class="content-section" *ngIf="selectedItem.title.includes('FCRA') || selectedItem.title.includes('FDCPA')">
+                      <h4>Legal Framework</h4>
+                      <div class="alert alert-warning">
+                        <strong>Important Legal Information</strong>
+                        <p class="mb-0 mt-2">
+                          This information is provided for educational purposes. 
+                          Always consult with qualified legal professionals for specific legal advice.
+                        </p>
+                      </div>
+                      <div class="legal-points">
+                        <h5>Key Provisions:</h5>
+                        <ul>
+                          <li>Consumer rights and protections</li>
+                          <li>Reporting accuracy requirements</li>
+                          <li>Dispute resolution procedures</li>
+                          <li>Compliance obligations</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div class="content-section" *ngIf="selectedItem.title.includes('Portal') || selectedItem.title.includes('Dashboard')">
+                      <h4>How to Use This Feature</h4>
+                      <div class="feature-steps">
+                        <div class="step-item">
+                          <span class="step-number">1</span>
+                          <div class="step-content">
+                            <h6>Access the Feature</h6>
+                            <p>Navigate to the appropriate section in your dashboard</p>
+                          </div>
+                        </div>
+                        <div class="step-item">
+                          <span class="step-number">2</span>
+                          <div class="step-content">
+                            <h6>Review Information</h6>
+                            <p>Examine the data and options available to you</p>
+                          </div>
+                        </div>
+                        <div class="step-item">
+                          <span class="step-number">3</span>
+                          <div class="step-content">
+                            <h6>Take Action</h6>
+                            <p>Use the tools and features to manage your credit repair process</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="content-section">
+                      <h4>Need Additional Help?</h4>
+                      <div class="help-contact">
+                        <p>If you need further assistance with this topic, our support team is here to help:</p>
+                        <div class="contact-options">
+                          <div class="contact-item">
+                            <strong>Email:</strong> info&#64;rickjeffersonsolutions.com
+                          </div>
+                          <div class="contact-item">
+                            <strong>Phone:</strong> 877-763-8587 (Mon-Fri, 9-5 CST)
+                          </div>
+                          <div class="contact-item">
+                            <strong>SMS:</strong> Text "credit repair" to 945-308-8003
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Default state when no item is selected -->
+                <div *ngIf="!selectedItem" class="no-selection">
+                  <div class="text-center py-5">
+                    <h3 class="text-muted">Select a topic to view documentation</h3>
+                    <p class="text-muted">Choose a section from the sidebar to get started</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

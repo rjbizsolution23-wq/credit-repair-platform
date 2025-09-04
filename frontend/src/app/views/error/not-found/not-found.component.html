@@ -1,0 +1,97 @@
+<div class="not-found-container">
+  <div class="not-found-content">
+    <!-- Rick Jefferson Solutions Branding -->
+    <div class="brand-header">
+      <h3 class="rick-jefferson-brand">Rick Jefferson Solutions</h3>
+      <p class="rick-jefferson-tagline">Your Credit Freedom Starts Here</p>
+    </div>
+
+    <!-- Error Icon and Code -->
+    <div class="error-header">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h1 class="error-code">404</h1>
+      <h2 class="error-title">Page Not Found</h2>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message">
+      <p class="primary-message">
+        Sorry, the page you are looking for doesn't exist or has been moved.
+      </p>
+      <p class="secondary-message" *ngIf="currentUrl">
+        The requested URL <code>{{ currentUrl }}</code> was not found on this server.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button 
+        type="button" 
+        class="btn btn-primary"
+        (click)="goHome()"
+        aria-label="Go to Dashboard">
+        <i class="fas fa-home"></i>
+        Go to Dashboard
+      </button>
+      
+      <button 
+        type="button" 
+        class="btn btn-outline-secondary"
+        (click)="goBack()"
+        aria-label="Go Back">
+        <i class="fas fa-arrow-left"></i>
+        Go Back
+      </button>
+    </div>
+
+    <!-- Suggested Routes -->
+    <div class="suggested-routes">
+      <h3>Popular Pages</h3>
+      <div class="routes-grid">
+        <a 
+          *ngFor="let route of suggestedRoutes" 
+          class="route-card"
+          (click)="navigateTo(route.route)"
+          [attr.aria-label]="'Navigate to ' + route.label">
+          <div class="route-icon">
+            <i [class]="route.icon"></i>
+          </div>
+          <span class="route-label">{{ route.label }}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="help-section">
+      <h4>Need Help?</h4>
+      <div class="help-actions">
+        <button 
+          type="button" 
+          class="help-btn"
+          (click)="searchSite()"
+          aria-label="Search Site">
+          <i class="fas fa-search"></i>
+          Search Site
+        </button>
+        
+        <button 
+          type="button" 
+          class="help-btn"
+          (click)="reportIssue()"
+          aria-label="Report Issue">
+          <i class="fas fa-bug"></i>
+          Report Issue
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background Decoration -->
+  <div class="background-decoration">
+    <div class="decoration-circle circle-1"></div>
+    <div class="decoration-circle circle-2"></div>
+    <div class="decoration-circle circle-3"></div>
+  </div>
+</div>

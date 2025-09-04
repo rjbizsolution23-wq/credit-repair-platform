@@ -1,0 +1,468 @@
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-0 text-gray-800">Social Media Dashboard</h1>
+    <p class="mb-0 text-muted">Manage your social media presence and engagement</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button 
+      class="btn btn-outline-secondary btn-sm" 
+      (click)="refreshData()" 
+      [disabled]="loading || refreshing"
+      title="Refresh Data">
+      <i class="fas fa-sync-alt" [class.fa-spin]="refreshing"></i>
+      <span class="d-none d-md-inline ms-1">Refresh</span>
+    </button>
+    <button 
+      class="btn btn-primary btn-sm" 
+      (click)="createPost()"
+      title="Create New Post">
+      <i class="fas fa-plus"></i>
+      <span class="d-none d-md-inline ms-1">New Post</span>
+    </button>
+    <button 
+      class="btn btn-success btn-sm" 
+      (click)="createCampaign()"
+      title="Create New Campaign">
+      <i class="fas fa-bullhorn"></i>
+      <span class="d-none d-md-inline ms-1">New Campaign</span>
+    </button>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="text-center py-5">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <p class="mt-2 text-muted">Loading social media data...</p>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+  <i class="fas fa-exclamation-triangle me-2"></i>
+  {{ error }}
+  <button class="btn btn-sm btn-outline-danger ms-2" (click)="refreshData()">
+    <i class="fas fa-redo"></i> Retry
+  </button>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="!loading && !error">
+  
+  <!-- Statistics Cards -->
+  <div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4" *ngFor="let stat of statistics; trackBy: trackByFn">
+      <div class="card border-left-{{ stat.color }} shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-{{ stat.color }} text-uppercase mb-1">
+                {{ stat.title }}
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ stat.value }}
+              </div>
+              <div *ngIf="stat.subtitle" class="text-xs text-muted mt-1">
+                {{ stat.subtitle }}
+              </div>
+              <div *ngIf="stat.change !== undefined" class="text-xs mt-1" 
+                   [ngClass]="getStatTrendColor(stat.trend)">
+                <i [class]="getStatTrendIcon(stat.trend)" class="me-1"></i>
+                {{ stat.change > 0 ? '+' : '' }}{{ formatPercentage(stat.change) }}
+                <span class="text-muted ms-1">{{ stat.changeLabel }}</span>
+              </div>
+            </div>
+            <div class="col-auto">
+              <i [class]="stat.icon" class="fas fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Charts Section -->
+  <div class="row mb-4">
+    
+    <!-- Posts by Platform Chart -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">Posts by Platform</h6>
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow">
+              <a class="dropdown-item" href="#" (click)="viewAnalytics()">View Details</a>
+              <a class="dropdown-item" href="#">Export Data</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div *ngIf="postsChartData" class="chart-container">
+            <!-- Chart component would go here -->
+            <canvas id="postsChart" width="400" height="200"></canvas>
+          </div>
+          <div *ngIf="!postsChartData" class="text-center text-muted py-4">
+            <i class="fas fa-chart-pie fa-2x mb-2"></i>
+            <p>No data available</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Engagement Trends Chart -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">Engagement Trends</h6>
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow">
+              <a class="dropdown-item" href="#" (click)="viewAnalytics()">View Details</a>
+              <a class="dropdown-item" href="#">Export Data</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div *ngIf="engagementChartData" class="chart-container">
+            <!-- Chart component would go here -->
+            <canvas id="engagementChart" width="400" height="200"></canvas>
+          </div>
+          <div *ngIf="!engagementChartData" class="text-center text-muted py-4">
+            <i class="fas fa-chart-line fa-2x mb-2"></i>
+            <p>No data available</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Content Sections -->
+  <div class="row mb-4">
+    
+    <!-- Recent Posts -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">Recent Posts</h6>
+          <a href="#" class="btn btn-sm btn-primary" (click)="createPost()">
+            <i class="fas fa-plus"></i> New Post
+          </a>
+        </div>
+        <div class="card-body">
+          <div *ngIf="recentPosts.length > 0">
+            <div class="post-item border-bottom py-3" 
+                 *ngFor="let post of recentPosts; trackBy: trackByFn; last as isLast" 
+                 [class.border-bottom-0]="isLast">
+              <div class="d-flex align-items-start">
+                <div class="flex-shrink-0">
+                  <div class="platform-badge badge" 
+                       [style.background-color]="getSocialPlatformColor(post.platform)">
+                    <i class="fab fa-{{ post.platform.toLowerCase() }}"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h6 class="mb-1">{{ getSocialPlatformLabel(post.platform) }}</h6>
+                      <p class="mb-1 text-muted small">{{ post.content | slice:0:100 }}{{ post.content.length > 100 ? '...' : '' }}</p>
+                      <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        {{ formatTimeAgo(post.createdAt) }}
+                      </small>
+                    </div>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                              data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-h"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" (click)="viewPost(post)">
+                          <i class="fas fa-eye me-2"></i>View
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" (click)="editPost(post)">
+                          <i class="fas fa-edit me-2"></i>Edit
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" (click)="deletePost(post)">
+                          <i class="fas fa-trash me-2"></i>Delete
+                        </a></li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center mt-2">
+                    <span class="badge" 
+                          [style.background-color]="getPostStatusColor(post.status)"
+                          [style.color]="'white'">
+                      {{ getPostStatusLabel(post.status) }}
+                    </span>
+                    <div class="ms-auto d-flex gap-3 text-muted small">
+                      <span *ngIf="post.analytics?.likes">
+                        <i class="fas fa-heart me-1"></i>{{ formatNumber(post.analytics.likes) }}
+                      </span>
+                      <span *ngIf="post.analytics?.comments">
+                        <i class="fas fa-comment me-1"></i>{{ formatNumber(post.analytics.comments) }}
+                      </span>
+                      <span *ngIf="post.analytics?.shares">
+                        <i class="fas fa-share me-1"></i>{{ formatNumber(post.analytics.shares) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="recentPosts.length === 0" class="text-center text-muted py-4">
+            <i class="fas fa-edit fa-2x mb-2"></i>
+            <p>No recent posts</p>
+            <button class="btn btn-primary btn-sm" (click)="createPost()">
+              <i class="fas fa-plus"></i> Create Your First Post
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Active Campaigns -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">Active Campaigns</h6>
+          <a href="#" class="btn btn-sm btn-success" (click)="createCampaign()">
+            <i class="fas fa-plus"></i> New Campaign
+          </a>
+        </div>
+        <div class="card-body">
+          <div *ngIf="activeCampaigns.length > 0">
+            <div class="campaign-item border-bottom py-3" 
+                 *ngFor="let campaign of activeCampaigns; trackBy: trackByFn; last as isLast" 
+                 [class.border-bottom-0]="isLast">
+              <div class="d-flex align-items-start">
+                <div class="flex-shrink-0">
+                  <div class="campaign-icon">
+                    <i class="fas fa-bullhorn text-primary"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h6 class="mb-1">{{ campaign.name }}</h6>
+                      <p class="mb-1 text-muted small">{{ campaign.description | slice:0:80 }}{{ campaign.description.length > 80 ? '...' : '' }}</p>
+                      <small class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        Started {{ formatTimeAgo(campaign.startDate) }}
+                      </small>
+                    </div>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                              data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-h"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" (click)="viewCampaign(campaign)">
+                          <i class="fas fa-eye me-2"></i>View Details
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" (click)="pauseCampaign(campaign)" 
+                               *ngIf="campaign.status === CampaignStatus.ACTIVE">
+                          <i class="fas fa-pause me-2"></i>Pause
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" (click)="resumeCampaign(campaign)" 
+                               *ngIf="campaign.status === CampaignStatus.PAUSED">
+                          <i class="fas fa-play me-2"></i>Resume
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" (click)="stopCampaign(campaign)">
+                          <i class="fas fa-stop me-2"></i>Stop
+                        </a></li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center mt-2">
+                    <span class="badge" 
+                          [style.background-color]="getCampaignStatusColor(campaign.status)"
+                          [style.color]="'white'">
+                      {{ getCampaignStatusLabel(campaign.status) }}
+                    </span>
+                    <div class="ms-auto d-flex gap-3 text-muted small">
+                      <span *ngIf="campaign.analytics?.impressions">
+                        <i class="fas fa-eye me-1"></i>{{ formatNumber(campaign.analytics.impressions) }}
+                      </span>
+                      <span *ngIf="campaign.analytics?.clicks">
+                        <i class="fas fa-mouse-pointer me-1"></i>{{ formatNumber(campaign.analytics.clicks) }}
+                      </span>
+                      <span *ngIf="campaign.analytics?.conversions">
+                        <i class="fas fa-check me-1"></i>{{ formatNumber(campaign.analytics.conversions) }}
+                      </span>
+                    </div>
+                  </div>
+                  <div *ngIf="campaign.budget" class="mt-2">
+                    <div class="progress" style="height: 4px;">
+                      <div class="progress-bar" 
+                           [style.width.%]="(campaign.analytics?.spent || 0) / campaign.budget.total * 100"
+                           [class]="'bg-' + (campaign.analytics?.spent || 0) / campaign.budget.total > 0.8 ? 'warning' : 'primary'">
+                      </div>
+                    </div>
+                    <small class="text-muted">
+                      ${{ formatNumber(campaign.analytics?.spent || 0) }} / ${{ formatNumber(campaign.budget.total) }} spent
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="activeCampaigns.length === 0" class="text-center text-muted py-4">
+            <i class="fas fa-bullhorn fa-2x mb-2"></i>
+            <p>No active campaigns</p>
+            <button class="btn btn-success btn-sm" (click)="createCampaign()">
+              <i class="fas fa-plus"></i> Create Your First Campaign
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Recent Activity -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+          <a href="#" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-history"></i> View All
+          </a>
+        </div>
+        <div class="card-body">
+          <div *ngIf="recentActivity.length > 0">
+            <div class="activity-item d-flex align-items-start py-3 border-bottom" 
+                 *ngFor="let activity of recentActivity; trackBy: trackByFn; last as isLast" 
+                 [class.border-bottom-0]="isLast">
+              <div class="flex-shrink-0">
+                <div class="activity-icon rounded-circle d-flex align-items-center justify-content-center" 
+                     [style.background-color]="activity.color + '20'" 
+                     [style.color]="activity.color">
+                  <i [class]="activity.icon"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="mb-1">{{ activity.title }}</h6>
+                    <p class="mb-0 text-muted small">{{ activity.description }}</p>
+                  </div>
+                  <small class="text-muted">{{ formatTimeAgo(activity.timestamp) }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="recentActivity.length === 0" class="text-center text-muted py-4">
+            <i class="fas fa-history fa-2x mb-2"></i>
+            <p>No recent activity</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Quick Actions -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3" 
+                 *ngFor="let action of quickActions; trackBy: trackByFn">
+              <button class="btn btn-outline-{{ action.color }} w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3" 
+                      (click)="action.action()" 
+                      [disabled]="action.disabled"
+                      [title]="action.description">
+                <i [class]="action.icon" class="fa-2x mb-2"></i>
+                <span class="small font-weight-bold">{{ action.title }}</span>
+                <small class="text-muted mt-1 text-center">{{ action.description }}</small>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<!-- Custom Styles -->
+<style>
+.border-left-primary { border-left: 0.25rem solid #4e73df !important; }
+.border-left-success { border-left: 0.25rem solid #1cc88a !important; }
+.border-left-info { border-left: 0.25rem solid #36b9cc !important; }
+.border-left-warning { border-left: 0.25rem solid #f6c23e !important; }
+.border-left-danger { border-left: 0.25rem solid #e74a3b !important; }
+.border-left-purple { border-left: 0.25rem solid #6f42c1 !important; }
+.border-left-dark { border-left: 0.25rem solid #5a5c69 !important; }
+
+.platform-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+}
+
+.campaign-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #e3f2fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.chart-container {
+  position: relative;
+  height: 200px;
+}
+
+.post-item:hover,
+.campaign-item:hover,
+.activity-item:hover {
+  background-color: #f8f9fc;
+}
+
+.btn-outline-purple {
+  color: #6f42c1;
+  border-color: #6f42c1;
+}
+
+.btn-outline-purple:hover {
+  color: #fff;
+  background-color: #6f42c1;
+  border-color: #6f42c1;
+}
+
+.text-purple {
+  color: #6f42c1 !important;
+}
+
+.bg-purple {
+  background-color: #6f42c1 !important;
+}
+</style>

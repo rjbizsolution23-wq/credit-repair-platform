@@ -1,0 +1,740 @@
+// Client Dashboard Styles - Rick Jefferson Solutions
+// Brand Colors: Teal #14B8A6, Navy #1E3A8A, Success #059669, Warning #D97706, Error #DC2626
+
+.client-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  color: #1e293b;
+
+  // Header Section
+  .dashboard-header {
+    background: linear-gradient(135deg, #1E3A8A 0%, #14B8A6 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .client-info {
+        h1 {
+          font-family: 'Montserrat', Arial Black, sans-serif;
+          font-size: 2.5rem;
+          font-weight: bold;
+          margin: 0 0 0.5rem 0;
+        }
+
+        .tagline {
+          font-size: 1.1rem;
+          opacity: 0.9;
+          margin: 0;
+        }
+      }
+
+      .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: right;
+
+        span {
+          font-size: 0.9rem;
+          opacity: 0.9;
+        }
+      }
+    }
+  }
+
+  // Credit Score Overview
+  .credit-overview {
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+    padding: 0 1rem;
+
+    .score-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+
+      .score-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #14B8A6;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .bureau-logo {
+          font-family: 'Montserrat', Arial Black, sans-serif;
+          font-weight: bold;
+          color: #1E3A8A;
+          font-size: 1.1rem;
+          margin-bottom: 1rem;
+        }
+
+        .score {
+          font-size: 3rem;
+          font-weight: bold;
+          color: #14B8A6;
+          line-height: 1;
+          margin-bottom: 0.5rem;
+        }
+
+        .change {
+          font-size: 0.9rem;
+          font-weight: 600;
+
+          &.positive {
+            color: #059669;
+          }
+
+          &.negative {
+            color: #DC2626;
+          }
+        }
+      }
+    }
+  }
+
+  // 10 Step Enforcement Chain
+  .enforcement-chain {
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+    padding: 0 1rem;
+
+    h2 {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-size: 2rem;
+      color: #1E3A8A;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .progress-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+
+      .step {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        transition: all 0.2s ease;
+
+        &.completed {
+          border-left: 4px solid #059669;
+          background: #f0fdf4;
+
+          .step-number {
+            background: #059669;
+            color: white;
+          }
+        }
+
+        &.active {
+          border-left: 4px solid #14B8A6;
+          background: #f0fdfa;
+
+          .step-number {
+            background: #14B8A6;
+            color: white;
+          }
+        }
+
+        &.pending {
+          border-left: 4px solid #e2e8f0;
+          opacity: 0.7;
+
+          .step-number {
+            background: #e2e8f0;
+            color: #64748b;
+          }
+        }
+
+        .step-number {
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          flex-shrink: 0;
+        }
+
+        .step-content {
+          h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            color: #1e293b;
+          }
+
+          p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.4;
+          }
+
+          .step-status {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #14B8A6;
+          }
+        }
+      }
+    }
+  }
+
+  // Active Disputes
+  .active-disputes {
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+    padding: 0 1rem;
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+
+      h2 {
+        font-family: 'Montserrat', Arial Black, sans-serif;
+        font-size: 1.8rem;
+        color: #1E3A8A;
+        margin: 0;
+      }
+
+      .count {
+        background: #14B8A6;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+    }
+
+    .disputes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+
+      .dispute-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #14B8A6;
+
+        .dispute-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+
+          .creditor {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1.1rem;
+          }
+
+          .status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+
+            &.pending {
+              background: #fef3c7;
+              color: #92400e;
+            }
+
+            &.in-progress {
+              background: #dbeafe;
+              color: #1e40af;
+            }
+
+            &.completed {
+              background: #d1fae5;
+              color: #065f46;
+            }
+          }
+        }
+
+        .dispute-details {
+          margin-bottom: 1rem;
+
+          p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            color: #64748b;
+          }
+        }
+
+        .dispute-actions {
+          .btn-secondary {
+            background: #f1f5f9;
+            color: #1E3A8A;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: #e2e8f0;
+            }
+          }
+        }
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      p {
+        color: #64748b;
+        margin-bottom: 1.5rem;
+      }
+
+      .btn-primary {
+        background: #14B8A6;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: #0f766e;
+        }
+      }
+    }
+  }
+
+  // Accounts Summary
+  .accounts-summary {
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+    padding: 0 1rem;
+
+    h2 {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-size: 1.8rem;
+      color: #1E3A8A;
+      margin-bottom: 1.5rem;
+    }
+
+    .accounts-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+
+      .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        border-left: 4px solid #e2e8f0;
+
+        &.positive {
+          border-left-color: #059669;
+        }
+
+        &.negative {
+          border-left-color: #DC2626;
+        }
+
+        &.disputed {
+          border-left-color: #14B8A6;
+        }
+
+        .stat-value {
+          font-size: 2.5rem;
+          font-weight: bold;
+          color: #1e293b;
+          line-height: 1;
+          margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+          font-size: 0.9rem;
+          color: #64748b;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  // Recent Activity
+  .recent-activity {
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+    padding: 0 1rem;
+
+    h2 {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-size: 1.8rem;
+      color: #1E3A8A;
+      margin-bottom: 1.5rem;
+    }
+
+    .activity-timeline {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+
+      .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .activity-icon {
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: 50%;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &.dispute {
+            background: #dbeafe;
+            color: #1e40af;
+          }
+
+          &.letter {
+            background: #fef3c7;
+            color: #92400e;
+          }
+
+          &.response {
+            background: #d1fae5;
+            color: #065f46;
+          }
+        }
+
+        .activity-content {
+          h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 0.25rem 0;
+          }
+
+          p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.4;
+          }
+
+          .activity-date {
+            font-size: 0.8rem;
+            color: #94a3b8;
+          }
+        }
+      }
+    }
+  }
+
+  // Quick Actions
+  .quick-actions {
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+    padding: 0 1rem;
+
+    h2 {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-size: 1.8rem;
+      color: #1E3A8A;
+      margin-bottom: 1.5rem;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+
+      .action-card {
+        background: white;
+        border: none;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-icon {
+          width: 3rem;
+          height: 3rem;
+          border-radius: 50%;
+          margin: 0 auto 1rem auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+
+          &.upload {
+            background: #dbeafe;
+            color: #1e40af;
+          }
+
+          &.dispute {
+            background: #f0fdfa;
+            color: #14B8A6;
+          }
+
+          &.consultation {
+            background: #fef3c7;
+            color: #92400e;
+          }
+
+          &.education {
+            background: #ede9fe;
+            color: #7c3aed;
+          }
+        }
+
+        h3 {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #1e293b;
+          margin: 0 0 0.5rem 0;
+        }
+
+        p {
+          font-size: 0.9rem;
+          color: #64748b;
+          margin: 0;
+          line-height: 1.4;
+        }
+      }
+    }
+  }
+
+  // Progress Chart
+  .progress-chart {
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+    padding: 0 1rem;
+
+    h2 {
+      font-family: 'Montserrat', Arial Black, sans-serif;
+      font-size: 1.8rem;
+      color: #1E3A8A;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      canvas {
+        max-width: 100%;
+        height: auto;
+      }
+    }
+  }
+
+  // Footer
+  .dashboard-footer {
+    background: #1E3A8A;
+    color: white;
+    padding: 3rem 0 1rem 0;
+    margin-top: 4rem;
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+
+      .brand-info {
+        h3 {
+          font-family: 'Montserrat', Arial Black, sans-serif;
+          font-size: 1.5rem;
+          margin: 0 0 1rem 0;
+          color: #14B8A6;
+        }
+
+        p {
+          margin: 0.5rem 0;
+          opacity: 0.9;
+        }
+      }
+
+      .contact-details,
+      .offices {
+        p {
+          margin: 0.5rem 0;
+          opacity: 0.9;
+        }
+
+        strong {
+          color: #14B8A6;
+        }
+      }
+    }
+
+    .legal-disclaimer {
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      padding-top: 1rem;
+      text-align: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
+
+      p {
+        margin: 0;
+        opacity: 0.7;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  // Loading Overlay
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+
+    .spinner {
+      width: 3rem;
+      height: 3rem;
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #14B8A6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: #64748b;
+      font-weight: 600;
+    }
+  }
+
+  // Loading state
+  &.loading {
+    pointer-events: none;
+  }
+}
+
+// Animations
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .client-dashboard {
+    .dashboard-header {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+
+        .contact-info {
+          text-align: center;
+        }
+      }
+    }
+
+    .credit-overview .score-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .enforcement-chain .progress-steps {
+      grid-template-columns: 1fr;
+    }
+
+    .disputes-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .accounts-stats {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .actions-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .footer-content {
+      grid-template-columns: 1fr !important;
+      text-align: center;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .client-dashboard {
+    .dashboard-header {
+      padding: 1.5rem 0;
+
+      .client-info h1 {
+        font-size: 2rem;
+      }
+    }
+
+    .accounts-stats {
+      grid-template-columns: 1fr !important;
+    }
+  }
+}

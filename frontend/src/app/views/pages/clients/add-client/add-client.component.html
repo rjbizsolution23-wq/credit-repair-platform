@@ -1,0 +1,419 @@
+-<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h4 class="page-title">Add New Client</h4>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a routerLink="/clients/all">Clients</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Add Client</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<form [formGroup]="clientForm" (ngSubmit)="onSubmit()" novalidate>
+  <div class="row">
+    <!-- Personal Information -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i data-feather="user" class="icon-sm me-2"></i>
+            Personal Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="firstName" class="form-label">First Name *</label>
+                <input 
+                  type="text" 
+                  id="firstName"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('firstName')"
+                  formControlName="firstName"
+                  placeholder="Enter first name">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('firstName')">
+                  {{ getFieldError('firstName') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="lastName" class="form-label">Last Name *</label>
+                <input 
+                  type="text" 
+                  id="lastName"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('lastName')"
+                  formControlName="lastName"
+                  placeholder="Enter last name">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('lastName')">
+                  {{ getFieldError('lastName') }}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="email" class="form-label">Email Address *</label>
+                <input 
+                  type="email" 
+                  id="email"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('email')"
+                  formControlName="email"
+                  placeholder="Enter email address">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
+                  {{ getFieldError('email') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="phone" class="form-label">Phone Number *</label>
+                <input 
+                  type="tel" 
+                  id="phone"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('phone')"
+                  formControlName="phone"
+                  (input)="formatPhone($event)"
+                  placeholder="(555) 123-4567">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('phone')">
+                  {{ getFieldError('phone') }}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                <input 
+                  type="date" 
+                  id="dateOfBirth"
+                  class="form-control"
+                  formControlName="dateOfBirth">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="ssn" class="form-label">Social Security Number</label>
+                <input 
+                  type="text" 
+                  id="ssn"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('ssn')"
+                  formControlName="ssn"
+                  (input)="formatSSN($event)"
+                  placeholder="XXX-XX-XXXX"
+                  maxlength="11">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('ssn')">
+                  {{ getFieldError('ssn') }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Information -->
+      <div class="card mb-4" formGroupName="address">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i data-feather="map-pin" class="icon-sm me-2"></i>
+            Address Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="form-group mb-3">
+            <label for="street" class="form-label">Street Address *</label>
+            <input 
+              type="text" 
+              id="street"
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('street', addressFormGroup)"
+              formControlName="street"
+              placeholder="Enter street address">
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('street', addressFormGroup)">
+              {{ getFieldError('street', addressFormGroup) }}
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="city" class="form-label">City *</label>
+                <input 
+                  type="text" 
+                  id="city"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('city', addressFormGroup)"
+                  formControlName="city"
+                  placeholder="Enter city">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('city', addressFormGroup)">
+                  {{ getFieldError('city', addressFormGroup) }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group mb-3">
+                <label for="state" class="form-label">State *</label>
+                <select 
+                  id="state"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('state', addressFormGroup)"
+                  formControlName="state">
+                  <option value="">Select State</option>
+                  <option *ngFor="let state of states" [value]="state">{{ state }}</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('state', addressFormGroup)">
+                  {{ getFieldError('state', addressFormGroup) }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-group mb-3">
+                <label for="zipCode" class="form-label">ZIP Code *</label>
+                <input 
+                  type="text" 
+                  id="zipCode"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('zipCode', addressFormGroup)"
+                  formControlName="zipCode"
+                  placeholder="12345">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('zipCode', addressFormGroup)">
+                  {{ getFieldError('zipCode', addressFormGroup) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i data-feather="file-text" class="icon-sm me-2"></i>
+            Additional Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="creditScore" class="form-label">Current Credit Score</label>
+                <input 
+                  type="number" 
+                  id="creditScore"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('creditScore')"
+                  formControlName="creditScore"
+                  placeholder="Enter credit score"
+                  min="300"
+                  max="850">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('creditScore')">
+                  {{ getFieldError('creditScore') }}
+                </div>
+                <small class="form-text text-muted">Score range: 300-850</small>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="assignedAgent" class="form-label">Assigned Agent</label>
+                <input 
+                  type="text" 
+                  id="assignedAgent"
+                  class="form-control"
+                  formControlName="assignedAgent"
+                  placeholder="Enter agent name">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group mb-3">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea 
+              id="notes"
+              class="form-control"
+              formControlName="notes"
+              rows="4"
+              placeholder="Enter any additional notes about the client..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Settings -->
+    <div class="col-lg-4">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i data-feather="settings" class="icon-sm me-2"></i>
+            Account Settings
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="form-group mb-3">
+            <label for="status" class="form-label">Status *</label>
+            <select 
+              id="status"
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('status')"
+              formControlName="status">
+              <option *ngFor="let status of statusOptions" [value]="status.value">
+                {{ status.label }}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('status')">
+              {{ getFieldError('status') }}
+            </div>
+          </div>
+          
+          <div class="form-group mb-3">
+            <label for="currentStage" class="form-label">Current Stage *</label>
+            <select 
+              id="currentStage"
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('currentStage')"
+              formControlName="currentStage">
+              <option *ngFor="let stage of stageOptions" [value]="stage.value">
+                {{ stage.label }}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('currentStage')">
+              {{ getFieldError('currentStage') }}
+            </div>
+          </div>
+          
+          <div class="form-group mb-3">
+            <label for="subscriptionPlan" class="form-label">Subscription Plan *</label>
+            <select 
+              id="subscriptionPlan"
+              class="form-control"
+              [class.is-invalid]="isFieldInvalid('subscriptionPlan')"
+              formControlName="subscriptionPlan"
+              (change)="onSubscriptionPlanChange()">
+              <option *ngFor="let plan of subscriptionPlans" [value]="plan.value">
+                {{ plan.label }}
+              </option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('subscriptionPlan')">
+              {{ getFieldError('subscriptionPlan') }}
+            </div>
+          </div>
+          
+          <div class="form-group mb-3">
+            <label for="monthlyFee" class="form-label">Monthly Fee</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input 
+                type="number" 
+                id="monthlyFee"
+                class="form-control"
+                formControlName="monthlyFee"
+                readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Communication Preferences -->
+      <div class="card mb-4" formGroupName="preferences">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i data-feather="message-circle" class="icon-sm me-2"></i>
+            Communication Preferences
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="form-group mb-3">
+            <label class="form-label">Notification Settings</label>
+            <div class="form-check">
+              <input 
+                type="checkbox" 
+                id="emailNotifications"
+                class="form-check-input"
+                formControlName="emailNotifications">
+              <label class="form-check-label" for="emailNotifications">
+                Email Notifications
+              </label>
+            </div>
+            <div class="form-check">
+              <input 
+                type="checkbox" 
+                id="smsNotifications"
+                class="form-check-input"
+                formControlName="smsNotifications">
+              <label class="form-check-label" for="smsNotifications">
+                SMS Notifications
+              </label>
+            </div>
+            <div class="form-check">
+              <input 
+                type="checkbox" 
+                id="pushNotifications"
+                class="form-check-input"
+                formControlName="pushNotifications">
+              <label class="form-check-label" for="pushNotifications">
+                Push Notifications
+              </label>
+            </div>
+          </div>
+          
+          <div class="form-group mb-3">
+            <label for="reportFrequency" class="form-label">Report Frequency</label>
+            <select 
+              id="reportFrequency"
+              class="form-control"
+              formControlName="reportFrequency">
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="card">
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <button 
+              type="submit" 
+              class="btn btn-primary"
+              [disabled]="loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+              <i *ngIf="!loading" data-feather="save" class="icon-sm me-2"></i>
+              {{ loading ? 'Creating Client...' : 'Create Client' }}
+            </button>
+            
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary"
+              (click)="onReset()"
+              [disabled]="loading">
+              <i data-feather="refresh-cw" class="icon-sm me-2"></i>
+              Reset Form
+            </button>
+            
+            <button 
+              type="button" 
+              class="btn btn-outline-danger"
+              (click)="onCancel()"
+              [disabled]="loading">
+              <i data-feather="x" class="icon-sm me-2"></i>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

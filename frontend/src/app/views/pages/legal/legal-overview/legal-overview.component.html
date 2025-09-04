@@ -1,0 +1,400 @@
+<div class="legal-overview">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="page-title">
+          <i class="fas fa-balance-scale me-2"></i>
+          Legal Overview
+        </h1>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+            <li class="breadcrumb-item active">Legal</li>
+          </ol>
+        </nav>
+      </div>
+      <div class="page-actions">
+        <button type="button" class="btn btn-outline-primary me-2" (click)="refresh()">
+          <i class="fas fa-sync-alt"></i>
+          Refresh
+        </button>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-primary" (click)="createDocument()">
+            <i class="fas fa-file-plus"></i>
+            New Document
+          </button>
+          <button type="button" class="btn btn-success" (click)="createCase()">
+            <i class="fas fa-gavel"></i>
+            New Case
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted">Loading legal overview...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="refresh()">
+      Try Again
+    </button>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!loading && !error" class="dashboard-content">
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+      <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card documents">
+          <div class="stat-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ quickStats.totalDocuments | number }}</h3>
+            <p>Total Documents</p>
+            <div class="stat-details">
+              <span class="badge bg-success me-1">{{ quickStats.activeDocuments }} Active</span>
+              <span class="badge bg-warning" *ngIf="quickStats.expiringDocuments > 0">
+                {{ quickStats.expiringDocuments }} Expiring
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card cases">
+          <div class="stat-icon">
+            <i class="fas fa-gavel"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ quickStats.totalCases | number }}</h3>
+            <p>Legal Cases</p>
+            <div class="stat-details">
+              <span class="badge bg-primary me-1">{{ quickStats.openCases }} Open</span>
+              <span class="badge bg-danger" *ngIf="quickStats.urgentCases > 0">
+                {{ quickStats.urgentCases }} Urgent
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card compliance">
+          <div class="stat-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ quickStats.complianceRate }}%</h3>
+            <p>Compliance Rate</p>
+            <div class="stat-details">
+              <span class="badge bg-success me-1">{{ quickStats.compliantItems }} Compliant</span>
+              <span class="badge bg-danger" *ngIf="quickStats.highRiskItems > 0">
+                {{ quickStats.highRiskItems }} High Risk
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-3 col-md-6 mb-3">
+        <div class="stat-card financial">
+          <div class="stat-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ formatCurrency(quickStats.totalRevenue) }}</h3>
+            <p>Total Revenue</p>
+            <div class="stat-details">
+              <span class="badge bg-info">{{ quickStats.totalBillableHours | number }} Hours</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-4">
+      <div class="col-lg-4 mb-3">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-chart-pie me-2"></i>
+              Cases by Type
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas baseChart
+                      [data]="casesByTypeChart.data"
+                      [options]="casesByTypeChart.options"
+                      [type]="casesByTypeChart.type">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 mb-3">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-chart-bar me-2"></i>
+              Compliance by Area
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas baseChart
+                      [data]="complianceByAreaChart.data"
+                      [options]="complianceByAreaChart.options"
+                      [type]="complianceByAreaChart.type">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 mb-3">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-chart-line me-2"></i>
+              Financial Trends
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas baseChart
+                      [data]="financialTrendChart.data"
+                      [options]="financialTrendChart.options"
+                      [type]="financialTrendChart.type">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="row">
+      <!-- Recent Documents -->
+      <div class="col-lg-6 mb-4">
+        <div class="card content-card">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-file-alt me-2"></i>
+                Recent Documents
+              </h5>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="navigateToDocuments()">
+                View All
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div *ngIf="recentDocuments.length === 0" class="text-center text-muted py-3">
+              <i class="fas fa-file-alt fa-2x mb-2"></i>
+              <p>No recent documents</p>
+            </div>
+            <div *ngFor="let document of recentDocuments" class="document-item" (click)="navigateToDocument(document.id)">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="document-title">{{ document.title }}</h6>
+                  <p class="document-meta text-muted mb-1">
+                    <span class="badge" [class]="'bg-' + getStatusColor(document.status)">{{ document.status }}</span>
+                    <span class="ms-2">{{ document.type }}</span>
+                  </p>
+                  <small class="text-muted">
+                    Created {{ formatDate(document.createdAt) }} by {{ document.createdBy }}
+                  </small>
+                </div>
+                <div class="document-actions">
+                  <i class="fas fa-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Urgent Cases -->
+      <div class="col-lg-6 mb-4">
+        <div class="card content-card">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                Urgent Cases
+              </h5>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="navigateToCases()">
+                View All
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div *ngIf="urgentCases.length === 0" class="text-center text-muted py-3">
+              <i class="fas fa-gavel fa-2x mb-2"></i>
+              <p>No urgent cases</p>
+            </div>
+            <div *ngFor="let case of urgentCases" class="case-item" (click)="navigateToCase(case.id)">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="case-title">{{ case.title }}</h6>
+                  <p class="case-meta text-muted mb-1">
+                    <span class="badge" [class]="'bg-' + getPriorityColor(case.priority)">{{ case.priority }}</span>
+                    <span class="badge ms-1" [class]="'bg-' + getStatusColor(case.status)">{{ case.status }}</span>
+                  </p>
+                  <small class="text-muted">
+                    Case #{{ case.caseNumber }} • {{ calculateCaseAge(case.openedDate) }} days old
+                  </small>
+                </div>
+                <div class="case-actions">
+                  <i class="fas fa-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- High-Risk Compliance -->
+      <div class="col-lg-6 mb-4">
+        <div class="card content-card">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-shield-alt me-2 text-danger"></i>
+                High-Risk Compliance
+              </h5>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="navigateToCompliance()">
+                View All
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div *ngIf="highRiskCompliance.length === 0" class="text-center text-muted py-3">
+              <i class="fas fa-shield-alt fa-2x mb-2"></i>
+              <p>No high-risk compliance items</p>
+            </div>
+            <div *ngFor="let item of highRiskCompliance" class="compliance-item" (click)="navigateToComplianceItem(item.id)">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="compliance-title">{{ item.requirement }}</h6>
+                  <p class="compliance-meta text-muted mb-1">
+                    <span class="badge" [class]="'bg-' + getRiskLevelColor(item.riskLevel)">{{ item.riskLevel }} Risk</span>
+                    <span class="badge ms-1" [class]="'bg-' + getStatusColor(item.status)">{{ item.status }}</span>
+                  </p>
+                  <small class="text-muted">
+                    {{ item.area }} • Last reviewed {{ formatDate(item.lastReviewDate) }}
+                  </small>
+                </div>
+                <div class="compliance-actions">
+                  <i class="fas fa-chevron-right text-muted"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="col-lg-6 mb-4">
+        <div class="card content-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-clock me-2"></i>
+              Recent Activity
+            </h5>
+          </div>
+          <div class="card-body">
+            <div *ngIf="recentActivity.length === 0" class="text-center text-muted py-3">
+              <i class="fas fa-clock fa-2x mb-2"></i>
+              <p>No recent activity</p>
+            </div>
+            <div class="activity-timeline">
+              <div *ngFor="let activity of recentActivity" class="activity-item">
+                <div class="activity-icon" [class]="'bg-' + getActivityColor(activity.type)">
+                  <i [class]="getActivityIcon(activity.type)"></i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-header">
+                    <span class="activity-action">{{ activity.action }}</span>
+                    <span class="activity-title">{{ activity.title }}</span>
+                  </div>
+                  <div class="activity-meta">
+                    <span class="activity-user">by {{ activity.user }}</span>
+                    <span class="activity-time">{{ getTimeAgo(activity.timestamp) }}</span>
+                  </div>
+                  <div *ngIf="activity.status || activity.priority" class="activity-badges mt-1">
+                    <span *ngIf="activity.status" class="badge" [class]="'bg-' + getActivityStatusColor(activity.status)">{{ activity.status }}</span>
+                    <span *ngIf="activity.priority" class="badge ms-1" [class]="'bg-' + getActivityPriorityColor(activity.priority)">{{ activity.priority }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card quick-actions-card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="fas fa-bolt me-2"></i>
+              Quick Actions
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3 mb-2">
+                <button type="button" class="btn btn-outline-primary w-100" (click)="createDocument()">
+                  <i class="fas fa-file-plus mb-2"></i>
+                  <br>
+                  Create Document
+                </button>
+              </div>
+              <div class="col-md-3 mb-2">
+                <button type="button" class="btn btn-outline-success w-100" (click)="createCase()">
+                  <i class="fas fa-gavel mb-2"></i>
+                  <br>
+                  New Case
+                </button>
+              </div>
+              <div class="col-md-3 mb-2">
+                <button type="button" class="btn btn-outline-warning w-100" (click)="runComplianceAudit()">
+                  <i class="fas fa-search mb-2"></i>
+                  <br>
+                  Compliance Audit
+                </button>
+              </div>
+              <div class="col-md-3 mb-2">
+                <button type="button" class="btn btn-outline-info w-100" (click)="viewReports()">
+                  <i class="fas fa-chart-bar mb-2"></i>
+                  <br>
+                  View Reports
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,671 @@
+<div class="edit-client-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button 
+          type="button" 
+          class="btn btn-link back-btn" 
+          (click)="onCancel()"
+          [attr.aria-label]="'Go back'"
+        >
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-text">
+          <h1 class="page-title">Edit Client</h1>
+          <p class="page-subtitle" *ngIf="client">
+            Editing {{ client.firstName }} {{ client.lastName }}
+          </p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="onCancel()"
+          [disabled]="isSubmitting"
+        >
+          <i class="fas fa-times"></i>
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          form="clientForm"
+          [disabled]="isSubmitting || clientForm.invalid"
+        >
+          <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+          <i class="fas fa-save" *ngIf="!isSubmitting"></i>
+          {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading client information...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !isLoading">
+    <div class="alert alert-danger">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{ error }}</span>
+      <button 
+        type="button" 
+        class="btn btn-sm btn-outline-danger"
+        (click)="loadClient()"
+      >
+        <i class="fas fa-redo"></i>
+        Retry
+      </button>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <div class="form-container" *ngIf="!isLoading && !error">
+    <form 
+      id="clientForm"
+      [formGroup]="clientForm" 
+      (ngSubmit)="onSubmit()"
+      novalidate
+    >
+      <!-- Personal Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-user"></i>
+            Personal Information
+          </h2>
+          <p class="section-description">
+            Basic personal details and identification information
+          </p>
+        </div>
+        
+        <div class="form-grid">
+          <!-- First Name -->
+          <div class="form-group">
+            <label for="first_name" class="form-label required">
+              First Name
+            </label>
+            <input
+              type="text"
+              id="first_name"
+              class="form-control"
+              formControlName="first_name"
+              [class.is-invalid]="isFieldInvalid('first_name')"
+              placeholder="Enter first name"
+              autocomplete="given-name"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('first_name')">
+              {{ getFieldError('first_name') }}
+            </div>
+          </div>
+
+          <!-- Last Name -->
+          <div class="form-group">
+            <label for="last_name" class="form-label required">
+              Last Name
+            </label>
+            <input
+              type="text"
+              id="last_name"
+              class="form-control"
+              formControlName="last_name"
+              [class.is-invalid]="isFieldInvalid('last_name')"
+              placeholder="Enter last name"
+              autocomplete="family-name"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('last_name')">
+              {{ getFieldError('last_name') }}
+            </div>
+          </div>
+
+          <!-- Middle Name -->
+          <div class="form-group">
+            <label for="middle_name" class="form-label">
+              Middle Name
+            </label>
+            <input
+              type="text"
+              id="middle_name"
+              class="form-control"
+              formControlName="middle_name"
+              [class.is-invalid]="isFieldInvalid('middle_name')"
+              placeholder="Enter middle name (optional)"
+              autocomplete="additional-name"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('middle_name')">
+              {{ getFieldError('middle_name') }}
+            </div>
+          </div>
+
+          <!-- Date of Birth -->
+          <div class="form-group">
+            <label for="date_of_birth" class="form-label required">
+              Date of Birth
+            </label>
+            <input
+              type="date"
+              id="date_of_birth"
+              class="form-control"
+              formControlName="date_of_birth"
+              [class.is-invalid]="isFieldInvalid('date_of_birth')"
+              autocomplete="bday"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('date_of_birth')">
+              {{ getFieldError('date_of_birth') }}
+            </div>
+          </div>
+
+          <!-- SSN -->
+          <div class="form-group">
+            <label for="ssn" class="form-label required">
+              Social Security Number
+            </label>
+            <input
+              type="text"
+              id="ssn"
+              class="form-control"
+              formControlName="ssn"
+              [class.is-invalid]="isFieldInvalid('ssn')"
+              placeholder="XXX-XX-XXXX"
+              maxlength="11"
+              (input)="onSsnInput($event)"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('ssn')">
+              {{ getFieldError('ssn') }}
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="form-group">
+            <label for="status" class="form-label required">
+              Status
+            </label>
+            <select
+              id="status"
+              class="form-control"
+              formControlName="status"
+              [class.is-invalid]="isFieldInvalid('status')"
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="suspended">Suspended</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('status')">
+              {{ getFieldError('status') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-phone"></i>
+            Contact Information
+          </h2>
+          <p class="section-description">
+            Email, phone numbers, and preferred contact method
+          </p>
+        </div>
+        
+        <div class="form-grid">
+          <!-- Email -->
+          <div class="form-group">
+            <label for="email" class="form-label required">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              class="form-control"
+              formControlName="email"
+              [class.is-invalid]="isFieldInvalid('email')"
+              placeholder="Enter email address"
+              autocomplete="email"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
+              {{ getFieldError('email') }}
+            </div>
+          </div>
+
+          <!-- Primary Phone -->
+          <div class="form-group">
+            <label for="phone" class="form-label required">
+              Primary Phone
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              class="form-control"
+              formControlName="phone"
+              [class.is-invalid]="isFieldInvalid('phone')"
+              placeholder="(XXX) XXX-XXXX"
+              maxlength="14"
+              (input)="onPhoneInput($event, 'phone')"
+              autocomplete="tel"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('phone')">
+              {{ getFieldError('phone') }}
+            </div>
+          </div>
+
+          <!-- Secondary Phone -->
+          <div class="form-group">
+            <label for="secondary_phone" class="form-label">
+              Secondary Phone
+            </label>
+            <input
+              type="tel"
+              id="secondary_phone"
+              class="form-control"
+              formControlName="secondary_phone"
+              [class.is-invalid]="isFieldInvalid('secondary_phone')"
+              placeholder="(XXX) XXX-XXXX (optional)"
+              maxlength="14"
+              (input)="onPhoneInput($event, 'secondary_phone')"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('secondary_phone')">
+              {{ getFieldError('secondary_phone') }}
+            </div>
+          </div>
+
+          <!-- Preferred Contact Method -->
+          <div class="form-group">
+            <label for="preferred_contact_method" class="form-label required">
+              Preferred Contact Method
+            </label>
+            <select
+              id="preferred_contact_method"
+              class="form-control"
+              formControlName="preferred_contact_method"
+              [class.is-invalid]="isFieldInvalid('preferred_contact_method')"
+            >
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+              <option value="text">Text Message</option>
+              <option value="mail">Mail</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('preferred_contact_method')">
+              {{ getFieldError('preferred_contact_method') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Address Section -->
+      <div class="form-section" formGroupName="address">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-home"></i>
+            Current Address
+          </h2>
+          <p class="section-description">
+            Current residential address information
+          </p>
+        </div>
+        
+        <div class="form-grid">
+          <!-- Street Address -->
+          <div class="form-group full-width">
+            <label for="address_street" class="form-label required">
+              Street Address
+            </label>
+            <input
+              type="text"
+              id="address_street"
+              class="form-control"
+              formControlName="street"
+              [class.is-invalid]="isNestedFieldInvalid('address', 'street')"
+              placeholder="Enter street address"
+              autocomplete="address-line1"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('address', 'street')">
+              {{ getNestedFieldError('address', 'street') }}
+            </div>
+          </div>
+
+          <!-- City -->
+          <div class="form-group">
+            <label for="address_city" class="form-label required">
+              City
+            </label>
+            <input
+              type="text"
+              id="address_city"
+              class="form-control"
+              formControlName="city"
+              [class.is-invalid]="isNestedFieldInvalid('address', 'city')"
+              placeholder="Enter city"
+              autocomplete="address-level2"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('address', 'city')">
+              {{ getNestedFieldError('address', 'city') }}
+            </div>
+          </div>
+
+          <!-- State -->
+          <div class="form-group">
+            <label for="address_state" class="form-label required">
+              State
+            </label>
+            <input
+              type="text"
+              id="address_state"
+              class="form-control"
+              formControlName="state"
+              [class.is-invalid]="isNestedFieldInvalid('address', 'state')"
+              placeholder="XX"
+              maxlength="2"
+              style="text-transform: uppercase"
+              autocomplete="address-level1"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('address', 'state')">
+              {{ getNestedFieldError('address', 'state') }}
+            </div>
+          </div>
+
+          <!-- ZIP Code -->
+          <div class="form-group">
+            <label for="address_zip" class="form-label required">
+              ZIP Code
+            </label>
+            <input
+              type="text"
+              id="address_zip"
+              class="form-control"
+              formControlName="zip_code"
+              [class.is-invalid]="isNestedFieldInvalid('address', 'zip_code')"
+              placeholder="XXXXX or XXXXX-XXXX"
+              maxlength="10"
+              autocomplete="postal-code"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('address', 'zip_code')">
+              {{ getNestedFieldError('address', 'zip_code') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Previous Address Section -->
+      <div class="form-section" formGroupName="previous_address">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-map-marker-alt"></i>
+            Previous Address
+          </h2>
+          <p class="section-description">
+            Previous residential address (optional)
+          </p>
+        </div>
+        
+        <div class="form-grid">
+          <!-- Previous Street Address -->
+          <div class="form-group full-width">
+            <label for="prev_address_street" class="form-label">
+              Street Address
+            </label>
+            <input
+              type="text"
+              id="prev_address_street"
+              class="form-control"
+              formControlName="street"
+              [class.is-invalid]="isNestedFieldInvalid('previous_address', 'street')"
+              placeholder="Enter previous street address (optional)"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('previous_address', 'street')">
+              {{ getNestedFieldError('previous_address', 'street') }}
+            </div>
+          </div>
+
+          <!-- Previous City -->
+          <div class="form-group">
+            <label for="prev_address_city" class="form-label">
+              City
+            </label>
+            <input
+              type="text"
+              id="prev_address_city"
+              class="form-control"
+              formControlName="city"
+              [class.is-invalid]="isNestedFieldInvalid('previous_address', 'city')"
+              placeholder="Enter city"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('previous_address', 'city')">
+              {{ getNestedFieldError('previous_address', 'city') }}
+            </div>
+          </div>
+
+          <!-- Previous State -->
+          <div class="form-group">
+            <label for="prev_address_state" class="form-label">
+              State
+            </label>
+            <input
+              type="text"
+              id="prev_address_state"
+              class="form-control"
+              formControlName="state"
+              [class.is-invalid]="isNestedFieldInvalid('previous_address', 'state')"
+              placeholder="XX"
+              maxlength="2"
+              style="text-transform: uppercase"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('previous_address', 'state')">
+              {{ getNestedFieldError('previous_address', 'state') }}
+            </div>
+          </div>
+
+          <!-- Previous ZIP Code -->
+          <div class="form-group">
+            <label for="prev_address_zip" class="form-label">
+              ZIP Code
+            </label>
+            <input
+              type="text"
+              id="prev_address_zip"
+              class="form-control"
+              formControlName="zip_code"
+              [class.is-invalid]="isNestedFieldInvalid('previous_address', 'zip_code')"
+              placeholder="XXXXX or XXXXX-XXXX"
+              maxlength="10"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('previous_address', 'zip_code')">
+              {{ getNestedFieldError('previous_address', 'zip_code') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employment Information Section -->
+      <div class="form-section" formGroupName="employment">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-briefcase"></i>
+            Employment Information
+          </h2>
+          <p class="section-description">
+            Current employment details (optional)
+          </p>
+        </div>
+        
+        <div class="form-grid">
+          <!-- Employer Name -->
+          <div class="form-group">
+            <label for="employer_name" class="form-label">
+              Employer Name
+            </label>
+            <input
+              type="text"
+              id="employer_name"
+              class="form-control"
+              formControlName="employer_name"
+              [class.is-invalid]="isNestedFieldInvalid('employment', 'employer_name')"
+              placeholder="Enter employer name"
+              autocomplete="organization"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('employment', 'employer_name')">
+              {{ getNestedFieldError('employment', 'employer_name') }}
+            </div>
+          </div>
+
+          <!-- Job Title -->
+          <div class="form-group">
+            <label for="job_title" class="form-label">
+              Job Title
+            </label>
+            <input
+              type="text"
+              id="job_title"
+              class="form-control"
+              formControlName="job_title"
+              [class.is-invalid]="isNestedFieldInvalid('employment', 'job_title')"
+              placeholder="Enter job title"
+              autocomplete="organization-title"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('employment', 'job_title')">
+              {{ getNestedFieldError('employment', 'job_title') }}
+            </div>
+          </div>
+
+          <!-- Work Phone -->
+          <div class="form-group">
+            <label for="work_phone" class="form-label">
+              Work Phone
+            </label>
+            <input
+              type="tel"
+              id="work_phone"
+              class="form-control"
+              formControlName="work_phone"
+              [class.is-invalid]="isNestedFieldInvalid('employment', 'work_phone')"
+              placeholder="(XXX) XXX-XXXX"
+              maxlength="14"
+              (input)="onPhoneInput($event, 'employment.work_phone')"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('employment', 'work_phone')">
+              {{ getNestedFieldError('employment', 'work_phone') }}
+            </div>
+          </div>
+
+          <!-- Monthly Income -->
+          <div class="form-group">
+            <label for="monthly_income" class="form-label">
+              Monthly Income
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input
+                type="number"
+                id="monthly_income"
+                class="form-control"
+                formControlName="monthly_income"
+                [class.is-invalid]="isNestedFieldInvalid('employment', 'monthly_income')"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+              >
+            </div>
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('employment', 'monthly_income')">
+              {{ getNestedFieldError('employment', 'monthly_income') }}
+            </div>
+          </div>
+
+          <!-- Employment Length -->
+          <div class="form-group">
+            <label for="employment_length" class="form-label">
+              Employment Length
+            </label>
+            <input
+              type="text"
+              id="employment_length"
+              class="form-control"
+              formControlName="employment_length"
+              [class.is-invalid]="isNestedFieldInvalid('employment', 'employment_length')"
+              placeholder="e.g., 2 years, 6 months"
+            >
+            <div class="invalid-feedback" *ngIf="isNestedFieldInvalid('employment', 'employment_length')">
+              {{ getNestedFieldError('employment', 'employment_length') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-sticky-note"></i>
+            Additional Information
+          </h2>
+          <p class="section-description">
+            Notes and additional details about the client
+          </p>
+        </div>
+        
+        <div class="form-grid">
+          <!-- Notes -->
+          <div class="form-group full-width">
+            <label for="notes" class="form-label">
+              Notes
+            </label>
+            <textarea
+              id="notes"
+              class="form-control"
+              formControlName="notes"
+              [class.is-invalid]="isFieldInvalid('notes')"
+              placeholder="Enter any additional notes about the client"
+              rows="4"
+              maxlength="1000"
+            ></textarea>
+            <div class="form-text">
+              {{ clientForm.get('notes')?.value?.length || 0 }}/1000 characters
+            </div>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('notes')">
+              {{ getFieldError('notes') }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Form Actions (Sticky Footer) -->
+  <div class="form-actions" *ngIf="!isLoading && !error">
+    <div class="actions-content">
+      <div class="actions-left">
+        <span class="form-status" *ngIf="clientForm.dirty">
+          <i class="fas fa-circle text-warning"></i>
+          Unsaved changes
+        </span>
+      </div>
+      <div class="actions-right">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="onCancel()"
+          [disabled]="isSubmitting"
+        >
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          form="clientForm"
+          [disabled]="isSubmitting || clientForm.invalid"
+        >
+          <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+          <i class="fas fa-save" *ngIf="!isSubmitting"></i>
+          {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

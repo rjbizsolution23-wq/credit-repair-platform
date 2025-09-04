@@ -1,0 +1,326 @@
+<div class="data-table-container">
+  <!-- Header with search and actions -->
+  <div class="table-header" *ngIf="config.searchable || config.exportable || bulkActions.length > 0">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <!-- Search -->
+        <div class="search-box" *ngIf="config.searchable">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="feather icon-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control"
+              [placeholder]="searchPlaceholder"
+              [value]="searchTerm"
+              (input)="onSearch($event)"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex justify-content-end gap-2">
+          <!-- Bulk Actions -->
+          <div class="dropdown" *ngIf="bulkActions.length > 0 && selectedRows.length > 0">
+            <button
+              class="btn btn-outline-primary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+            >
+              Actions ({{ selectedRows.length }})
+            </button>
+            <ul class="dropdown-menu">
+              <li *ngFor="let action of bulkActions">
+                <a
+                  class="dropdown-item"
+                  href="javascript:void(0)"
+                  (click)="onBulkActionClick(action)"
+                >
+                  <i [class]="'feather icon-' + action.icon" *ngIf="action.icon"></i>
+                  {{ action.label }}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Export -->
+          <div class="dropdown" *ngIf="config.exportable">
+            <button
+              class="btn btn-outline-secondary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+            >
+              <i class="feather icon-download"></i>
+              Export
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="javascript:void(0)" (click)="onExport('csv')">
+                  <i class="feather icon-file-text"></i>
+                  CSV
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="javascript:void(0)" (click)="onExport('excel')">
+                  <i class="feather icon-file"></i>
+                  Excel
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="javascript:void(0)" (click)="onExport('pdf')">
+                  <i class="feather icon-file-text"></i>
+                  PDF
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="text-center py-4" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-responsive" *ngIf="!loading">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <!-- Select All Checkbox -->
+          <th *ngIf="config.selectable" style="width: 50px;">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [checked]="selectAll"
+                (change)="onSelectAll($event)"
+              />
+            </div>
+          </th>
+
+          <!-- Column Headers -->
+          <th
+            *ngFor="let column of columns"
+            [class.sortable]="column.sortable && config.sortable"
+            [style.width]="column.width"
+            (click)="onSort(column)"
+          >
+            <div class="d-flex align-items-center justify-content-between">
+              <span>{{ column.label }}</span>
+              <i
+                *ngIf="column.sortable && config.sortable"
+                [class]="'feather icon-' + getSortIcon(column)"
+                class="sort-icon"
+              ></i>
+            </div>
+          </th>
+
+          <!-- Actions Column -->
+          <th *ngIf="actions.length > 0" style="width: 120px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data Rows -->
+        <tr
+          *ngFor="let row of paginatedData; trackBy: trackByFn"
+          [class.selected]="isRowSelected(row)"
+          (click)="onRowClick(row)"
+        >
+          <!-- Select Checkbox -->
+          <td *ngIf="config.selectable">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [checked]="isRowSelected(row)"
+                (change)="onRowSelect(row, $event)"
+                (click)="$event.stopPropagation()"
+              />
+            </div>
+          </td>
+
+          <!-- Data Cells -->
+          <td *ngFor="let column of columns">
+            <ng-container [ngSwitch]="column.type">
+              <!-- Text -->
+              <span *ngSwitchCase="'text'">{{ getCellValue(row, column.key) }}</span>
+              
+              <!-- Number -->
+              <span *ngSwitchCase="'number'">{{ getCellValue(row, column.key) | number }}</span>
+              
+              <!-- Currency -->
+              <span *ngSwitchCase="'currency'">{{ getCellValue(row, column.key) | currency }}</span>
+              
+              <!-- Date -->
+              <span *ngSwitchCase="'date'">{{ getCellValue(row, column.key) | date:'short' }}</span>
+              
+              <!-- Boolean -->
+              <span *ngSwitchCase="'boolean'">
+                <span
+                  class="badge"
+                  [class.bg-success]="getCellValue(row, column.key)"
+                  [class.bg-secondary]="!getCellValue(row, column.key)"
+                >
+                  {{ getCellValue(row, column.key) ? 'Yes' : 'No' }}
+                </span>
+              </span>
+              
+              <!-- Status Badge -->
+              <span *ngSwitchCase="'status'">
+                <span
+                  class="badge"
+                  [class]="'bg-' + (getCellValue(row, column.key) | statusBadge).color"
+                >
+                  {{ (getCellValue(row, column.key) | statusBadge).label }}
+                </span>
+              </span>
+              
+              <!-- Progress Bar -->
+              <div *ngSwitchCase="'progress'" class="progress" style="height: 8px;">
+                <div
+                  class="progress-bar"
+                  role="progressbar"
+                  [style.width.%]="getCellValue(row, column.key)"
+                  [attr.aria-valuenow]="getCellValue(row, column.key)"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                ></div>
+              </div>
+              
+              <!-- Image -->
+              <img
+                *ngSwitchCase="'image'"
+                [src]="getCellValue(row, column.key)"
+                [alt]="column.label"
+                class="table-image"
+                style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;"
+              />
+              
+              <!-- Link -->
+              <a
+                *ngSwitchCase="'link'"
+                [href]="getCellValue(row, column.key)"
+                target="_blank"
+                class="text-primary"
+              >
+                {{ getCellValue(row, column.key) }}
+              </a>
+              
+              <!-- Email -->
+              <a
+                *ngSwitchCase="'email'"
+                [href]="'mailto:' + getCellValue(row, column.key)"
+                class="text-primary"
+              >
+                {{ getCellValue(row, column.key) }}
+              </a>
+              
+              <!-- Phone -->
+              <a
+                *ngSwitchCase="'phone'"
+                [href]="'tel:' + getCellValue(row, column.key)"
+                class="text-primary"
+              >
+                {{ getCellValue(row, column.key) | phoneFormat }}
+              </a>
+              
+              <!-- Custom Template -->
+              <ng-container *ngSwitchCase="'custom'">
+                <ng-container *ngIf="column.template">
+                  <ng-container *ngTemplateOutlet="column.template; context: { $implicit: row, value: getCellValue(row, column.key) }"></ng-container>
+                </ng-container>
+              </ng-container>
+              
+              <!-- Default -->
+              <span *ngSwitchDefault>{{ getCellValue(row, column.key) }}</span>
+            </ng-container>
+          </td>
+
+          <!-- Action Buttons -->
+          <td *ngIf="actions.length > 0">
+            <div class="btn-group btn-group-sm" role="group">
+              <button
+                *ngFor="let action of actions"
+                type="button"
+                [class]="'btn btn-' + (action.variant || 'outline-primary')"
+                [title]="action.label"
+                (click)="onActionClick(action, row); $event.stopPropagation()"
+                [disabled]="action.disabled && action.disabled(row)"
+              >
+                <i [class]="'feather icon-' + action.icon" *ngIf="action.icon"></i>
+                <span *ngIf="!action.icon">{{ action.label }}</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Empty State -->
+        <tr *ngIf="paginatedData.length === 0">
+          <td [attr.colspan]="columns.length + (config.selectable ? 1 : 0) + (actions.length > 0 ? 1 : 0)" class="text-center py-4">
+            <div class="empty-state">
+              <i class="feather icon-inbox text-muted" style="font-size: 48px;"></i>
+              <p class="text-muted mt-2">{{ emptyMessage }}</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="table-footer" *ngIf="config.paginated && !loading && filteredData.length > 0">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted">Show</span>
+          <select class="form-select form-select-sm" style="width: auto;" (change)="onPageSizeChange($event)">
+            <option *ngFor="let size of config.pageSizeOptions" [value]="size" [selected]="size === config.pageSize">
+              {{ size }}
+            </option>
+          </select>
+          <span class="text-muted">entries</span>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex justify-content-end align-items-center gap-3">
+          <span class="text-muted">{{ getDisplayRange() }}</span>
+          
+          <nav aria-label="Table pagination">
+            <ul class="pagination pagination-sm mb-0">
+              <!-- Previous -->
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">
+                  <i class="feather icon-chevron-left"></i>
+                </a>
+              </li>
+              
+              <!-- Page Numbers -->
+              <li
+                *ngFor="let page of getPageNumbers()"
+                class="page-item"
+                [class.active]="page === currentPage"
+              >
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(page)">
+                  {{ page }}
+                </a>
+              </li>
+              
+              <!-- Next -->
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">
+                  <i class="feather icon-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

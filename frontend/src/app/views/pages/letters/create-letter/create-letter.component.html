@@ -1,0 +1,588 @@
+<div class="create-letter-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a routerLink="/letters">Letters</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Create Letter</li>
+          </ol>
+        </nav>
+        <h1 class="page-title">
+          <i data-feather="plus" class="title-icon"></i>
+          Create New Letter
+        </h1>
+        <p class="page-description">Generate a professional letter using our templates</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="generatePreview()"
+          [disabled]="!selectedTemplate || loading">
+          <i data-feather="eye" class="btn-icon"></i>
+          Preview
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="progress-steps">
+    <div class="steps-container">
+      <div 
+        *ngFor="let step of [1, 2, 3, 4]; let i = index"
+        class="step"
+        [class.active]="currentStep === step"
+        [class.completed]="isStepCompleted(step)"
+        (click)="goToStep(step)">
+        <div class="step-circle">
+          <i [attr.data-feather]="getStepIcon(step)" *ngIf="!isStepCompleted(step) || currentStep === step"></i>
+          <i data-feather="check" *ngIf="isStepCompleted(step) && currentStep !== step"></i>
+        </div>
+        <div class="step-label">
+          <div class="step-title">
+            {{ step === 1 ? 'Template' : step === 2 ? 'Client' : step === 3 ? 'Details' : 'Customize' }}
+          </div>
+          <div class="step-description">
+            {{ step === 1 ? 'Choose template' : step === 2 ? 'Select client' : step === 3 ? 'Letter details' : 'Final touches' }}
+          </div>
+        </div>
+        <div class="step-connector" *ngIf="i < 3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Content -->
+  <form [formGroup]="letterForm" (ngSubmit)="onSubmit()" class="letter-form">
+    <!-- Step 1: Template Selection -->
+    <div class="form-step" *ngIf="currentStep === 1">
+      <div class="step-header">
+        <h2>Choose a Letter Template</h2>
+        <p>Select the type of letter you want to create</p>
+      </div>
+
+      <!-- Template Filters -->
+      <div class="template-filters">
+        <div class="filter-group">
+          <label class="filter-label">Category</label>
+          <select 
+            class="form-select"
+            [(ngModel)]="templateFilters.category"
+            (ngModelChange)="filterTemplates()"
+            [ngModelOptions]="{standalone: true}">
+            <option value="">All Categories</option>
+            <option *ngFor="let category of [LetterCategory.DISPUTE, LetterCategory.VALIDATION, LetterCategory.GOODWILL, LetterCategory.CEASE_DESIST, LetterCategory.METHOD_OF_VERIFICATION, LetterCategory.INTENT_TO_SUE, LetterCategory.FOLLOW_UP, LetterCategory.COMPLAINT, LetterCategory.SETTLEMENT, LetterCategory.PAYMENT_PLAN]" [value]="category">
+              {{ getCategoryLabel(category) }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Search</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i data-feather="search"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search templates..."
+              [(ngModel)]="templateFilters.search"
+              (ngModelChange)="filterTemplates()"
+              [ngModelOptions]="{standalone: true}">
+          </div>
+        </div>
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="clearTemplateFilters()">
+          <i data-feather="x" class="btn-icon"></i>
+          Clear
+        </button>
+      </div>
+
+      <!-- Template Grid -->
+      <div class="template-grid" *ngIf="!loadingTemplates">
+        <div 
+          *ngFor="let template of filteredTemplates"
+          class="template-card"
+          [class.selected]="letterForm.get('templateId')?.value === template.id"
+          (click)="onTemplateSelect(template.id)">
+          <div class="template-header">
+            <div class="template-icon">
+              <i [attr.data-feather]="getTemplateCategoryIcon(template.category)"></i>
+            </div>
+            <div class="template-category">
+              <span class="badge category-badge" [attr.data-category]="template.category">
+                {{ getCategoryLabel(template.category) }}
+              </span>
+            </div>
+          </div>
+          <div class="template-content">
+            <h3 class="template-name">{{ template.name }}</h3>
+            <p class="template-description">{{ template.description }}</p>
+            <div class="template-meta">
+              <div class="meta-item">
+                <i data-feather="clock" class="meta-icon"></i>
+                <span>{{ template.followUpDays || 'N/A' }} days</span>
+              </div>
+              <div class="meta-item">
+                <i data-feather="star" class="meta-icon"></i>
+                <span>{{ template.successRate || 'N/A' }}% effective</span>
+              </div>
+            </div>
+          </div>
+          <div class="template-footer">
+            <div class="template-variables">
+              <span class="variables-count">{{ template.variables.length }} variables</span>
+            </div>
+            <div class="template-actions">
+              <button type="button" class="btn btn-sm btn-outline-primary">
+                Select
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loadingTemplates" class="loading-state">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Loading templates...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loadingTemplates && filteredTemplates.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <i data-feather="file-text"></i>
+        </div>
+        <h3>No Templates Found</h3>
+        <p>No templates match your current filters. Try adjusting your search criteria.</p>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="clearTemplateFilters()">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Client & Report Selection -->
+    <div class="form-step" *ngIf="currentStep === 2">
+      <div class="step-header">
+        <h2>Select Client and Credit Report</h2>
+        <p>Choose the client and optionally a credit report for this letter</p>
+      </div>
+
+      <div class="form-grid">
+        <!-- Client Selection -->
+        <div class="form-group">
+          <label class="form-label required">Client</label>
+          <select 
+            class="form-select"
+            formControlName="clientId"
+            [class.is-invalid]="isFieldInvalid('clientId')">
+            <option value="">Select a client...</option>
+            <option *ngFor="let client of clients" [value]="client.id">
+              {{ client.firstName }} {{ client.lastName }} - {{ client.email }}
+            </option>
+          </select>
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('clientId')">
+            {{ getFieldError('clientId') }}
+          </div>
+        </div>
+
+        <!-- Credit Report Selection -->
+        <div class="form-group" *ngIf="letterForm.get('clientId')?.value">
+          <label class="form-label">Credit Report (Optional)</label>
+          <select 
+            class="form-select"
+            formControlName="creditReportId"
+            [disabled]="loadingReports">
+            <option value="">No specific report</option>
+            <option *ngFor="let report of creditReports" [value]="report.id">
+              {{ report.bureau }} - {{ formatDate(report.reportDate) }} (Score: {{ report.score || 'N/A' }})
+            </option>
+          </select>
+          <div class="form-text">
+            Select a credit report if this letter relates to specific items or disputes
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected Client Info -->
+      <div class="client-info-card" *ngIf="letterForm.get('clientId')?.value">
+        <h4>Selected Client</h4>
+        <div class="client-details">
+          <div class="client-avatar">
+            <i data-feather="user"></i>
+          </div>
+          <div class="client-data">
+            <div class="client-name">{{ getClientName(letterForm.get('clientId')?.value) }}</div>
+            <div class="client-meta">
+              <span>ID: {{ letterForm.get('clientId')?.value?.substring(0, 8) }}...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Letter Details -->
+    <div class="form-step" *ngIf="currentStep === 3">
+      <div class="step-header">
+        <h2>Letter Details</h2>
+        <p>Provide recipient information and delivery preferences</p>
+      </div>
+
+      <div class="form-grid">
+        <!-- Recipient Information -->
+        <div class="form-section">
+          <h4 class="section-title">Recipient Information</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Recipient Name</label>
+              <input 
+                type="text" 
+                class="form-control"
+                formControlName="recipientName"
+                placeholder="Enter recipient name"
+                [class.is-invalid]="isFieldInvalid('recipientName')">
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('recipientName')">
+                {{ getFieldError('recipientName') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required">Recipient Type</label>
+              <select 
+                class="form-select"
+                formControlName="recipientType"
+                [class.is-invalid]="isFieldInvalid('recipientType')">
+                <option value="">Select recipient type...</option>
+                <option *ngFor="let type of [RecipientType.CREDIT_BUREAU, RecipientType.CREDITOR, RecipientType.COLLECTION_AGENCY, RecipientType.DATA_FURNISHER, RecipientType.ATTORNEY_GENERAL, RecipientType.CFPB, RecipientType.FTC, RecipientType.COURT]" [value]="type">
+                  {{ type | titlecase }}
+                </option>
+              </select>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('recipientType')">
+                {{ getFieldError('recipientType') }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div formGroupName="recipientAddress">
+            <h5 class="subsection-title">Address</h5>
+            
+            <div class="form-group">
+              <label class="form-label required">Street Address</label>
+              <input 
+                type="text" 
+                class="form-control"
+                formControlName="street"
+                placeholder="Enter street address"
+                [class.is-invalid]="isAddressFieldInvalid('street')">
+              <div class="invalid-feedback" *ngIf="isAddressFieldInvalid('street')">
+                Street address is required
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required">City</label>
+                <input 
+                  type="text" 
+                  class="form-control"
+                  formControlName="city"
+                  placeholder="Enter city"
+                  [class.is-invalid]="isAddressFieldInvalid('city')">
+                <div class="invalid-feedback" *ngIf="isAddressFieldInvalid('city')">
+                  City is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required">State</label>
+                <input 
+                  type="text" 
+                  class="form-control"
+                  formControlName="state"
+                  placeholder="State"
+                  maxlength="2"
+                  [class.is-invalid]="isAddressFieldInvalid('state')">
+                <div class="invalid-feedback" *ngIf="isAddressFieldInvalid('state')">
+                  State is required
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label required">ZIP Code</label>
+                <input 
+                  type="text" 
+                  class="form-control"
+                  formControlName="zipCode"
+                  placeholder="12345"
+                  [class.is-invalid]="isAddressFieldInvalid('zipCode')">
+                <div class="invalid-feedback" *ngIf="isAddressFieldInvalid('zipCode')">
+                  Valid ZIP code is required
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delivery Options -->
+        <div class="form-section">
+          <h4 class="section-title">Delivery Options</h4>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Priority</label>
+              <select class="form-select" formControlName="priority">
+                <option [value]="LetterPriority.LOW">Low Priority</option>
+                <option [value]="LetterPriority.NORMAL">Normal Priority</option>
+                <option [value]="LetterPriority.HIGH">High Priority</option>
+                <option [value]="LetterPriority.URGENT">Urgent</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required">Delivery Method</label>
+              <select class="form-select" formControlName="deliveryMethod">
+                <option *ngFor="let method of [DeliveryMethod.EMAIL, DeliveryMethod.USPS_FIRST_CLASS, DeliveryMethod.USPS_CERTIFIED, DeliveryMethod.USPS_PRIORITY, DeliveryMethod.FEDEX, DeliveryMethod.UPS, DeliveryMethod.HAND_DELIVERY, DeliveryMethod.FAX]" [value]="method">
+                  {{ method | titlecase }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Scheduled Send Date</label>
+              <input 
+                type="date" 
+                class="form-control"
+                formControlName="scheduledSendDate">
+              <div class="form-text">
+                Leave blank to send immediately after approval
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Request Response By</label>
+              <input 
+                type="date" 
+                class="form-control"
+                formControlName="requestResponseBy">
+              <div class="form-text">
+                Optional deadline for recipient response
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Customization -->
+    <div class="form-step" *ngIf="currentStep === 4">
+      <div class="step-header">
+        <h2>Customize Your Letter</h2>
+        <p>Fill in template variables and add any custom content</p>
+      </div>
+
+      <!-- Template Variables -->
+      <div class="template-variables" *ngIf="selectedTemplate && selectedTemplate.variables.length > 0">
+        <h4 class="section-title">Template Variables</h4>
+        <div class="variables-grid">
+          <div 
+            *ngFor="let variable of selectedTemplate.variables"
+            class="variable-group">
+            <label class="form-label" [class.required]="isVariableRequired(variable)">
+              {{ variable.label || variable.name }}
+            </label>
+            
+            <!-- Text Input -->
+            <input 
+              *ngIf="variable.type === VariableType.TEXT || variable.type === VariableType.EMAIL || variable.type === VariableType.PHONE"
+              type="text"
+              class="form-control"
+              [placeholder]="variable.placeholder || ''"
+              [value]="getVariableValue(variable.name)"
+              (input)="onVariableInput($event, variable.name)">
+            
+            <!-- Number Input -->
+            <input 
+              *ngIf="variable.type === VariableType.NUMBER || variable.type === VariableType.CURRENCY || variable.type === VariableType.PERCENTAGE"
+              type="number"
+              class="form-control"
+              [placeholder]="variable.placeholder || ''"
+              [value]="getVariableValue(variable.name)"
+              (input)="onVariableInput($event, variable.name)">
+            
+            <!-- Date Input -->
+            <input 
+              *ngIf="variable.type === VariableType.DATE"
+              type="date"
+              class="form-control"
+              [value]="getVariableValue(variable.name)"
+              (input)="onVariableInput($event, variable.name)">
+            
+            <!-- Boolean Input -->
+            <div *ngIf="variable.type === VariableType.BOOLEAN" class="form-check">
+              <input 
+                type="checkbox"
+                class="form-check-input"
+                [checked]="getVariableValue(variable.name)"
+                (change)="onVariableChange($event, variable.name)">
+              <label class="form-check-label">
+                {{ variable.placeholder || 'Yes' }}
+              </label>
+            </div>
+            
+            <!-- Select Input -->
+            <select 
+              *ngIf="variable.type === VariableType.SELECT"
+              class="form-select"
+              [value]="getVariableValue(variable.name)"
+              (change)="onVariableChange($event, variable.name)">
+              <option value="">Select an option...</option>
+              <option *ngFor="let option of variable.options" [value]="option">
+                {{ option }}
+              </option>
+            </select>
+            
+            <!-- Multiline Input -->
+            <textarea 
+              *ngIf="variable.type === VariableType.MULTILINE"
+              class="form-control"
+              rows="3"
+              [placeholder]="variable.placeholder || ''"
+              [value]="getVariableValue(variable.name)"
+              (input)="onVariableInput($event, variable.name)">
+            </textarea>
+            
+            <div class="form-text" *ngIf="variable.description">
+              {{ variable.description }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Content -->
+      <div class="custom-content-section">
+        <h4 class="section-title">Additional Content</h4>
+        
+        <div class="form-group">
+          <label class="form-label">Custom Content</label>
+          <textarea 
+            class="form-control"
+            rows="6"
+            formControlName="customContent"
+            placeholder="Add any additional content or modifications to the letter...">
+          </textarea>
+          <div class="form-text">
+            This content will be appended to the generated letter
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea 
+            class="form-control"
+            rows="3"
+            formControlName="notes"
+            placeholder="Internal notes about this letter (not included in the letter)...">
+          </textarea>
+          <div class="form-text">
+            These notes are for internal use only
+          </div>
+        </div>
+
+        <div class="form-check">
+          <input 
+            type="checkbox" 
+            class="form-check-input"
+            formControlName="includeAttachments">
+          <label class="form-check-label">
+            Include supporting attachments
+          </label>
+          <div class="form-text">
+            Relevant documents will be automatically attached based on the letter type
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Navigation -->
+    <div class="form-navigation">
+      <div class="nav-left">
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="previousStep()"
+          [disabled]="currentStep === 1">
+          <i data-feather="chevron-left" class="btn-icon"></i>
+          Previous
+        </button>
+      </div>
+      
+      <div class="nav-center">
+        <span class="step-indicator">Step {{ currentStep }} of {{ totalSteps }}</span>
+      </div>
+      
+      <div class="nav-right">
+        <button 
+          *ngIf="currentStep < totalSteps"
+          type="button" 
+          class="btn btn-primary"
+          (click)="nextStep()"
+          [disabled]="!canProceedToNextStep()">
+          Next
+          <i data-feather="chevron-right" class="btn-icon"></i>
+        </button>
+        
+        <button 
+          *ngIf="currentStep === totalSteps"
+          type="submit" 
+          class="btn btn-success"
+          [disabled]="!letterForm.valid || submitting">
+          <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          <i data-feather="check" class="btn-icon" *ngIf="!submitting"></i>
+          Create Letter
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Preview Modal -->
+  <div class="modal fade" [class.show]="showPreview" [style.display]="showPreview ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i data-feather="eye" class="me-2"></i>
+            Letter Preview
+          </h5>
+          <button type="button" class="btn-close" (click)="closePreview()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="preview-content" [innerHTML]="previewContent"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closePreview()">
+            Close
+          </button>
+          <button type="button" class="btn btn-primary" (click)="closePreview()">
+            Continue Editing
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade" [class.show]="showPreview" *ngIf="showPreview"></div>
+</div>

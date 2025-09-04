@@ -1,0 +1,357 @@
+<div class="edit-dispute">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Dashboard</a></li>
+          <li class="breadcrumb-item"><a routerLink="/disputes">Disputes</a></li>
+          <li class="breadcrumb-item"><a [routerLink]="['/disputes/view', disputeId]">View Dispute</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Edit</li>
+        </ol>
+      </nav>
+      
+      <div class="d-flex justify-content-between align-items-center">
+        <h1>Edit Dispute</h1>
+        <div class="header-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
+            <i class="fas fa-times"></i>
+            Cancel
+          </button>
+          <button type="button" class="btn btn-outline-primary" (click)="toggleLetterPreview()">
+            <i class="fas fa-eye"></i>
+            {{ showLetterPreview ? 'Hide' : 'Show' }} Preview
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="loading-text">Loading dispute details...</div>
+  </div>
+  
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-triangle error-icon"></i>
+      <div class="error-message">{{ error }}</div>
+      <button type="button" class="btn btn-outline-danger btn-retry" (click)="loadDispute()">
+        <i class="fas fa-redo"></i>
+        Retry
+      </button>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error" class="container-fluid">
+    <form [formGroup]="disputeForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="row">
+        <!-- Form Column -->
+        <div class="col-lg-8">
+          <div class="form-container">
+            <!-- Basic Information -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <i class="fas fa-info-circle section-icon"></i>
+                Basic Information
+              </h3>
+              <p class="section-description">Update the basic details of this dispute.</p>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="type" class="form-label">
+                    Dispute Type <span class="required">*</span>
+                  </label>
+                  <select id="type" class="form-select" formControlName="type"
+                          [class.is-invalid]="isFieldInvalid('type')">
+                    <option value="">Select dispute type</option>
+                    <option *ngFor="let type of disputeTypes" [value]="type">
+                      {{ getDisputeTypeLabel(type) }}
+                    </option>
+                  </select>
+                  <div *ngIf="isFieldInvalid('type')" class="invalid-feedback">
+                    {{ getFieldError('type') }}
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="status" class="form-label">
+                    Status <span class="required">*</span>
+                  </label>
+                  <select id="status" class="form-select" formControlName="status"
+                          [class.is-invalid]="isFieldInvalid('status')">
+                    <option *ngFor="let status of disputeStatuses" [value]="status">
+                      {{ getDisputeStatusLabel(status) }}
+                    </option>
+                  </select>
+                  <div *ngIf="isFieldInvalid('status')" class="invalid-feedback">
+                    {{ getFieldError('status') }}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="priority" class="form-label">
+                    Priority <span class="required">*</span>
+                  </label>
+                  <select id="priority" class="form-select" formControlName="priority"
+                          [class.is-invalid]="isFieldInvalid('priority')">
+                    <option *ngFor="let priority of disputePriorities" [value]="priority">
+                      {{ getDisputePriorityLabel(priority) }}
+                    </option>
+                  </select>
+                  <div *ngIf="isFieldInvalid('priority')" class="invalid-feedback">
+                    {{ getFieldError('priority') }}
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="dueDate" class="form-label">Due Date</label>
+                  <input type="date" id="dueDate" class="form-control" formControlName="dueDate">
+                  <div class="form-text">Optional deadline for this dispute</div>
+                </div>
+              </div>
+              
+              <div class="form-row single-column">
+                <div class="form-group">
+                  <label class="form-label">
+                    Credit Bureaus <span class="required">*</span>
+                  </label>
+                  <div class="bureau-checkboxes">
+                    <div *ngFor="let bureau of creditBureaus" class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" [id]="'bureau-' + bureau"
+                             [value]="bureau" formControlName="bureaus">
+                      <label class="form-check-label" [for]="'bureau-' + bureau">
+                        {{ getCreditBureauLabel(bureau) }}
+                      </label>
+                    </div>
+                  </div>
+                  <div *ngIf="isFieldInvalid('bureaus')" class="invalid-feedback">
+                    {{ getFieldError('bureaus') }}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-row single-column">
+                <div class="form-group">
+                  <label for="reason" class="form-label">
+                    Dispute Reason <span class="required">*</span>
+                  </label>
+                  <select id="reason" class="form-select" formControlName="reason"
+                          [class.is-invalid]="isFieldInvalid('reason')">
+                    <option value="">Select dispute reason</option>
+                    <option *ngFor="let reason of disputeReasons" [value]="reason">
+                      {{ getDisputeReasonLabel(reason) }}
+                    </option>
+                  </select>
+                  <div *ngIf="isFieldInvalid('reason')" class="invalid-feedback">
+                    {{ getFieldError('reason') }}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-row single-column">
+                <div class="form-group">
+                  <label for="description" class="form-label">
+                    Description <span class="required">*</span>
+                  </label>
+                  <textarea id="description" class="form-control" rows="4" formControlName="description"
+                            placeholder="Provide a detailed description of the dispute..."
+                            [class.is-invalid]="isFieldInvalid('description')"></textarea>
+                  <div *ngIf="isFieldInvalid('description')" class="invalid-feedback">
+                    {{ getFieldError('description') }}
+                  </div>
+                  <div class="form-text">Minimum 10 characters required</div>
+                </div>
+              </div>
+              
+              <div class="form-row single-column">
+                <div class="form-group">
+                  <label for="notes" class="form-label">Internal Notes</label>
+                  <textarea id="notes" class="form-control" rows="3" formControlName="notes"
+                            placeholder="Add any internal notes or comments..."></textarea>
+                  <div class="form-text">These notes are for internal use only</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Dispute Items -->
+            <div class="form-section">
+              <div class="dispute-items">
+                <div class="items-header">
+                  <h3 class="section-title">
+                    <i class="fas fa-list section-icon"></i>
+                    Dispute Items
+                  </h3>
+                  <div class="items-count">
+                    {{ disputeItems.length }} item(s)
+                  </div>
+                </div>
+                <p class="section-description">Manage the specific items being disputed.</p>
+                
+                <div formArrayName="items">
+                  <div *ngFor="let item of disputeItems.controls; let i = index" class="dispute-item"
+                       [formGroupName]="i">
+                    <div class="item-header">
+                      <h4 class="item-title">Item {{ i + 1 }}</h4>
+                      <div class="item-actions">
+                        <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeDisputeItem(i)">
+                          <i class="fas fa-trash"></i>
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div class="item-content">
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label">Account Number <span class="required">*</span></label>
+                          <input type="text" class="form-control" formControlName="accountNumber"
+                                 placeholder="Enter account number">
+                        </div>
+                        
+                        <div class="form-group">
+                          <label class="form-label">Creditor Name <span class="required">*</span></label>
+                          <input type="text" class="form-control" formControlName="creditorName"
+                                 placeholder="Enter creditor name">
+                        </div>
+                      </div>
+                      
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label">Account Type <span class="required">*</span></label>
+                          <select class="form-select" formControlName="accountType">
+                            <option value="">Select account type</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="auto_loan">Auto Loan</option>
+                            <option value="mortgage">Mortgage</option>
+                            <option value="personal_loan">Personal Loan</option>
+                            <option value="student_loan">Student Loan</option>
+                            <option value="collection">Collection Account</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                        
+                        <div class="form-group">
+                          <label class="form-label">Amount</label>
+                          <input type="number" class="form-control" formControlName="amount"
+                                 placeholder="0.00" step="0.01" min="0">
+                        </div>
+                      </div>
+                      
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label">Dispute Reason <span class="required">*</span></label>
+                          <input type="text" class="form-control" formControlName="disputeReason"
+                                 placeholder="Reason for disputing this item">
+                        </div>
+                        
+                        <div class="form-group">
+                          <label class="form-label">Current Status</label>
+                          <input type="text" class="form-control" formControlName="currentStatus"
+                                 placeholder="Current status on credit report">
+                        </div>
+                      </div>
+                      
+                      <div class="form-row single-column">
+                        <div class="form-group">
+                          <label class="form-label">Desired Outcome <span class="required">*</span></label>
+                          <textarea class="form-control" rows="2" formControlName="desiredOutcome"
+                                    placeholder="What outcome are you seeking for this item?"></textarea>
+                        </div>
+                      </div>
+                      
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label">Date Opened</label>
+                          <input type="date" class="form-control" formControlName="dateOpened">
+                        </div>
+                        
+                        <div class="form-group">
+                          <label class="form-label">Date Reported</label>
+                          <input type="date" class="form-control" formControlName="dateReported">
+                        </div>
+                      </div>
+                      
+                      <div class="form-row single-column">
+                        <div class="form-group">
+                          <label class="form-label">Item Notes</label>
+                          <textarea class="form-control" rows="2" formControlName="notes"
+                                    placeholder="Additional notes for this item..."></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="add-item" (click)="addDisputeItem()">
+                  <div class="add-icon">
+                    <i class="fas fa-plus"></i>
+                  </div>
+                  <div class="add-text">Add Dispute Item</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Letter Preview Column -->
+        <div *ngIf="showLetterPreview" class="col-lg-4">
+          <div class="letter-preview sticky-top">
+            <div class="preview-header">
+              <h3 class="preview-title">Letter Preview</h3>
+              <div class="preview-actions">
+                <button type="button" class="btn btn-outline-primary btn-sm" (click)="generateLetterPreview()">
+                  <i class="fas fa-sync"></i>
+                  Refresh
+                </button>
+              </div>
+            </div>
+            
+            <div class="letter-content">
+              <div [innerHTML]="letterContent"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Sticky Form Actions -->
+  <div *ngIf="!loading && !error" class="form-actions">
+    <div class="container-fluid">
+      <div class="actions-content">
+        <div class="form-status">
+          <span *ngIf="disputeForm.invalid" class="validation-errors">
+            Please correct the errors above before saving
+          </span>
+          <span *ngIf="disputeForm.valid" class="text-success">
+            Form is valid and ready to save
+          </span>
+        </div>
+        
+        <div class="action-buttons">
+          <button type="button" class="btn btn-outline-danger" (click)="onDelete()">
+            <i class="fas fa-trash"></i>
+            Delete
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="disputeForm.invalid || saving"
+                  (click)="onSubmit()">
+            <span *ngIf="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            <i *ngIf="!saving" class="fas fa-save"></i>
+            {{ saving ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

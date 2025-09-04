@@ -1,0 +1,62 @@
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-primary {
+  color: #007bff !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.badge-success {
+  background-color: #28a745;
+}
+
+.badge-primary {
+  background-color: #007bff;
+}
+
+.badge-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge-danger {
+  background-color: #dc3545;
+}
+
+.badge-light {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+.table th {
+  border-top: none;
+  font-weight: 600;
+}
+
+.card-body h2 {
+  font-weight: bold;
+  font-size: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .card-body h2 {
+    font-size: 2rem;
+  }
+}

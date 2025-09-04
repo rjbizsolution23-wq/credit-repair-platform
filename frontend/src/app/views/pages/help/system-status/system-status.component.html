@@ -1,0 +1,118 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title mb-0">System Status</h4>
+          <p class="text-muted mb-0">Real-time status of Rick Jefferson Solutions platform services</p>
+        </div>
+        <div class="card-body">
+          <!-- Overall Status -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="alert" [ngClass]="{
+                'alert-success': systemStatus.overall === 'operational',
+                'alert-warning': systemStatus.overall === 'degraded',
+                'alert-danger': systemStatus.overall === 'outage'
+              }">
+                <div class="d-flex align-items-center">
+                  <span class="me-2 fs-4">{{ getStatusIcon(systemStatus.overall) }}</span>
+                  <div>
+                    <h5 class="mb-0">All Systems {{ formatTitle(systemStatus.overall) }}</h5>
+                    <small>Last updated: {{ getCurrentDateTime() }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Status -->
+          <div class="row">
+            <div class="col-12">
+              <h5 class="mb-3">Service Status</h5>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Service</th>
+                      <th>Status</th>
+                      <th>Uptime</th>
+                      <th>Response Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let service of systemStatus.services">
+                      <td>
+                        <strong>{{ service.name }}</strong>
+                      </td>
+                      <td>
+                        <span class="d-flex align-items-center">
+                          <span class="me-2">{{ getStatusIcon(service.status) }}</span>
+                          <span [ngClass]="getStatusClass(service.status)">
+                            {{ service.status | titlecase }}
+                          </span>
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge bg-light text-dark">{{ service.uptime }}</span>
+                      </td>
+                      <td>
+                        <span class="text-muted">{{ service.responseTime }}</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Incidents -->
+          <div class="row mt-4">
+            <div class="col-12">
+              <h5 class="mb-3">Recent Incidents</h5>
+              <div *ngIf="systemStatus.incidents.length === 0" class="text-muted">
+                <p>No recent incidents to report. All systems are running smoothly.</p>
+              </div>
+              <div *ngFor="let incident of systemStatus.incidents" class="card mb-3">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h6 class="card-title">{{ incident.title }}</h6>
+                      <p class="card-text text-muted">{{ incident.description }}</p>
+                      <small class="text-muted">{{ incident.date | date:'medium' }}</small>
+                    </div>
+                    <span class="badge" [ngClass]="{
+                      'bg-success': incident.status === 'resolved',
+                      'bg-warning': incident.status === 'investigating',
+                      'bg-danger': incident.status === 'ongoing'
+                    }">
+                      {{ formatTitle(incident.status) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="alert alert-info">
+                <h6 class="alert-heading">Need Help?</h6>
+                <p class="mb-0">
+                  If you're experiencing issues not reflected here, please contact our support team:
+                  <br>
+                  <strong>Email:</strong> info&#64;rickjeffersonsolutions.com
+                  <br>
+                  <strong>Phone:</strong> 877-763-8587
+                  <br>
+                  <strong>SMS:</strong> Text "credit repair" to 945-308-8003
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

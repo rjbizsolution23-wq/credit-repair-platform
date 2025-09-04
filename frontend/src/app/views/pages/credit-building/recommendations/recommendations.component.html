@@ -1,0 +1,647 @@
+<div class="recommendations-container">
+  <!-- Header -->
+  <div class="recommendations-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Credit Building Recommendations</h1>
+        <p class="page-subtitle">Personalized strategies to improve your credit profile</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          type="button" 
+          class="btn btn-outline-primary"
+          (click)="onToggleFilters()"
+          [class.active]="showFilters">
+          <i class="fas fa-filter"></i>
+          Filters
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="onCreateRecommendation()">
+          <i class="fas fa-plus"></i>
+          New Recommendation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-lightbulb"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Total Recommendations</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon pending">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.pending }}</div>
+        <div class="stat-label">Pending</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon success">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.completed }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon info">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.avgExpectedImpact }}%</div>
+                <div class="stat-label">Avg Expected Impact</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel" [class.show]="showFilters">
+    <form [formGroup]="filterForm" class="filters-form">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="search">Search</label>
+          <input 
+            type="text" 
+            id="search"
+            class="form-control"
+            formControlName="search"
+            placeholder="Search recommendations...">
+        </div>
+        <div class="filter-group">
+          <label for="type">Type</label>
+          <select id="type" class="form-control" formControlName="type">
+            <option value="">All Types</option>
+            <option [value]="RecommendationType.IMMEDIATE">{{ getRecommendationTypeLabel(RecommendationType.IMMEDIATE) }}</option>
+            <option [value]="RecommendationType.SHORT_TERM">{{ getRecommendationTypeLabel(RecommendationType.SHORT_TERM) }}</option>
+            <option [value]="RecommendationType.LONG_TERM">{{ getRecommendationTypeLabel(RecommendationType.LONG_TERM) }}</option>
+            <option [value]="RecommendationType.MAINTENANCE">{{ getRecommendationTypeLabel(RecommendationType.MAINTENANCE) }}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="priority">Priority</label>
+          <select id="priority" class="form-control" formControlName="priority">
+            <option value="">All Priorities</option>
+            <option [value]="RecommendationPriority.LOW">Low</option>
+            <option [value]="RecommendationPriority.MEDIUM">Medium</option>
+            <option [value]="RecommendationPriority.HIGH">High</option>
+            <option [value]="RecommendationPriority.CRITICAL">Critical</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="status">Status</label>
+          <select id="status" class="form-control" formControlName="status">
+            <option value="">All Statuses</option>
+            <option [value]="RecommendationStatus.PENDING">Pending</option>
+            <option [value]="RecommendationStatus.IN_PROGRESS">In Progress</option>
+            <option [value]="RecommendationStatus.COMPLETED">Completed</option>
+            <option [value]="RecommendationStatus.DISMISSED">Dismissed</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="onClearFilters()">
+            Clear
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Recommendations Table -->
+  <div class="recommendations-table-container" *ngIf="!loading && filteredRecommendations.length > 0">
+    <div class="table-header">
+      <div class="table-actions">
+        <div class="bulk-actions" *ngIf="selectedRecommendations.length > 0">
+          <span class="selected-count">{{ selectedRecommendations.length }} selected</span>
+          <button type="button" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-trash"></i>
+            Delete Selected
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table recommendations-table">
+        <thead>
+          <tr>
+            <th class="select-column">
+              <input 
+                type="checkbox" 
+                (change)="onSelectAllRecommendations($event)"
+                [checked]="selectedRecommendations.length === filteredRecommendations.length && filteredRecommendations.length > 0">
+            </th>
+            <th class="sortable" (click)="onSort('title')">
+              Title
+              <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'title' && sortDirection === 'asc'" [class.fa-sort-down]="sortField === 'title' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('type')">
+              Type
+              <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'type' && sortDirection === 'asc'" [class.fa-sort-down]="sortField === 'type' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('priority')">
+              Priority
+              <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'priority' && sortDirection === 'asc'" [class.fa-sort-down]="sortField === 'priority' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('status')">
+              Status
+              <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'status' && sortDirection === 'asc'" [class.fa-sort-down]="sortField === 'status' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('estimatedImpact')">
+              Impact
+              <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'estimatedImpact' && sortDirection === 'asc'" [class.fa-sort-down]="sortField === 'estimatedImpact' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('expectedImpact')">
+              Expected Impact
+              <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'expectedImpact' && sortDirection === 'asc'" [class.fa-sort-down]="sortField === 'expectedImpact' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="sortable" (click)="onSort('timeframe')">
+              Timeframe
+              <i class="fas fa-sort" [class.fa-sort-up]="sortField === 'timeframe' && sortDirection === 'asc'" [class.fa-sort-down]="sortField === 'timeframe' && sortDirection === 'desc'"></i>
+            </th>
+            <th class="actions-column">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let recommendation of filteredRecommendations" class="recommendation-row">
+            <td class="select-column">
+              <input 
+                type="checkbox" 
+                [checked]="selectedRecommendations.includes(recommendation.id)"
+                (change)="onSelectRecommendation(recommendation.id, $event)">
+            </td>
+            <td class="title-column">
+              <div class="recommendation-title">
+                <strong>{{ recommendation.title }}</strong>
+                <div class="recommendation-description">{{ recommendation.description | slice:0:100 }}{{ recommendation.description.length > 100 ? '...' : '' }}</div>
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-outline">{{ getRecommendationTypeLabel(recommendation.type) }}</span>
+            </td>
+            <td>
+              <span class="badge" [class]="'badge-' + getPriorityColor(recommendation.priority)">{{ recommendation.priority }}</span>
+            </td>
+            <td>
+              <span class="badge" [class]="'badge-' + getStatusColor(recommendation.status)">{{ recommendation.status }}</span>
+            </td>
+            <td>
+              <div class="impact-indicator">
+                <div class="impact-bar">
+                  <div class="impact-fill" [style.width.%]="recommendation.expectedImpact"></div>
+                </div>
+                <span class="impact-text">{{ recommendation.expectedImpact }}%</span>
+              </div>
+            </td>
+            <td>
+              <span class="expected-impact-score" *ngIf="recommendation.expectedImpact">{{ recommendation.expectedImpact }}</span>
+              <span class="text-muted" *ngIf="!recommendation.expectedImpact">N/A</span>
+            </td>
+            <td>{{ recommendation.timeframe }} days</td>
+            <td class="actions-column">
+              <div class="action-buttons">
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="onViewRecommendation(recommendation)"
+                  title="View Details">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-secondary"
+                  (click)="onEditRecommendation(recommendation)"
+                  title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-success"
+                  (click)="onImplementRecommendation(recommendation)"
+                  *ngIf="canImplement(recommendation)"
+                  title="Mark as Completed">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-warning"
+                  (click)="onDismissRecommendation(recommendation)"
+                  *ngIf="canDismiss(recommendation)"
+                  title="Dismiss">
+                  <i class="fas fa-times"></i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="onDeleteRecommendation(recommendation)"
+                  title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="totalPages > 1">
+      <nav aria-label="Recommendations pagination">
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+          </li>
+          <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index" [class.active]="currentPage === i + 1">
+            <button class="page-link" (click)="onPageChange(i + 1)">{{ i + 1 }}</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalItems) }} of {{ totalItems }} recommendations
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && filteredRecommendations.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-lightbulb"></i>
+    </div>
+    <h3>No Recommendations Found</h3>
+    <p *ngIf="filters.search || filters.type || filters.priority || filters.status">
+      No recommendations match your current filters. Try adjusting your search criteria.
+    </p>
+    <p *ngIf="!filters.search && !filters.type && !filters.priority && !filters.status">
+      Get started by creating your first credit building recommendation.
+    </p>
+    <button type="button" class="btn btn-primary" (click)="onCreateRecommendation()">
+      <i class="fas fa-plus"></i>
+      Create Recommendation
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="sr-only">Loading recommendations...</span>
+    </div>
+    <p>Loading recommendations...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="alert alert-danger" *ngIf="error">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ error }}
+  </div>
+</div>
+
+<!-- Create Recommendation Modal -->
+<div class="modal fade" [class.show]="showCreateModal" [style.display]="showCreateModal ? 'block' : 'none'" *ngIf="showCreateModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create New Recommendation</h5>
+        <button type="button" class="btn-close" (click)="showCreateModal = false"></button>
+      </div>
+      <form [formGroup]="recommendationForm" (ngSubmit)="onSaveRecommendation()">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group">
+                <label for="title">Title *</label>
+                <input 
+                  type="text" 
+                  id="title"
+                  class="form-control"
+                  formControlName="title"
+                  [class.is-invalid]="isFieldInvalid('title')"
+                  placeholder="Enter recommendation title">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('title')">
+                  {{ getFieldError('title') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="clientId">Client ID *</label>
+                <input 
+                  type="text" 
+                  id="clientId"
+                  class="form-control"
+                  formControlName="clientId"
+                  [class.is-invalid]="isFieldInvalid('clientId')"
+                  placeholder="Enter client ID">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('clientId')">
+                  {{ getFieldError('clientId') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description *</label>
+            <textarea 
+              id="description"
+              class="form-control"
+              formControlName="description"
+              [class.is-invalid]="isFieldInvalid('description')"
+              rows="3"
+              placeholder="Describe the recommendation in detail"></textarea>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('description')">
+              {{ getFieldError('description') }}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="type">Type *</label>
+                <select 
+                  id="type"
+                  class="form-control"
+                  formControlName="type"
+                  [class.is-invalid]="isFieldInvalid('type')">
+                  <option value="">Select type</option>
+                  <option [value]="RecommendationType.IMMEDIATE">{{ getRecommendationTypeLabel(RecommendationType.IMMEDIATE) }}</option>
+                  <option [value]="RecommendationType.SHORT_TERM">{{ getRecommendationTypeLabel(RecommendationType.SHORT_TERM) }}</option>
+                  <option [value]="RecommendationType.LONG_TERM">{{ getRecommendationTypeLabel(RecommendationType.LONG_TERM) }}</option>
+                  <option [value]="RecommendationType.MAINTENANCE">{{ getRecommendationTypeLabel(RecommendationType.MAINTENANCE) }}</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('type')">
+                  {{ getFieldError('type') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="priority">Priority *</label>
+                <select 
+                  id="priority"
+                  class="form-control"
+                  formControlName="priority"
+                  [class.is-invalid]="isFieldInvalid('priority')">
+                  <option value="">Select priority</option>
+                  <option [value]="RecommendationPriority.LOW">Low</option>
+                  <option [value]="RecommendationPriority.MEDIUM">Medium</option>
+                  <option [value]="RecommendationPriority.HIGH">High</option>
+                  <option [value]="RecommendationPriority.CRITICAL">Critical</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('priority')">
+                  {{ getFieldError('priority') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="estimatedImpact">Estimated Impact (%)</label>
+                <input 
+                  type="number" 
+                  id="estimatedImpact"
+                  class="form-control"
+                  formControlName="estimatedImpact"
+                  [class.is-invalid]="isFieldInvalid('estimatedImpact')"
+                  min="1"
+                  max="100"
+                  placeholder="Enter impact percentage">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('estimatedImpact')">
+                  {{ getFieldError('estimatedImpact') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="cost">Cost ($)</label>
+                <input 
+                  type="number" 
+                  id="cost"
+                  class="form-control"
+                  formControlName="cost"
+                  [class.is-invalid]="isFieldInvalid('cost')"
+                  min="0"
+                  placeholder="0">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('cost')">
+                  {{ getFieldError('cost') }}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+
+
+
+
+
+          <div class="form-check">
+            <input 
+              type="checkbox" 
+              id="isActive"
+              class="form-check-input"
+              formControlName="isActive">
+            <label class="form-check-label" for="isActive">
+              Active recommendation
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="showCreateModal = false">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="recommendationForm.invalid">
+            <i class="fas fa-save"></i>
+            Create Recommendation
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Recommendation Modal -->
+<div class="modal fade" [class.show]="showEditModal" [style.display]="showEditModal ? 'block' : 'none'" *ngIf="showEditModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Recommendation</h5>
+        <button type="button" class="btn-close" (click)="showEditModal = false"></button>
+      </div>
+      <form [formGroup]="recommendationForm" (ngSubmit)="onSaveRecommendation()">
+        <div class="modal-body">
+          <!-- Same form fields as create modal -->
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group">
+                <label for="editTitle">Title *</label>
+                <input 
+                  type="text" 
+                  id="editTitle"
+                  class="form-control"
+                  formControlName="title"
+                  [class.is-invalid]="isFieldInvalid('title')"
+                  placeholder="Enter recommendation title">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('title')">
+                  {{ getFieldError('title') }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="editClientId">Client ID *</label>
+                <input 
+                  type="text" 
+                  id="editClientId"
+                  class="form-control"
+                  formControlName="clientId"
+                  [class.is-invalid]="isFieldInvalid('clientId')"
+                  placeholder="Enter client ID">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('clientId')">
+                  {{ getFieldError('clientId') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editDescription">Description *</label>
+            <textarea 
+              id="editDescription"
+              class="form-control"
+              formControlName="description"
+              [class.is-invalid]="isFieldInvalid('description')"
+              rows="3"
+              placeholder="Describe the recommendation in detail"></textarea>
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('description')">
+              {{ getFieldError('description') }}
+            </div>
+          </div>
+
+          <!-- Additional form fields similar to create modal -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="showEditModal = false">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="recommendationForm.invalid">
+            <i class="fas fa-save"></i>
+            Update Recommendation
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- View Recommendation Modal -->
+<div class="modal fade" [class.show]="showDetailsModal" [style.display]="showDetailsModal ? 'block' : 'none'" *ngIf="showDetailsModal && editingRecommendation">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ editingRecommendation.title }}</h5>
+        <button type="button" class="btn-close" (click)="showDetailsModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <div class="recommendation-details">
+          <div class="detail-section">
+            <h6>Description</h6>
+            <p>{{ editingRecommendation.description }}</p>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="detail-section">
+                <h6>Type</h6>
+                <span class="badge badge-outline">{{ getRecommendationTypeLabel(editingRecommendation.type) }}</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="detail-section">
+                <h6>Priority</h6>
+                <span class="badge" [class]="'badge-' + getPriorityColor(editingRecommendation.priority)">{{ editingRecommendation.priority }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="detail-section">
+                <h6>Estimated Impact</h6>
+                <p>{{ editingRecommendation.expectedImpact }}%</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="detail-section">
+                <h6>Time to Implement</h6>
+                <p>{{ formatTimeframe(editingRecommendation.timeframe) }}</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="detail-section">
+                <h6>Cost</h6>
+                <p>{{ formatCost(editingRecommendation.cost || 0) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section" *ngIf="editingRecommendation.actionItems && editingRecommendation.actionItems.length > 0">
+              <h6>Action Items</h6>
+              <ul>
+                <li *ngFor="let item of editingRecommendation.actionItems">{{ item.description }}</li>
+              </ul>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="showDetailsModal = false">Close</button>
+        <button type="button" class="btn btn-primary" (click)="onEditRecommendation(editingRecommendation); showDetailsModal = false">
+          <i class="fas fa-edit"></i>
+          Edit
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" [class.show]="showDeleteModal" [style.display]="showDeleteModal ? 'block' : 'none'" *ngIf="showDeleteModal && editingRecommendation">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Delete</h5>
+        <button type="button" class="btn-close" (click)="showDeleteModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the recommendation "{{ editingRecommendation.title }}"?</p>
+        <p class="text-muted">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="showDeleteModal = false">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="onConfirmDelete()">
+          <i class="fas fa-trash"></i>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade show" *ngIf="showCreateModal || showEditModal || showDetailsModal || showDeleteModal"></div>
